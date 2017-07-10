@@ -1,7 +1,7 @@
 var canvas, canvas_over;
 var canvas_previews = [];
 var canvas_previews_runningX = 0;
-var previewImg;
+var previewMode = "circle";
 var currentAction = "none";
 var circle = {
     x: 0,
@@ -37,21 +37,33 @@ function init() {
 
     document.getElementById("input-file").addEventListener("change", loadImg);
 
-    document.getElementById("save-square").addEventListener("click", function() {
-        var c = new Canvas(document.createElement("canvas"));
-        c.resize(circle.diameter, circle.diameter, false);
-        c.clear();
-        c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        this.href = c.toDataURL();
+    document.getElementById("switch-square").addEventListener("click", function() {
+        previewMode = "square";
+        document.getElementById("switch-square").style.color = "black";
+        document.getElementById("switch-square").style.background = "white";
+        document.getElementById("switch-circle").style.color = "white";
+        document.getElementById("switch-circle").style.background = "black";
+        drawPreview();
     });
 
-    document.getElementById("save-circle").addEventListener("click", function() {
+    document.getElementById("switch-circle").addEventListener("click", function() {
+        previewMode = "circle";
+        document.getElementById("switch-circle").style.color = "black";
+        document.getElementById("switch-circle").style.background = "white";
+        document.getElementById("switch-square").style.color = "white";
+        document.getElementById("switch-square").style.background = "black";
+        drawPreview();
+    });
+
+    document.getElementById("save").addEventListener("click", function() {
         var c = new Canvas(document.createElement("canvas"));
         c.resize(circle.diameter, circle.diameter, false);
         c.clear();
         c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        c.setBlendingMode("destination-in");
-        c.fillCircleInSquare(0, 0, c.width(), "white");
+        if (previewMode === "circle") {
+            c.setBlendingMode("destination-in");
+            c.fillCircleInSquare(0, 0, c.width(), "white");
+        }
         this.href = c.toDataURL();
     });
 
@@ -99,7 +111,7 @@ function init() {
         circle.x = Math.round(circle.x);
         circle.y = Math.round(circle.y);
         circle.diameter = Math.round(circle.diameter);
-        drawCircle();
+        drawPreview();
     });
 
     canvas_over.setMouseDown(function(x, y, e) {
@@ -109,7 +121,7 @@ function init() {
 
     canvas_over.setMouseUp(function() {
         currentAction = "none";
-        drawCircle();
+        drawPreview();
     });
 
     canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
@@ -122,7 +134,7 @@ function loadImg() {
     Canvas.fileToImage(file, function(img) {
         var es = document.getElementsByClassName("hidden");
         for (var i = 0; i < es.length; i++) {
-            es[i].style.display = "block";
+            es[i].style.display = "inline-block";
         }
         canvas.resize(img.width, img.height, false);
         canvas_over.resize(img.width, img.height, false);
@@ -130,16 +142,20 @@ function loadImg() {
         circle.x = 0;
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
-        document.getElementById("save-square").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_square_crop");
-        document.getElementById("save-circle").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_circle_crop");
-        drawCircle();
+        document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped");
+        document.getElementById("switch-circle").click(); // draws preview
+
     });
 }
 
-function drawCircle() {
+function drawPreview() {
     canvas_over.fill("black");
     canvas_over.setBlendingMode("destination-out");
-    canvas_over.fillCircleInSquare(circle.x, circle.y, circle.diameter, "white");
+    if (previewMode === "circle") {
+        canvas_over.fillCircleInSquare(circle.x, circle.y, circle.diameter, "white");
+    } else {
+        canvas_over.fillRect(circle.x, circle.y, circle.diameter, circle.diameter, "white");
+    }
     canvas_over.setBlendingMode("source-over");
     canvas_over.setLineDash([1]);
     canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
@@ -161,11 +177,13 @@ function drawCircle() {
         });
     }
 
-    applyToPreviewCanvas(function(c) {
-        c.setBlendingMode("destination-in");
-        c.fillCircleInSquare(0, 0, c.width(), "white");
-        c.setBlendingMode("source-over");
-    })
+    if (previewMode === "circle") {
+        applyToPreviewCanvas(function (c) {
+            c.setBlendingMode("destination-in");
+            c.fillCircleInSquare(0, 0, c.width(), "white");
+            c.setBlendingMode("source-over");
+        });
+    }
 }
 
 function getMouseAction(x, y) {

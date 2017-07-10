@@ -44,19 +44,35 @@ body, html, #container {
   margin-bottom:16px;
 }
 
-#container-buttons > * {
+#container-buttons > input {
   width:100%;
   height:32px;
   line-height:32px;
 }
 
-.save {
+.save, .switch {
   text-align:center;
   cursor:pointer;
   color:white;
   text-decoration:none;
+  background:transparent;
+  border:0;
+  font-size:18px;
+  font-family:Helvetica;
+  height:32px;
+  line-height:32px;
+  width:100%;
+  padding:0;
+  margin:0;
 }
 
-.save:hover {
+.switch {
+  width:50%;
+  padding:0;
+  margin:0;
+  float:left;
+}
+
+.save:hover, .switch:hover {
   background:rgba(255,255,255,0.4);
 }

@@ -11,7 +11,7 @@ body, html, #container {
 
 #canvas, #canvas-over {
   max-height:100%;
-  max-width:100%;
+  max-width:calc(100% - 400px);
   margin:0;
   padding:0;
   position:absolute;
@@ -34,7 +34,7 @@ body, html, #container {
 }
 
 .canvas-preview, #canvas, #container {
-  background-color:#181C1F;
+  background-color:#2F3136;
 }
 
 .canvas-preview {

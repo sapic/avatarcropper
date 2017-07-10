@@ -36,11 +36,6 @@ function init() {
     //createPreviewCanvas(30);
 
     document.getElementById("input-file").addEventListener("change", loadImg);
-    previewImg = new Image();
-    previewImg.onload = function() {
-        document.getElementById("container").style.display = "block";
-    }
-    previewImg.src = "./img/circle.png";
 
     document.getElementById("save-square").addEventListener("click", function() {
         var c = new Canvas(document.createElement("canvas"));
@@ -167,7 +162,9 @@ function drawCircle() {
     }
 
     applyToPreviewCanvas(function(c) {
-        c.drawImage(previewImg, 0, 0, c.width(), c.height());
+        c.setBlendingMode("destination-in");
+        c.fillCircleInSquare(0, 0, c.width(), "white");
+        c.setBlendingMode("source-over");
     })
 }
 

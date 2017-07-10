@@ -1,4 +1,6 @@
-var canvas, canvas_over, canvas_preview_128, canvas_preview_90, canvas_preview_40;
+var canvas, canvas_over;
+var canvas_previews = [];
+var canvas_previews_runningX = 0;
 var previewImg;
 var currentAction = "none";
 var circle = {
@@ -7,18 +9,31 @@ var circle = {
     diameter: 32
 };
 
+function createPreviewCanvas(size) {
+    var c = new Canvas(document.createElement("canvas"));
+    c.resize(size, size, false);
+    canvas_previews.push(c);
+    c.canvas.className = "canvas-preview hidden";
+    c.canvas.style.right = canvas_previews_runningX + "px";
+    canvas_previews_runningX += size;
+    document.getElementById("container").appendChild(c.canvas);
+}
+
+function applyToPreviewCanvas(fn) {
+    for (let i = 0; i < canvas_previews.length; i++) {
+        fn(canvas_previews[i]);
+    }
+}
+
 function init() {
     canvas = new Canvas(document.getElementById("canvas"));
     canvas_over = new Canvas(document.getElementById("canvas-over"));
-    canvas_preview_128 = new Canvas(document.getElementById("canvas-preview-128"));
-    canvas_preview_128.resize(128, 128, false);
-    canvas_preview_90 = new Canvas(document.getElementById("canvas-preview-90"));
-    canvas_preview_90.resize(90, 90, false);
-    canvas_preview_40 = new Canvas(document.getElementById("canvas-preview-40"));
-    canvas_preview_40.resize(40, 40, false);
-    /*canvas_preview_40.setSmoothingEnabled(false);
-    canvas_preview_90.setSmoothingEnabled(false);
-    canvas_preview_128.setSmoothingEnabled(false);*/
+
+    createPreviewCanvas(128);
+    createPreviewCanvas(90);
+    createPreviewCanvas(40);
+    //createPreviewCanvas(30);
+
     document.getElementById("input-file").addEventListener("change", loadImg);
     previewImg = new Image();
     previewImg.onload = function() {
@@ -109,14 +124,16 @@ function loadImg() {
     var file = this.files[0];
 
     Canvas.fileToImage(file, function(img) {
+        var es = document.getElementsByClassName("hidden");
+        for (var i = 0; i < es.length; i++) {
+            es[i].style.display = "block";
+        }
         canvas.resize(img.width, img.height, false);
         canvas_over.resize(img.width, img.height, false);
         canvas.drawImage(img, 0, 0);
         circle.x = 0;
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
-        document.getElementById("save-square").style.display = "block";
-        document.getElementById("save-circle").style.display = "block";
         document.getElementById("save-square").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_square_crop");
         document.getElementById("save-circle").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_circle_crop");
         drawCircle();
@@ -130,37 +147,27 @@ function drawCircle() {
     canvas_over.setBlendingMode("source-over");
     canvas_over.setLineDash([1]);
     canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
-    canvas_preview_128.clear();
-    canvas_preview_90.clear();
-    canvas_preview_40.clear();
+    applyToPreviewCanvas(function(c) {
+        c.clear();
+    });
 
     if (currentAction === "none" && circle.diameter > 128) {
-        var c_128 = new Canvas(document.createElement("canvas"));
-        c_128.resize(circle.diameter, circle.diameter, false);
-        c_128.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        var c_128_2 = downScaleCanvas(c_128.canvas, 128 / circle.diameter);
-        canvas_preview_128.drawImage(c_128_2, 0, 0);
-
-        var c_90 = new Canvas(document.createElement("canvas"));
-        c_90.resize(circle.diameter, circle.diameter, false);
-        c_90.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        var c_90_2 = downScaleCanvas(c_90.canvas, 90 / circle.diameter);
-        canvas_preview_90.drawImage(c_90_2, 0, 0);
-
-        var c_40 = new Canvas(document.createElement("canvas"));
-        c_40.resize(circle.diameter, circle.diameter, false);
-        c_40.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        var c_40_2 = downScaleCanvas(c_40.canvas, 40 / circle.diameter);
-        canvas_preview_40.drawImage(c_40_2, 0, 0);
+        applyToPreviewCanvas(function(c) {
+            var cv = new Canvas(document.createElement("canvas"));
+            cv.resize(circle.diameter, circle.diameter, false);
+            cv.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+            var cv_2 = downScaleCanvas(cv.canvas, c.width() / circle.diameter);
+            c.drawImage(cv_2, 0, 0);
+        });
     } else {
-        canvas_preview_128.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, 128, 128);
-        canvas_preview_90.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, 90, 90);
-        canvas_preview_40.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, 40, 40);
+        applyToPreviewCanvas(function(c) {
+            c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
+        });
     }
 
-    canvas_preview_128.drawImage(previewImg, 0, 0);
-    canvas_preview_90.drawImage(previewImg, 0, 0, 90, 90);
-    canvas_preview_40.drawImage(previewImg, 0, 0, 40, 40);
+    applyToPreviewCanvas(function(c) {
+        c.drawImage(previewImg, 0, 0, c.width(), c.height());
+    })
 }
 
 function getMouseAction(x, y) {
@@ -338,10 +345,10 @@ function log2(v) {
 function normaliseScale(s) {
     if (s>1) throw('s must be <1');
     return s;
-    s = 0 | (1/s);
+    /*s = 0 | (1/s);
     var l = log2(s);
     var mask = 1 << l;
     var accuracy = 4;
     while(accuracy && l) { l--; mask |= 1<<l; accuracy--; }
-    return 1 / ( s & mask );
+    return 1 / ( s & mask );*/
 }

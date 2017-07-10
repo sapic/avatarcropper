@@ -5,7 +5,7 @@ body, html, #container {
   height:100%;
 }
 
-#container {
+.hidden {
   display:none;
 }
 
@@ -33,19 +33,22 @@ body, html, #container {
   width:256px;
 }
 
-.canvas-preview {
+.canvas-preview, #canvas {
   background-color:rgba(30,33,36,1);
 }
 
+.canvas-preview {
+  position:absolute;
+  bottom:0;
+}
+
 #container-buttons > * {
-  display:block;
   width:100%;
   height:32px;
   line-height:32px;
 }
 
 .save {
-  display:none;
   text-align:center;
   cursor:pointer;
   color:white;
@@ -54,22 +57,4 @@ body, html, #container {
 
 .save:hover {
   background:rgba(255,255,255,0.4);
-}
-
-#canvas-preview-128 {
-  position:absolute;
-  right:0;
-  bottom:0;
-}
-
-#canvas-preview-90 {
-  position:absolute;
-  right:128px;
-  bottom:0;
-}
-
-#canvas-preview-40 {
-  position:absolute;
-  right:218px;
-  bottom:0;
 }

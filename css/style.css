@@ -33,13 +33,15 @@ body, html, #container {
   width:256px;
 }
 
-.canvas-preview, #canvas {
-  background-color:rgba(30,33,36,1);
+.canvas-preview, #canvas, #container {
+  background-color:#181C1F;
 }
 
 .canvas-preview {
   position:absolute;
   bottom:0;
+  margin-right:16px;
+  margin-bottom:16px;
 }
 
 #container-buttons > * {

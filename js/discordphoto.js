@@ -10,12 +10,13 @@ var circle = {
 };
 
 function createPreviewCanvas(size) {
+    var padding = 16;
     var c = new Canvas(document.createElement("canvas"));
     c.resize(size, size, false);
     canvas_previews.push(c);
     c.canvas.className = "canvas-preview hidden";
     c.canvas.style.right = canvas_previews_runningX + "px";
-    canvas_previews_runningX += size;
+    canvas_previews_runningX += size + padding;
     document.getElementById("container").appendChild(c.canvas);
 }
 

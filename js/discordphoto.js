@@ -99,13 +99,41 @@ function init() {
             var dy = y - ly;
             if (xr) dx *= -1;
             if (yr) dy *= -1;
-            var rx = xr ? circle.x + circle.diameter : circle.x;
-            var ry = yr ? circle.y + circle.diameter : circle.y;
             var dd = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-            if (circle.diameter + dd < 16) dd = circle.diameter - 16;
+            if (circle.diameter + dd < 16) {
+                dd = circle.diameter - 16;
+            }
+            if (xr) {
+                if (yr) {
+                    if (circle.x - dd < 0 || circle.y - dd < 0) {
+                        dd = Math.min(circle.x, circle.y);
+                    }
+                } else {
+                    if (circle.x - dd < 0 || circle.y + circle.diameter + dd > canvas.height()) {
+                        dd = Math.min(circle.x, canvas.height() - circle.y - circle.diameter);
+                    }
+                }
+            } else {
+                if (yr) {
+                    if (circle.x + circle.diameter + dd > canvas.width() || circle.y - dd < 0) {
+                        dd = Math.min(canvas.width() - circle.x - circle.diameter, circle.y);
+                    }
+                } else {
+                    if (circle.x + circle.diameter + dd > canvas.width() || circle.y + circle.diameter + dd > canvas.height()) {
+                        dd = Math.min(canvas.width() - circle.x - circle.diameter, canvas.height() - circle.y - circle.diameter);
+                    }
+                }
+            }
+            if (circle.diameter > canvas.width()) {
+                // panic
+                circle.x = 0;
+                circle.y = 0;
+                circle.diameter = canvas.width();
+                dd = 0;
+            }
             circle.diameter += dd;
-            circle.x = xr ? rx - circle.diameter : circle.x;
-            circle.y = yr ? ry - circle.diameter : circle.y;
+            circle.x = xr ? circle.x - dd : circle.x;
+            circle.y = yr ? circle.y - dd : circle.y;
         }
 
         circle.x = Math.round(circle.x);

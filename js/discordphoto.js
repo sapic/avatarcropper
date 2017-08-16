@@ -1,6 +1,5 @@
 var canvas, canvas_over;
 var canvas_previews = [];
-var canvas_previews_runningX = 0;
 var previewMode = "circle";
 var currentAction = "none";
 var circle = {
@@ -8,16 +7,45 @@ var circle = {
     y: 0,
     diameter: 32
 };
+var maskTransparency = 0;
+var shouldHide = true;
+var outlinesEnabled = true;
+var tpixels = false;
+var mouseOrigin, circleOrigin;
 
 function createPreviewCanvas(size) {
     var padding = 16;
+    var runningX = 0;
     var c = new Canvas(document.createElement("canvas"));
     c.resize(size, size, false);
-    canvas_previews.push(c);
-    c.canvas.className = "canvas-preview hidden";
-    c.canvas.style.right = canvas_previews_runningX + "px";
-    canvas_previews_runningX += size + padding;
+    c.__size = size;
+    c.canvas.title = size + "x" + size;
+    c.canvas.className = "canvas-preview";
     document.getElementById("container").appendChild(c.canvas);
+
+    var inserted = false;
+    for (var i = 0; i < canvas_previews.length; i++) {
+        if (size > canvas_previews[i].__size) {
+            canvas_previews.splice(i, 0, c);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted) {
+        canvas_previews.push(c);
+    }
+
+    for (var i = 0; i < canvas_previews.length; i++) {
+        canvas_previews[i].canvas.style.right = runningX + "px";
+        runningX += canvas_previews[i].__size + padding;
+    }
+
+
+    if (shouldHide) {
+        c.canvas.className += " hidden";
+    } else {
+        drawPreview();
+    }
 }
 
 function applyToPreviewCanvas(fn) {
@@ -39,21 +67,21 @@ function init() {
 
     document.getElementById("switch-square").addEventListener("click", function() {
         previewMode = "square";
-        document.getElementById("switch-square").style.color = "black";
-        document.getElementById("switch-square").style.background = "white";
-        document.getElementById("switch-circle").style.color = "white";
-        document.getElementById("switch-circle").style.background = "black";
+        document.getElementById("switch-square").classList.add("switch-active");
+        document.getElementById("switch-circle").classList.remove("switch-active");
         drawPreview();
     });
 
     document.getElementById("switch-circle").addEventListener("click", function() {
         previewMode = "circle";
-        document.getElementById("switch-circle").style.color = "black";
-        document.getElementById("switch-circle").style.background = "white";
-        document.getElementById("switch-square").style.color = "white";
-        document.getElementById("switch-square").style.background = "black";
+        document.getElementById("switch-square").classList.remove("switch-active");
+        document.getElementById("switch-circle").classList.add("switch-active");
         drawPreview();
     });
+
+    document.getElementById("slider-opacity").addEventListener("input", slider_opacity_inputfn);
+    document.getElementById("btn-addPreview").addEventListener("click", btn_addPreview_clickFn);
+    document.getElementById("btn-outlines").addEventListener("click", btn_outlines_clickFn);
 
     document.getElementById("save").addEventListener("click", function() {
         var c = new Canvas(document.createElement("canvas"));
@@ -83,10 +111,10 @@ function init() {
         if (currentAction === "none") return;
 
         if (currentAction === "move") {
-            var dx = x - lx;
-            var dy = y - ly;
-            circle.x += dx;
-            circle.y += dy;
+            var dx = x - mouseOrigin.x;
+            var dy = y - mouseOrigin.y;
+            circle.x = circleOrigin.x + dx;
+            circle.y = circleOrigin.y + dy;
 
             if (circle.x < 0) circle.x = 0;
             if (circle.y < 0) circle.y = 0;
@@ -95,32 +123,32 @@ function init() {
         } else if (currentAction === "resize") {
             var xr = x < circle.x + circle.diameter / 2;
             var yr = y < circle.y + circle.diameter / 2;
-            var dx = x - lx;
-            var dy = y - ly;
+            var dx = x - mouseOrigin.x;
+            var dy = y - mouseOrigin.y;
             if (xr) dx *= -1;
             if (yr) dy *= -1;
             var dd = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-            if (circle.diameter + dd < 16) {
-                dd = circle.diameter - 16;
+            if (circleOrigin.diameter + dd < 1) {
+                dd = circle.diameter - 1;
             }
             if (xr) {
                 if (yr) {
-                    if (circle.x - dd < 0 || circle.y - dd < 0) {
-                        dd = Math.min(circle.x, circle.y);
+                    if (circleOrigin.x - dd < 0 || circleOrigin.y - dd < 0) {
+                        dd = Math.min(circleOrigin.x, circleOrigin.y);
                     }
                 } else {
-                    if (circle.x - dd < 0 || circle.y + circle.diameter + dd > canvas.height()) {
-                        dd = Math.min(circle.x, canvas.height() - circle.y - circle.diameter);
+                    if (circleOrigin.x - dd < 0 || circleOrigin.y + circleOrigin.diameter + dd > canvas.height()) {
+                        dd = Math.min(circleOrigin.x, canvas.height() - circleOrigin.y - circleOrigin.diameter);
                     }
                 }
             } else {
                 if (yr) {
-                    if (circle.x + circle.diameter + dd > canvas.width() || circle.y - dd < 0) {
-                        dd = Math.min(canvas.width() - circle.x - circle.diameter, circle.y);
+                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.width() || circleOrigin.y - dd < 0) {
+                        dd = Math.min(canvas.width() - circleOrigin.x - circleOrigin.diameter, circleOrigin.y);
                     }
                 } else {
-                    if (circle.x + circle.diameter + dd > canvas.width() || circle.y + circle.diameter + dd > canvas.height()) {
-                        dd = Math.min(canvas.width() - circle.x - circle.diameter, canvas.height() - circle.y - circle.diameter);
+                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.width() || circleOrigin.y + circleOrigin.diameter + dd > canvas.height()) {
+                        dd = Math.min(canvas.width() - circleOrigin.x - circleOrigin.diameter, canvas.height() - circleOrigin.y - circleOrigin.diameter);
                     }
                 }
             }
@@ -129,22 +157,37 @@ function init() {
                 circle.x = 0;
                 circle.y = 0;
                 circle.diameter = canvas.width();
-                dd = 0;
+                alert("fuck");
+            } else if (circle.diameter > canvas.height()) {
+                circle.x = 0;
+                circle.y = 0;
+                circle.diameter = canvas.height();
+                alert("fuck");
+            } else {
+                circle.diameter = circleOrigin.diameter + dd;
+                circle.x = xr ? circleOrigin.x - dd : circleOrigin.x;
+                circle.y = yr ? circleOrigin.y - dd : circleOrigin.y;
             }
-            circle.diameter += dd;
-            circle.x = xr ? circle.x - dd : circle.x;
-            circle.y = yr ? circle.y - dd : circle.y;
         }
 
         circle.x = Math.round(circle.x);
         circle.y = Math.round(circle.y);
         circle.diameter = Math.round(circle.diameter);
+        if (circle.diameter !== circleOrigin.diameter) {
+            circleOrigin = {};
+            mouseOrigin = {x, y};
+            Object.assign(circleOrigin, circle);
+        }
         drawPreview();
     });
 
     canvas_over.setMouseDown(function(x, y, e) {
         var action = getMouseAction(x, y);
         currentAction = action;
+
+        mouseOrigin = {x, y};
+        circleOrigin = {};
+        Object.assign(circleOrigin, circle);
     });
 
     canvas_over.setMouseUp(function() {
@@ -153,6 +196,29 @@ function init() {
     });
 
     canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
+
+    slider_opacity_inputfn();
+}
+
+function slider_opacity_inputfn() {
+    maskTransparency = document.getElementById("slider-opacity").value;
+    drawPreview(false);
+}
+
+function btn_addPreview_clickFn() {
+    var size = parseInt(prompt("Enter a custom size like 256"));
+    if (isNaN(size)) {
+        // you're dumb
+    } else {
+        createPreviewCanvas(size);
+    }
+}
+
+function btn_outlines_clickFn() {
+    var $b = document.getElementById("btn-outlines");
+    outlinesEnabled = !outlinesEnabled;
+    $b.classList.toggle("toggle-active");
+    drawPreview(false);
 }
 
 function loadImg() {
@@ -160,6 +226,14 @@ function loadImg() {
     var file = this.files[0];
 
     Canvas.fileToImage(file, function(img) {
+        var data = canvas.getImageData().data;
+        for (var i = 0; i < data.length; i += 4) {
+            if (data[i + 3] < 255) {
+                tpixels = true;
+                break;
+            }
+        }
+
         var es = document.getElementsByClassName("hidden");
         for (var i = 0; i < es.length; i++) {
             es[i].style.display = "inline-block";
@@ -171,45 +245,66 @@ function loadImg() {
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
         document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped");
-        document.getElementById("switch-circle").click(); // draws preview
+        if (shouldHide) {
+            document.getElementById("switch-circle").click(); // draws preview
+        } else {
+            drawPreview(); // we've done this before and dont want to set it to circle so just draw preview
+        }
+        shouldHide = false;
+
 
     });
 }
 
-function drawPreview() {
-    canvas_over.fill("black");
-    canvas_over.setBlendingMode("destination-out");
-    if (previewMode === "circle") {
-        canvas_over.fillCircleInSquare(circle.x, circle.y, circle.diameter, "white");
-    } else {
-        canvas_over.fillRect(circle.x, circle.y, circle.diameter, circle.diameter, "white");
+function drawPreview(updatePreviews) {
+    if (updatePreviews === undefined) updatePreviews = true;
+
+    if (maskTransparency !== 0) {
+        canvas_over.clear();
     }
+
+    if (maskTransparency !== 1) {
+        canvas_over.fill("rgba(0,0,0," + (1 - maskTransparency) + ")");
+
+        canvas_over.setBlendingMode("destination-out");
+        if (previewMode === "circle") {
+            canvas_over.fillCircleInSquare(circle.x, circle.y, circle.diameter, "white");
+        } else {
+            canvas_over.fillRect(circle.x, circle.y, circle.diameter, circle.diameter, "white");
+        }
+    }
+
     canvas_over.setBlendingMode("source-over");
-    canvas_over.setLineDash([1]);
-    canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
-    applyToPreviewCanvas(function(c) {
-        c.clear();
-    });
 
-    if (currentAction === "none" && circle.diameter > 128) {
-        applyToPreviewCanvas(function(c) {
-            var cv = new Canvas(document.createElement("canvas"));
-            cv.resize(circle.diameter, circle.diameter, false);
-            cv.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-            var cv_2 = downScaleCanvas(cv.canvas, c.width() / circle.diameter);
-            c.drawImage(cv_2, 0, 0);
-        });
-    } else {
-        applyToPreviewCanvas(function(c) {
-            c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
-        });
+    if (outlinesEnabled) {
+        if (previewMode === "circle") {
+            canvas_over.setLineDash([1, 2]);
+            canvas_over.drawCircleInSquare(circle.x, circle.y, circle.diameter, "white", 1);
+        } else {
+            canvas_over.setLineDash([1]);
+            canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
+        }
     }
 
-    if (previewMode === "circle") {
-        applyToPreviewCanvas(function (c) {
-            c.setBlendingMode("destination-in");
-            c.fillCircleInSquare(0, 0, c.width(), "white");
-            c.setBlendingMode("source-over");
+    if (updatePreviews) {
+        applyToPreviewCanvas(function(c) {
+            c.clear();
+
+            if (currentAction === "none" && circle.diameter > c.__size) {
+                let cv = new Canvas(document.createElement("canvas"));
+                cv.resize(circle.diameter, circle.diameter, false);
+                cv.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+                let cv_2 = downScaleCanvas(cv.canvas, c.width() / circle.diameter);
+                c.drawImage(cv_2, 0, 0);
+            } else {
+                c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
+            }
+
+            if (previewMode === "circle") {
+                c.setBlendingMode("destination-in");
+                c.fillCircleInSquare(0, 0, c.width(), "white");
+                c.setBlendingMode("source-over");
+            }
         });
     }
 }
@@ -236,7 +331,7 @@ function getMouseAction(x, y) {
 
 window.addEventListener("load", init);
 
-// -------------------------------- STOLE THIS FROM STACK OVERFLOW http://jsfiddle.net/gamealchemist/r6aVp/
+// -------------------------------- STOLEN AND MODIFIED TO ACCOUNT FOR ALPHA VALUES ALPHA FROM STACK OVERFLOW http://jsfiddle.net/gamealchemist/r6aVp/
 
 // scales the image by (float) scale < 1
 // returns a canvas containing the scaled image.
@@ -269,13 +364,13 @@ function downScaleCanvas(cv, scale) {
     var crossY = false; // does scaled px cross its current px bottom border ?
     var sBuffer = cv.getContext('2d').
     getImageData(0, 0, sw, sh).data; // source buffer 8 bit rgba
-    var tBuffer = new Float32Array(3 * tw * th); // target buffer Float32 rgb
-    var sR = 0, sG = 0,  sB = 0; // source's current point r,g,b
+    var tBuffer = new Float32Array(4 * tw * th); // target buffer Float32 rgb
+    var sR = 0, sG = 0,  sB = 0, sA = 0; // source's current point r,g,b
 
     for (sy = 0; sy < sh; sy++) {
         ty = sy * scale; // y src position within target
         tY = 0 | ty;     // rounded : target pixel's y
-        yIndex = 3 * tY * tw;  // line index within target array
+        yIndex = 4 * tY * tw;  // line index within target array
         crossY = (tY !== (0 | ( ty + scale )));
         if (crossY) { // if pixel is crossing botton target pixel
             wy = (tY + 1 - ty); // weight of point within target pixel
@@ -284,7 +379,7 @@ function downScaleCanvas(cv, scale) {
         for (sx = 0; sx < sw; sx++, sIndex += 4) {
             tx = sx * scale; // x src position within target
             tX = 0 |  tx;    // rounded : target pixel's x
-            tIndex = yIndex + tX * 3; // target pixel index within target array
+            tIndex = yIndex + tX * 4; // target pixel index within target array
             crossX = (tX !== (0 | (tx + scale)));
             if (crossX) { // if pixel is crossing target pixel's right
                 wx = (tX + 1 - tx); // weight of point within target pixel
@@ -293,54 +388,65 @@ function downScaleCanvas(cv, scale) {
             sR = sBuffer[sIndex    ];   // retrieving r,g,b for curr src px.
             sG = sBuffer[sIndex + 1];
             sB = sBuffer[sIndex + 2];
+            sA = sBuffer[sIndex + 3];
+            //if (sA !== 255) console.log(sA);
             if (!crossX && !crossY) { // pixel does not cross
                 // just add components weighted by squared scale.
                 tBuffer[tIndex    ] += sR * sqScale;
                 tBuffer[tIndex + 1] += sG * sqScale;
                 tBuffer[tIndex + 2] += sB * sqScale;
+                tBuffer[tIndex + 3] += sA * sqScale;
             } else if (crossX && !crossY) { // cross on X only
                 w = wx * scale;
                 // add weighted component for current px
                 tBuffer[tIndex    ] += sR * w;
                 tBuffer[tIndex + 1] += sG * w;
                 tBuffer[tIndex + 2] += sB * w;
+                tBuffer[tIndex + 3] += sA * w;
                 // add weighted component for next (tX+1) px
                 nw = nwx * scale
-                tBuffer[tIndex + 3] += sR * nw;
-                tBuffer[tIndex + 4] += sG * nw;
-                tBuffer[tIndex + 5] += sB * nw;
+                tBuffer[tIndex + 4] += sR * nw;
+                tBuffer[tIndex + 5] += sG * nw;
+                tBuffer[tIndex + 6] += sB * nw;
+                tBuffer[tIndex + 7] += sA * nw;
             } else if (!crossX && crossY) { // cross on Y only
                 w = wy * scale;
                 // add weighted component for current px
                 tBuffer[tIndex    ] += sR * w;
                 tBuffer[tIndex + 1] += sG * w;
                 tBuffer[tIndex + 2] += sB * w;
+                tBuffer[tIndex + 3] += sA * w;
                 // add weighted component for next (tY+1) px
                 nw = nwy * scale
-                tBuffer[tIndex + 3 * tw    ] += sR * nw;
-                tBuffer[tIndex + 3 * tw + 1] += sG * nw;
-                tBuffer[tIndex + 3 * tw + 2] += sB * nw;
+                tBuffer[tIndex + 4 * tw    ] += sR * nw;
+                tBuffer[tIndex + 4 * tw + 1] += sG * nw;
+                tBuffer[tIndex + 4 * tw + 2] += sB * nw;
+                tBuffer[tIndex + 4 * tw + 3] += sA * nw;
             } else { // crosses both x and y : four target points involved
                 // add weighted component for current px
                 w = wx * wy;
                 tBuffer[tIndex    ] += sR * w;
                 tBuffer[tIndex + 1] += sG * w;
                 tBuffer[tIndex + 2] += sB * w;
+                tBuffer[tIndex + 3] += sA * w;
                 // for tX + 1; tY px
                 nw = nwx * wy;
-                tBuffer[tIndex + 3] += sR * nw;
-                tBuffer[tIndex + 4] += sG * nw;
-                tBuffer[tIndex + 5] += sB * nw;
+                tBuffer[tIndex + 4] += sR * nw;
+                tBuffer[tIndex + 5] += sG * nw;
+                tBuffer[tIndex + 6] += sB * nw;
+                tBuffer[tIndex + 7] += sA * nw;
                 // for tX ; tY + 1 px
                 nw = wx * nwy;
-                tBuffer[tIndex + 3 * tw    ] += sR * nw;
-                tBuffer[tIndex + 3 * tw + 1] += sG * nw;
-                tBuffer[tIndex + 3 * tw + 2] += sB * nw;
+                tBuffer[tIndex + 4 * tw    ] += sR * nw;
+                tBuffer[tIndex + 4 * tw + 1] += sG * nw;
+                tBuffer[tIndex + 4 * tw + 2] += sB * nw;
+                tBuffer[tIndex + 4 * tw + 3] += sA * nw;
                 // for tX + 1 ; tY +1 px
                 nw = nwx * nwy;
-                tBuffer[tIndex + 3 * tw + 3] += sR * nw;
-                tBuffer[tIndex + 3 * tw + 4] += sG * nw;
-                tBuffer[tIndex + 3 * tw + 5] += sB * nw;
+                tBuffer[tIndex + 4 * tw + 4] += sR * nw;
+                tBuffer[tIndex + 4 * tw + 5] += sG * nw;
+                tBuffer[tIndex + 4 * tw + 6] += sB * nw;
+                tBuffer[tIndex + 4 * tw + 7] += sA * nw;
             }
         } // end for sx
     } // end for sy
@@ -354,11 +460,15 @@ function downScaleCanvas(cv, scale) {
     var tByteBuffer = imgRes.data;
     // convert float32 array into a UInt8Clamped Array
     var pxIndex = 0; //
-    for (sIndex = 0, tIndex = 0; pxIndex < tw * th; sIndex += 3, tIndex += 4, pxIndex++) {
+    for (sIndex = 0, tIndex = 0; pxIndex < tw * th; sIndex += 4, tIndex += 4, pxIndex++) {
+        // 0 | number to trunc
         tByteBuffer[tIndex] = 0 | ( tBuffer[sIndex]);
         tByteBuffer[tIndex + 1] = 0 | (tBuffer[sIndex + 1]);
         tByteBuffer[tIndex + 2] = 0 | (tBuffer[sIndex + 2]);
-        tByteBuffer[tIndex + 3] = 255;
+        tByteBuffer[tIndex + 3] = tpixels ? 0 | (tBuffer[sIndex + 3]) : 255;
+        /*if ((0 | tBuffer[sIndex + 3]) != 255) {
+            console.log(0 | tBuffer[sIndex + 3]);
+        }*/
     }
     // writing result to canvas.
     resCtx.putImageData(imgRes, 0, 0);

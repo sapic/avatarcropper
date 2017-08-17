@@ -92,7 +92,7 @@ function init() {
             c.setBlendingMode("destination-in");
             c.fillCircleInSquare(0, 0, c.width(), "white");
         }
-        this.href = c.toDataURL();
+        this.href = c.toDataURL().replace("image/png", "application/octet-stream");
     });
 
     canvas_over.setMouseMove(function(x, y, md, lx, ly, e) {
@@ -244,7 +244,7 @@ function loadImg() {
         circle.x = 0;
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
-        document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped");
+        document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.png");
         if (shouldHide) {
             document.getElementById("switch-circle").click(); // draws preview
         } else {

@@ -83,6 +83,10 @@ function init() {
     document.getElementById("btn-addPreview").addEventListener("click", btn_addPreview_clickFn);
     document.getElementById("btn-outlines").addEventListener("click", btn_outlines_clickFn);
 
+    document.getElementById("slider-opacity").addEventListener("touchmove", function(e) {
+        return false;
+    });
+
     document.getElementById("save").addEventListener("click", function() {
         var c = new Canvas(document.createElement("canvas"));
         c.resize(circle.diameter, circle.diameter, false);
@@ -179,6 +183,10 @@ function init() {
             Object.assign(circleOrigin, circle);
         }
         drawPreview();
+    });
+
+    canvas_over.canvas.addEventListener("touchmove", function(e) {
+        e.preventDefault();
     });
 
     canvas_over.setMouseDown(function(x, y, e) {

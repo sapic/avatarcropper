@@ -49,6 +49,11 @@ body, html, #container {
     z-index:100;
 }
 
+#note {
+    border:1px dotted #aaa;
+    padding:4px;
+}
+
 .canvas-preview, #canvas, #container {
     background-color:#2F3136;
 }
@@ -62,7 +67,7 @@ body, html, #container {
     z-index:0;
 }
 
-#container-buttons > * {
+.menu-item {
     text-align:center;
     cursor:pointer;
     color:#eee;
@@ -81,7 +86,7 @@ body, html, #container {
     position:relative;
 }
 
-#container-buttons > *:hover {
+.menu-item:hover {
     border:1px solid #aaa;
     line-height:30px;
 }

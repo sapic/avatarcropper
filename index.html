@@ -24,14 +24,16 @@
             <canvas id="canvas" class="hidden">why</canvas>
             <canvas id="canvas-over" class="hidden">why</canvas>
             <div id="container-buttons">
-                <label for="input-file">Open File...</label>
-                <button id="switch-circle" class="switch hidden">Circle</button>
-                <button id="switch-square" class="switch hidden">Sqare</button>
-                <div id="fuck-ranges" class="hidden"><div>Mask Transparency</div><input type="range" value="0" min="0" max="1" step="0.01" id="slider-opacity" /></div>
-                <button id="btn-addPreview" class="hidden">Add Preview Size</button>
-                <button id="btn-outlines" class="toggle toggle-active  hidden">Toggle Mask Outline</button>
-                <a id="save" class="save hidden">Save</a>
+                <label for="input-file" class="menu-item">Open File...</label>
+                <button id="switch-circle" class="switch hidden menu-item">Circle</button>
+                <button id="switch-square" class="switch hidden menu-item">Sqare</button>
+                <div id="fuck-ranges" class="hidden menu-item"><div>Mask Transparency</div><input type="range" value="0" min="0" max="1" step="0.01" id="slider-opacity" /></div>
+                <button id="btn-addPreview" class="hidden menu-item">Add Preview Size</button>
+                <button id="btn-outlines" class="toggle toggle-active menu-item hidden">Toggle Mask Outline</button>
+                <a id="save" class="save hidden menu-item">Save</a>
+                <div id="note" class="hidden">Note: It's usually better to preview as a circle but save as a square for Discord.</div>
             </div>
-        </div>
+
+            </div>
     </body>
 </html>

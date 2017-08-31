@@ -40,6 +40,14 @@ function createPreviewCanvas(size) {
         runningX += canvas_previews[i].__size + padding;
     }
 
+    runningX += padding;
+
+    var mw = "calc(100% - " + runningX + "px)";
+    var mh = "calc(100% - " + (canvas_previews[0].__size + padding + padding) + "px)";
+
+    document.getElementById("canvas").style["max-width"] = mw;
+    document.getElementById("canvas-over").style["max-width"] = mw;
+
 
     if (shouldHide) {
         c.canvas.className += " hidden";

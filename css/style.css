@@ -16,6 +16,12 @@ body, html, #container {
     display:none;
 }
 
+.donate {
+    position:absolute;
+    top:270px;
+    right:8px;
+}
+
 #input-file {
     width:1px;
     height:1px;

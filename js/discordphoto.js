@@ -74,6 +74,7 @@ function init() {
 
     document.getElementById("input-file").addEventListener("change", loadImg);
     document.getElementById("closeContrib").addEventListener("click", hideContribs);
+    document.getElementById("supportersLink").addEventListener("click", showSupporters);
 
     if (mobilecheck()) {
         hideContribs();
@@ -225,6 +226,10 @@ function init() {
 function hideContribs() {
     document.getElementById("contributors").style.display = "none";
     document.getElementById("container").style.height = "100%";
+}
+
+function showSupporters() {
+    alert("Thanks to these people for donating and contributing to my work!!\n\nGlen Cathey\nBetty Glez\nMax Abbot\nand 2 anons:)\n\nIf you'd like to donate anonymously just leave a note saying so on the form!");
 }
 
 function slider_opacity_inputfn() {

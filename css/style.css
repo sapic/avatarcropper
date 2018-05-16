@@ -63,7 +63,7 @@ body, html, #container {
     color:white;
 }
 
-#feedback {
+#feedback, #supportersLink {
     text-decoration:underline;
     cursor:pointer;
 }

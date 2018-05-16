@@ -229,7 +229,7 @@ function hideContribs() {
 }
 
 function showSupporters() {
-    alert("Thanks to these people for donating and contributing to my work!!\n\nGlen Cathey\nBetty Glez\nMax Abbot\nand 2 anons:)\n\nIf you'd like to donate anonymously just leave a note saying so on the form!");
+    alert("Thanks to these people for donating and contributing to my work!!\n\nGlen Cathey\nBetty Glez\nMax Abbot\nand 2 anons:)\n\nI always ask before publishing a name so just let me know if you'd prefer to stay anonymous!\nok thx love u");
 }
 
 function slider_opacity_inputfn() {

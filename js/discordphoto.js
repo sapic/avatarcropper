@@ -12,42 +12,108 @@ var shouldHide = true;
 var outlinesEnabled = true;
 var tpixels = false;
 var mouseOrigin, circleOrigin;
+var currentSrc;
+
+function circlePreviews() {
+    canvas_previews.forEach(o => {
+        let c = o.canvas;
+        c.fill("#2F3136");
+        c.setBlendingMode("destination-out");
+        c.fillCircleInSquare(c.width() - o.size, c.height() - o.size, o.size, "white");
+        c.setBlendingMode("source-over");
+    });
+}
+
+function squarePreviews() {
+    canvas_previews.forEach(o => {
+        let c = o.canvas;
+        c.fill("#2F3136");
+        c.setBlendingMode("destination-out");
+        c.fillRect(c.width() - o.size, c.height() - o.size, o.size, o.size, "white");
+        c.setBlendingMode("source-over");
+    });
+}
+
+function circleOrSquarePreviews() {
+    if (previewMode === "circle") {
+        circlePreviews();
+    } else {
+        squarePreviews();
+    }
+}
 
 function createPreviewCanvas(size) {
+    var previewObj = {
+        size: size,
+        largest: 0,
+        canvas: null,
+        container: null,
+        img: null
+    };
+
     var padding = 16;
     var runningX = 0;
+    var largest = size;
+
+    for (var i = 0; i < canvas_previews.length; i++) {
+        if (canvas_previews[i].size > largest) {
+            largest = canvas_previews[i].size;
+        }
+    }
+
+    previewObj.largest = largest;
+
+    var $container = document.createElement("div");
+    $container.className = "canvas-preview-container";
+    $container.style.width = largest + "px";
+    $container.style.height = largest + "px";
+    $container.style["z-index"] = -size;
+    previewObj.container = $container;
+
     var c = new Canvas(document.createElement("canvas"));
-    c.resize(size, size, false);
+    c.resize(largest, largest, false);
     c.__size = size;
     c.canvas.title = size + "x" + size;
     c.canvas.className = "canvas-preview";
-    document.getElementById("container").appendChild(c.canvas);
+    previewObj.canvas = c;
+    $container.appendChild(c.canvas);
+
+    var $img = document.createElement("img");
+    $img.className = "canvas-preview-img";
+    if (currentSrc) {
+        $img.src = currentSrc;
+    }
+    previewObj.img = $img;
+    $container.appendChild($img);
+
+    document.getElementById("previews").appendChild($container);
 
     var inserted = false;
     for (var i = 0; i < canvas_previews.length; i++) {
-        if (size > canvas_previews[i].__size) {
-            canvas_previews.splice(i, 0, c);
+        if (size > canvas_previews[i].size) {
+            canvas_previews.splice(i, 0, previewObj);
             inserted = true;
             break;
         }
     }
     if (!inserted) {
-        canvas_previews.push(c);
+        canvas_previews.push(previewObj);
     }
 
     for (var i = 0; i < canvas_previews.length; i++) {
-        canvas_previews[i].canvas.style.right = runningX + "px";
-        runningX += canvas_previews[i].__size + padding;
+        canvas_previews[i].container.style.right = runningX + "px";
+        runningX += canvas_previews[i].size + padding;
     }
 
-    runningX += padding;
+    //runningX += padding;
 
     var mw = "calc(100% - " + runningX + "px)";
-    var mh = "calc(100% - " + (canvas_previews[0].__size + padding + padding) + "px)";
+    //var mh = "calc(100% - " + (canvas_previews[0].__size + padding + padding) + "px)";
 
     document.getElementById("canvas").style["max-width"] = mw;
     document.getElementById("canvas-over").style["max-width"] = mw;
 
+    circleOrSquarePreviews();
 
     if (shouldHide) {
         c.canvas.className += " hidden";
@@ -84,6 +150,7 @@ function init() {
         previewMode = "square";
         document.getElementById("switch-square").classList.add("switch-active");
         document.getElementById("switch-circle").classList.remove("switch-active");
+        circleOrSquarePreviews();
         drawPreview();
     });
 
@@ -91,6 +158,7 @@ function init() {
         previewMode = "circle";
         document.getElementById("switch-square").classList.remove("switch-active");
         document.getElementById("switch-circle").classList.add("switch-active");
+        circleOrSquarePreviews();
         drawPreview();
     });
 
@@ -287,7 +355,10 @@ function loadImg() {
         }
         shouldHide = false;
 
-
+        currentSrc = canvas.src;
+        canvas_previews.forEach(o => {
+            o.img.src = currentSrc;
+        });
     });
 }
 
@@ -322,7 +393,7 @@ function drawPreview(updatePreviews) {
     }
 
     if (updatePreviews) {
-        applyToPreviewCanvas(function(c) {
+        /*applyToPreviewCanvas(function(c) {
             c.clear();
 
             if (currentAction === "none" && circle.diameter > c.__size) {
@@ -334,12 +405,21 @@ function drawPreview(updatePreviews) {
             } else {
                 c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
             }
+        });*/
 
-            if (previewMode === "circle") {
-                c.setBlendingMode("destination-in");
-                c.fillCircleInSquare(0, 0, c.width(), "white");
-                c.setBlendingMode("source-over");
-            }
+        canvas_previews.forEach(o => {
+            var scale = o.size / circle.diameter;
+            o.img.style.transform = "scale(" + scale + ")";
+            o.img.style.position = "absolute";
+            
+            var x = o.largest - o.size;
+            var y = o.largest - o.size;
+
+            x -= circle.x * scale;
+            y -= circle.y * scale;
+
+            o.img.style.left = x + "px";
+            o.img.style.top = y + "px";
         });
     }
 }

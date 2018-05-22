@@ -13,6 +13,26 @@ body, html, #container {
     overflow:hidden;
 }
 
+#previews {
+    position:absolute;
+    right:16px;
+    bottom:16px;
+    height:100%;
+    background: red;
+    z-index: 100000;
+}
+
+.canvas-preview-container {
+    position:absolute;
+    bottom:0;
+    overflow:hidden;
+}
+
+.canvas-preview-img {
+    transform-origin: top left;
+    z-index:-1;
+}
+
 #container {
     position:relative;
     height:calc(100% - 36px);
@@ -117,8 +137,6 @@ body, html, #container {
 .canvas-preview {
     position:absolute;
     bottom:0;
-    margin-right:16px;
-    margin-bottom:16px;
     background:transparent;
     z-index:0;
 }

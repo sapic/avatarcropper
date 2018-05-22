@@ -64,7 +64,7 @@ function applyToPreviewCanvas(fn) {
 
 function init() {
 
-    canvas = new Canvas(document.getElementById("canvas"));
+    canvas = document.getElementById("canvas");
     canvas_over = new Canvas(document.getElementById("canvas-over"));
 
     createPreviewCanvas(128);
@@ -106,7 +106,7 @@ function init() {
         var c = new Canvas(document.createElement("canvas"));
         c.resize(circle.diameter, circle.diameter, false);
         c.clear();
-        c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+        c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
         if (previewMode === "circle") {
             c.setBlendingMode("destination-in");
             c.fillCircleInSquare(0, 0, c.width(), "white");
@@ -137,8 +137,8 @@ function init() {
 
             if (circle.x < 0) circle.x = 0;
             if (circle.y < 0) circle.y = 0;
-            if (circle.x + circle.diameter > canvas.width()) circle.x = canvas.width() - circle.diameter;
-            if (circle.y + circle.diameter > canvas.height()) circle.y = canvas.height() - circle.diameter;
+            if (circle.x + circle.diameter > canvas.innerWidth) circle.x = canvas.innerWidth - circle.diameter;
+            if (circle.y + circle.diameter > canvas.innerHeight) circle.y = canvas.innerHeight - circle.diameter;
         } else if (currentAction === "resize") {
             var xr = x < circle.x + circle.diameter / 2;
             var yr = y < circle.y + circle.diameter / 2;
@@ -156,31 +156,31 @@ function init() {
                         dd = Math.min(circleOrigin.x, circleOrigin.y);
                     }
                 } else {
-                    if (circleOrigin.x - dd < 0 || circleOrigin.y + circleOrigin.diameter + dd > canvas.height()) {
-                        dd = Math.min(circleOrigin.x, canvas.height() - circleOrigin.y - circleOrigin.diameter);
+                    if (circleOrigin.x - dd < 0 || circleOrigin.y + circleOrigin.diameter + dd > canvas.innerHeight) {
+                        dd = Math.min(circleOrigin.x, canvas.innerHeight - circleOrigin.y - circleOrigin.diameter);
                     }
                 }
             } else {
                 if (yr) {
-                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.width() || circleOrigin.y - dd < 0) {
-                        dd = Math.min(canvas.width() - circleOrigin.x - circleOrigin.diameter, circleOrigin.y);
+                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.innerWidth || circleOrigin.y - dd < 0) {
+                        dd = Math.min(canvas.innerWidth - circleOrigin.x - circleOrigin.diameter, circleOrigin.y);
                     }
                 } else {
-                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.width() || circleOrigin.y + circleOrigin.diameter + dd > canvas.height()) {
-                        dd = Math.min(canvas.width() - circleOrigin.x - circleOrigin.diameter, canvas.height() - circleOrigin.y - circleOrigin.diameter);
+                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.innerWidth || circleOrigin.y + circleOrigin.diameter + dd > canvas.innerHeight) {
+                        dd = Math.min(canvas.innerWidth - circleOrigin.x - circleOrigin.diameter, canvas.innerHeight - circleOrigin.y - circleOrigin.diameter);
                     }
                 }
             }
-            if (circle.diameter > canvas.width()) {
+            if (circle.diameter > canvas.innerWidth) {
                 // panic
                 circle.x = 0;
                 circle.y = 0;
-                circle.diameter = canvas.width();
+                circle.diameter = canvas.innerWidth;
                 alert("fuck");
-            } else if (circle.diameter > canvas.height()) {
+            } else if (circle.diameter > canvas.innerHeight) {
                 circle.x = 0;
                 circle.y = 0;
-                circle.diameter = canvas.height();
+                circle.diameter = canvas.innerHeight;
                 alert("fuck");
             } else {
                 circle.diameter = circleOrigin.diameter + dd;
@@ -258,21 +258,24 @@ function loadImg() {
     var file = this.files[0];
 
     Canvas.fileToImage(file, function(img) {
-        var data = canvas.getImageData().data;
+        canvas_over.drawImage(img, 0, 0);
+        var data = canvas_over.getImageData().data;
         for (var i = 0; i < data.length; i += 4) {
             if (data[i + 3] < 255) {
                 tpixels = true;
                 break;
             }
         }
+        canvas_over.clear();
 
         var es = document.getElementsByClassName("hidden");
         for (var i = 0; i < es.length; i++) {
             es[i].style.display = "inline-block";
         }
-        canvas.resize(img.width, img.height, false);
+        canvas.innerWidth = img.width;
+        canvas.innerHeight = img.height;
         canvas_over.resize(img.width, img.height, false);
-        canvas.drawImage(img, 0, 0);
+        canvas.src = window.URL.createObjectURL(file);
         circle.x = 0;
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
@@ -325,11 +328,11 @@ function drawPreview(updatePreviews) {
             if (currentAction === "none" && circle.diameter > c.__size) {
                 let cv = new Canvas(document.createElement("canvas"));
                 cv.resize(circle.diameter, circle.diameter, false);
-                cv.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+                cv.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
                 let cv_2 = downScaleCanvas(cv.canvas, c.width() / circle.diameter);
                 c.drawImage(cv_2, 0, 0);
             } else {
-                c.drawCroppedImage(canvas.canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
+                c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
             }
 
             if (previewMode === "circle") {

@@ -13,6 +13,7 @@ var outlinesEnabled = true;
 var tpixels = false;
 var mouseOrigin, circleOrigin;
 var currentSrc;
+var currentFiletype;
 
 function circlePreviews() {
     canvas_previews.forEach(o => {
@@ -171,15 +172,73 @@ function init() {
     });
 
     document.getElementById("save").addEventListener("click", function() {
-        var c = new Canvas(document.createElement("canvas"));
-        c.resize(circle.diameter, circle.diameter, false);
-        c.clear();
-        c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        if (previewMode === "circle") {
-            c.setBlendingMode("destination-in");
-            c.fillCircleInSquare(0, 0, c.width(), "white");
+        if (currentFiletype === "image/gif") {
+            gif = new SuperGif({
+                gif: canvas
+            });
+
+            gif.load(function() {
+                var saveGif = new GIF({
+                    workers: 2,
+                    quality: 0,
+                    width: circle.diameter,
+                    height: circle.diameter,
+                    debug: true
+                });
+
+                var len = gif.get_length();
+                var count = 0;
+
+                for (var i = 0; i < len; i++) {
+                    let j = i;
+                    gif.move_to(i);
+
+                    var c = new Canvas(document.createElement("canvas"));
+                    c.resize(circle.diameter, circle.diameter, false);
+                    c.clear();
+                    c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+                    if (previewMode === "circle") {
+                        c.setBlendingMode("destination-in");
+                        c.fillCircleInSquare(0, 0, c.width(), "white");
+                    }
+                    
+                    c.toImage(function(img) {
+                        img.crossOrigin = "anonymous"
+                        saveGif.addFrame(img, {
+                            delay: gif.get_frames()[j].delay * 10
+                        });
+                        count++;
+
+                        if (count === len) {
+                            saveGif.render();
+                        }
+                    })
+                }
+                
+                saveGif.on("finished", function(blob) {
+                    window.open(URL.createObjectURL(blob));
+                });
+
+                saveGif.on("abort", function() {
+                    console.log("fuckkk");
+                });
+
+                saveGif.on("progress", function(e) {
+                    console.log("proggress", e);
+                });
+
+            });
+        } else {
+            var c = new Canvas(document.createElement("canvas"));
+            c.resize(circle.diameter, circle.diameter, false);
+            c.clear();
+            c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+            if (previewMode === "circle") {
+                c.setBlendingMode("destination-in");
+                c.fillCircleInSquare(0, 0, c.width(), "white");
+            }
+            this.href = c.toDataURL().replace("image/png", "application/octet-stream");
         }
-        this.href = c.toDataURL().replace("image/png", "application/octet-stream");
     });
 
     canvas_over.setMouseMove(function(x, y, md, lx, ly, e) {
@@ -324,6 +383,7 @@ function btn_outlines_clickFn() {
 function loadImg() {
     if (!this.files[0]) return;
     var file = this.files[0];
+    currentFiletype = file.type;
 
     Canvas.fileToImage(file, function(img) {
         canvas_over.drawImage(img, 0, 0);

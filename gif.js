@@ -510,18 +510,25 @@
 
                     var data = this.getContextData(ctx);
                     var bg = 0;
+                    var trans = false;
                     
                     for (var i = 0; i < data.length; i += 4) {
                         var color = (data[i + 0] << 16) | (data[i + 1] << 8) | (data[i + 2]);
                         if (colors.indexOf(color) === -1) {
                             colors.push(color);
                         }
+                        if (data[i + 3] !== 255) {
+                            trans = true;
+                            break;
+                        }
                     }
 
 
-                    for (bg = 0; bg <= 0xffffff; bg++) {
-                        if (colors.indexOf(bg) === -1) {
-                            break;
+                    if (trans) {
+                        for (bg = 0; bg <= 0xffffff; bg++) {
+                            if (colors.indexOf(bg) === -1) {
+                                break;
+                            }
                         }
                     }
 
@@ -535,7 +542,7 @@
                     var ret = this.getContextData(ctx);
                     return {
                         data: ret,
-                        transparent: bg
+                        transparent: (trans ? bg : null)
                     };
                 };
                 GIF.prototype.getTask = function(frame) {

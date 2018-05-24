@@ -174,7 +174,7 @@ function init() {
     document.getElementById("save").addEventListener("click", function() {
         if (currentFiletype === "image/gif") {
             gif = new SuperGif({
-                gif: canvas
+                gif: canvas.cloneNode()
             });
 
             gif.load(function() {

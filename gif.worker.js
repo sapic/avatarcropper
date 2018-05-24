@@ -150,6 +150,7 @@
             this.colorDepth = 8;
             this.palSize = 7;
             if (this.transparent !== null) {
+                console.log(this.transparent);
                 this.transIndex = this.findClosest(this.transparent, true)
             }
         };

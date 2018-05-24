@@ -934,8 +934,10 @@ Canvas.prototype.extractImage =
 Canvas.prototype.toImage =
 Canvas.prototype.getImage = function(cb) {
     var ret = new Image();
+
     ret.onload = function() {
         cb(this);
+        this.onload = null;
     };
 
     ret.src = this.toDataURL();

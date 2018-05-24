@@ -504,6 +504,9 @@
                     }
                     ctx = this._canvas.getContext("2d");
                     var colors = [];
+                    if (window.colors === undefined) {
+                        window.colors = [];
+                    }
 
                     ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
                     ctx.drawImage(image, 0, 0);
@@ -517,9 +520,11 @@
                         if (colors.indexOf(color) === -1) {
                             colors.push(color);
                         }
+                        if (window.colors.indexOf(color) === -1) {
+                            window.colors.push(color);
+                        }
                         if (data[i + 3] !== 255) {
                             trans = true;
-                            break;
                         }
                     }
 
@@ -530,16 +535,20 @@
                                 break;
                             }
                         }
-                    }
-
-                    window.colors = colors;
-                    window.bg = bg;
+                    } // "{\"x\":26,\"y\":55,\"diameter\":98}"
 
                     ctx.fillStyle = "#" + bg.toString(16).padStart(6, "0");
                     ctx.fillRect(0, 0, this.options.width, this.options.height);
                     ctx.drawImage(image, 0, 0);
 
+                    if (window.xxx === undefined) {
+                        window.xxx = 1;
+                    }
+
+                    //console.log((new Canvas(this._canvas)).getImageData().data[38026]);
+
                     var ret = this.getContextData(ctx);
+                    //console.log(ret[98*97*4+2]);
                     return {
                         data: ret,
                         transparent: (trans ? bg : null)

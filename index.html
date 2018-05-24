@@ -6,8 +6,7 @@
         <link rel="shortcut icon" href="favicon.png"></link>
         <!--<script src="js/jquery-2.1.4.min.js"></script>-->
         <script src="js/canvas.js"></script>
-        <script src="gif.worker.js"></script>
-        <script src="gif.js"></script>
+        <script src="js/Animated_GIF.js"></script>
         <script src="js/libgif.js"></script>
         <script src="js/discordphoto.js"></script>
         <meta charset="UTF-8">
@@ -24,6 +23,16 @@
     <body>
 
         <div id="container" class="">
+            <div id="renderContainer">
+                <div id="renderView">
+                    <h1 id="render-header">Rendering...</h1>
+                    <div id="renderView-progressBar">
+                        <div id="renderView-progress"></div>
+                    </div>
+                    <img id="render-img" />
+                    <button id="render-save">Save</button>
+                </div>
+            </div>
 
             <input id="input-file" type="file" accept="image/*" />
 

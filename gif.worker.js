@@ -139,7 +139,7 @@
             if (!this.colorTab) {
                 this.neuQuant = new NeuQuant(this.pixels, this.sample);
                 this.neuQuant.buildColormap();
-                this.colorTab = this.neuQuant.getColormap()
+                this.colorTab = this.neuQuant.getColormap();
             }
             if (this.dither) {
                 this.ditherPixels(this.dither.replace("-serpentine", ""), this.dither.match(/-serpentine/) !== null)
@@ -150,7 +150,6 @@
             this.colorDepth = 8;
             this.palSize = 7;
             if (this.transparent !== null) {
-                console.log(this.transparent);
                 this.transIndex = this.findClosest(this.transparent, true)
             }
         };
@@ -280,6 +279,9 @@
                     this.pixels[count++] = data[srcPos++];
                     this.pixels[count++] = data[srcPos++];
                     srcPos++
+                    /*if (i === 97 && j === 0) {
+                        console.log(this.pixels[count - 1]);
+                    }*/
                 }
             }
         };

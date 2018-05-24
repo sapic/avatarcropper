@@ -14,6 +14,7 @@ var tpixels = false;
 var mouseOrigin, circleOrigin;
 var currentSrc;
 var currentFiletype;
+var currentlyRendering = false;
 
 function circlePreviews() {
     canvas_previews.forEach(o => {
@@ -147,6 +148,18 @@ function init() {
         hideContribs();
     }
 
+    document.getElementById("renderContainer").addEventListener("click", function() {
+        if (currentlyRendering) {
+            return;
+        }
+
+        document.getElementById("renderContainer").style.display = "none";
+    });
+
+    document.getElementById("renderView").addEventListener("click", function(e) {
+        e.stopPropagation();
+    });
+
     document.getElementById("switch-square").addEventListener("click", function() {
         previewMode = "square";
         document.getElementById("switch-square").classList.add("switch-active");
@@ -176,6 +189,14 @@ function init() {
             gif = new SuperGif({
                 gif: canvas.cloneNode()
             });
+            
+            document.getElementById("renderContainer").style.display = "block";
+            document.getElementById("renderView-progressBar").style.display = "block";
+            document.getElementById("renderView-progress").style.width = "0%";
+            document.getElementById("render-header").innerText = "Rendering...";
+            document.getElementById("render-save").style.display = "none";
+            document.getElementById("render-img").src = "";
+            currentlyRendering = true;
 
             gif.load(function() {
                 var saveGif = new GIF({
@@ -183,7 +204,8 @@ function init() {
                     quality: 0,
                     width: circle.diameter,
                     height: circle.diameter,
-                    debug: true
+                    debug: false,
+                    copy: true
                 });
 
                 var len = gif.get_length();
@@ -212,11 +234,16 @@ function init() {
                         if (count === len) {
                             saveGif.render();
                         }
-                    })
+                    });
                 }
                 
                 saveGif.on("finished", function(blob) {
-                    window.open(URL.createObjectURL(blob));
+                    var url = URL.createObjectURL(blob);
+                    document.getElementById("render-img").src = url;
+                    document.getElementById("renderView-progressBar").style.display = "none";
+                    document.getElementById("render-save").style.display = "block";
+                    document.getElementById("render-header").innerText = "Rendered! yayy";
+                    currentlyRendering = false;
                 });
 
                 saveGif.on("abort", function() {
@@ -224,7 +251,7 @@ function init() {
                 });
 
                 saveGif.on("progress", function(e) {
-                    console.log("proggress", e);
+                    document.getElementById("renderView-progress").style.width = (e * 100) + "%";
                 });
 
             });

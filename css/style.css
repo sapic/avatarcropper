@@ -79,7 +79,7 @@ body, html, #container {
     font-size:18px;
     border-radius:5px;
     cursor:pointer;
-    display:block !important;
+    display:block;
     text-decoration:none;
     text-align:center;
     font-weight:bold;

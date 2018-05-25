@@ -501,6 +501,11 @@
                         this._canvas = document.createElement("canvas");
                         this._canvas.width = this.options.width;
                         this._canvas.height = this.options.height
+
+                        this._canvas.mozImageSmoothingEnabled = false;
+                        this._canvas.webkitImageSmoothingEnabled = false;
+                        this._canvas.msImageSmoothingEnabled = false;
+                        this._canvas.imageSmoothingEnabled = false;
                     }
                     ctx = this._canvas.getContext("2d");
                     var colors = [];
@@ -514,9 +519,12 @@
                     var data = this.getContextData(ctx);
                     var bg = 0;
                     var trans = false;
+                    var green = 0, violet = 0;
                     
                     for (var i = 0; i < data.length; i += 4) {
                         var color = (data[i + 0] << 16) | (data[i + 1] << 8) | (data[i + 2]);
+                        green += data[i + 1];
+                        violet += (data[i] + data[i+2]) / 2;
                         if (colors.indexOf(color) === -1) {
                             colors.push(color);
                         }
@@ -528,22 +536,24 @@
                         }
                     }
 
-
                     if (trans) {
-                        for (bg = 0; bg <= 0xffffff; bg++) {
+                        /*for (bg = 0; bg <= 0xffffff; bg++) {
                             if (colors.indexOf(bg) === -1) {
                                 break;
                             }
-                        }
+                        }*/
+                        bg = (green < violet ? 0x00ff00 : 0xff00ff);
                     } // "{\"x\":26,\"y\":55,\"diameter\":98}"
+
+                    
 
                     ctx.fillStyle = "#" + bg.toString(16).padStart(6, "0");
                     ctx.fillRect(0, 0, this.options.width, this.options.height);
                     ctx.drawImage(image, 0, 0);
 
-                    if (window.xxx === undefined) {
+                    /*if (window.xxx === undefined) {
                         window.xxx = 1;
-                    }
+                    }*/
 
                     //console.log((new Canvas(this._canvas)).getImageData().data[38026]);
 

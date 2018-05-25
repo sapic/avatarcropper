@@ -186,6 +186,10 @@ function init() {
 
     document.getElementById("save").addEventListener("click", function() {
         if (currentFiletype === "image/gif") {
+            if (this.href) {
+                this.removeAttribute("href");
+            }
+
             gif = new SuperGif({
                 gif: canvas.cloneNode()
             });
@@ -201,7 +205,8 @@ function init() {
             gif.load(function() {
                 var saveGif = new GIF({
                     workers: 2,
-                    quality: 0,
+                    quality: 1,
+                    dither: false,
                     width: circle.diameter,
                     height: circle.diameter,
                     debug: false,
@@ -219,10 +224,10 @@ function init() {
                     c.resize(circle.diameter, circle.diameter, false);
                     c.clear();
                     c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-                    if (previewMode === "circle") {
+                    /*if (previewMode === "circle") {
                         c.setBlendingMode("destination-in");
                         c.fillCircleInSquare(0, 0, c.width(), "white");
-                    }
+                    }*/
                     
                     c.toImage(function(img) {
                         img.crossOrigin = "anonymous"
@@ -266,6 +271,10 @@ function init() {
             }
             this.href = c.toDataURL().replace("image/png", "application/octet-stream");
         }
+    });
+
+    document.getElementById("render-save").addEventListener("click", function() {
+        this.href = document.getElementById("render-img").src;
     });
 
     canvas_over.setMouseMove(function(x, y, md, lx, ly, e) {
@@ -435,6 +444,7 @@ function loadImg() {
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
         document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.png");
+        document.getElementById("render-save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.gif");
         if (shouldHide) {
             document.getElementById("switch-circle").click(); // draws preview
         } else {

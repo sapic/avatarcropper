@@ -127,7 +127,7 @@ function createPreviewCanvas(size) {
         runningX += canvas_previews[i].size + padding;
     }
 
-    //runningX += padding;
+    runningX += padding;
 
     var mw = "calc(100% - " + runningX + "px)";
     //var mh = "calc(100% - " + (canvas_previews[0].__size + padding + padding) + "px)";

@@ -16,10 +16,10 @@ function Canvas(canvas, flags) {
     this.translation = { x: 0, y: 0 };
     flags = flags || 0;
 
-    this.canvas.mozImageSmoothingEnabled = false;
+    /*this.canvas.mozImageSmoothingEnabled = false;
 	this.canvas.webkitImageSmoothingEnabled = false;
 	this.canvas.msImageSmoothingEnabled = false;
-	this.canvas.imageSmoothingEnabled = false;
+	this.canvas.imageSmoothingEnabled = false;*/
 
     this.mouseDownEvents = [];
     this.mouseMoveEvents = [];

@@ -502,10 +502,10 @@
                         this._canvas.width = this.options.width;
                         this._canvas.height = this.options.height
 
-                        this._canvas.mozImageSmoothingEnabled = false;
+                        /*this._canvas.mozImageSmoothingEnabled = false;
                         this._canvas.webkitImageSmoothingEnabled = false;
                         this._canvas.msImageSmoothingEnabled = false;
-                        this._canvas.imageSmoothingEnabled = false;
+                        this._canvas.imageSmoothingEnabled = false;*/
                     }
                     ctx = this._canvas.getContext("2d");
                     var colors = [];

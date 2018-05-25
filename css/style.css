@@ -6,11 +6,6 @@
 }
 
 canvas {
-	image-rendering: optimizeSpeed;
-	image-rendering: -moz-crisp-edges;
-	image-rendering: -webkit-optimize-contrast;
-	image-rendering: optimize-contrast;
-	-ms-interpolation-mode: nearest-neighbor;
 }
 
 body, html, #container {
@@ -97,7 +92,7 @@ body, html, #container {
     bottom:16px;
     height:100%;
     background: red;
-    z-index: 100000;
+    z-index: 0;
 }
 
 .canvas-preview-container {
@@ -187,6 +182,7 @@ body, html, #container {
     position:absolute;
     left:0;
     top:0;
+    z-index: 1;
 }
 
 #canvas-over {

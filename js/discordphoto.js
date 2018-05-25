@@ -1,22 +1,38 @@
 var canvas, canvas_over;
 var canvas_previews = [];
-var previewMode = "circle";
 var currentAction = "none";
 var circle = {
     x: 0,
     y: 0,
     diameter: 32
 };
-var maskTransparency = 0;
 var shouldHide = true;
-var outlinesEnabled = true;
 var tpixels = false;
 var mouseOrigin, circleOrigin;
 var currentSrc;
 var currentFiletype;
 var currentlyRendering = false;
 
+var settings = {
+    previewMode: "circle",
+    maskTransparency: 0,
+    outlinesEnabled: true
+};
+
+function setSetting(key, value) {
+    settings[key] = value;
+    Storage.set("settings", settings);
+}
+
+function loadSettings() {
+    settings = Storage.get("settings", settings);
+}
+
 function circlePreviews() {
+    setSetting("previewMode", "circle");
+    document.getElementById("switch-square").classList.remove("switch-active");
+    document.getElementById("switch-circle").classList.add("switch-active");
+
     canvas_previews.forEach(o => {
         let c = o.canvas;
         c.fill("#2F3136");
@@ -27,6 +43,10 @@ function circlePreviews() {
 }
 
 function squarePreviews() {
+    setSetting("previewMode", "square");
+    document.getElementById("switch-square").classList.add("switch-active");
+    document.getElementById("switch-circle").classList.remove("switch-active");
+
     canvas_previews.forEach(o => {
         let c = o.canvas;
         c.fill("#2F3136");
@@ -37,7 +57,7 @@ function squarePreviews() {
 }
 
 function circleOrSquarePreviews() {
-    if (previewMode === "circle") {
+    if (settings.previewMode === "circle") {
         circlePreviews();
     } else {
         squarePreviews();
@@ -131,6 +151,9 @@ function applyToPreviewCanvas(fn) {
 }
 
 function init() {
+    loadSettings();
+    document.getElementById("slider-opacity").value = settings.maskTransparency;
+    document.getElementById("btn-outlines").classList[settings.outlinesEnabled ? "add" : "remove"]("toggle-active");
 
     canvas = document.getElementById("canvas");
     canvas_over = new Canvas(document.getElementById("canvas-over"));
@@ -161,20 +184,16 @@ function init() {
     });
 
     document.getElementById("switch-square").addEventListener("click", function() {
-        previewMode = "square";
-        document.getElementById("switch-square").classList.add("switch-active");
-        document.getElementById("switch-circle").classList.remove("switch-active");
-        circleOrSquarePreviews();
+        squarePreviews();
         drawPreview();
     });
 
     document.getElementById("switch-circle").addEventListener("click", function() {
-        previewMode = "circle";
-        document.getElementById("switch-square").classList.remove("switch-active");
-        document.getElementById("switch-circle").classList.add("switch-active");
-        circleOrSquarePreviews();
+        circlePreviews();
         drawPreview();
     });
+
+    circleOrSquarePreviews();
 
     document.getElementById("slider-opacity").addEventListener("input", slider_opacity_inputfn);
     document.getElementById("btn-addPreview").addEventListener("click", btn_addPreview_clickFn);
@@ -224,7 +243,7 @@ function init() {
                     c.resize(circle.diameter, circle.diameter, false);
                     c.clear();
                     c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-                    /*if (previewMode === "circle") {
+                    /*if (settings.previewMode === "circle") {
                         c.setBlendingMode("destination-in");
                         c.fillCircleInSquare(0, 0, c.width(), "white");
                     }*/
@@ -265,7 +284,7 @@ function init() {
             c.resize(circle.diameter, circle.diameter, false);
             c.clear();
             c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-            if (previewMode === "circle") {
+            if (settings.previewMode === "circle") {
                 c.setBlendingMode("destination-in");
                 c.fillCircleInSquare(0, 0, c.width(), "white");
             }
@@ -396,7 +415,7 @@ function showSupporters() {
 }
 
 function slider_opacity_inputfn() {
-    maskTransparency = document.getElementById("slider-opacity").value;
+    setSetting("maskTransparency", document.getElementById("slider-opacity").value);
     drawPreview(false);
 }
 
@@ -411,7 +430,7 @@ function btn_addPreview_clickFn() {
 
 function btn_outlines_clickFn() {
     var $b = document.getElementById("btn-outlines");
-    outlinesEnabled = !outlinesEnabled;
+    setSetting("outlinesEnabled", !settings.outlinesEnabled);
     $b.classList.toggle("toggle-active");
     drawPreview(false);
 }
@@ -422,6 +441,7 @@ function loadImg() {
     currentFiletype = file.type;
 
     Canvas.fileToImage(file, function(img) {
+        tpixels = false;
         canvas_over.drawImage(img, 0, 0);
         var data = canvas_over.getImageData().data;
         for (var i = 0; i < data.length; i += 4) {
@@ -443,13 +463,10 @@ function loadImg() {
         circle.x = 0;
         circle.y = 0;
         circle.diameter = img.width > img.height ? img.height : img.width;
+        circle.diameter /= 2;
         document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.png");
         document.getElementById("render-save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.gif");
-        if (shouldHide) {
-            document.getElementById("switch-circle").click(); // draws preview
-        } else {
-            drawPreview(); // we've done this before and dont want to set it to circle so just draw preview
-        }
+        drawPreview();
         shouldHide = false;
 
         currentSrc = canvas.src;
@@ -462,15 +479,15 @@ function loadImg() {
 function drawPreview(updatePreviews) {
     if (updatePreviews === undefined) updatePreviews = true;
 
-    if (maskTransparency !== 0) {
+    if (settings.maskTransparency !== 0) {
         canvas_over.clear();
     }
 
-    if (maskTransparency !== 1) {
-        canvas_over.fill("rgba(0,0,0," + (1 - maskTransparency) + ")");
+    if (settings.maskTransparency !== 1) {
+        canvas_over.fill("rgba(0,0,0," + (1 - settings.maskTransparency) + ")");
 
         canvas_over.setBlendingMode("destination-out");
-        if (previewMode === "circle") {
+        if (settings.previewMode === "circle") {
             canvas_over.fillCircleInSquare(circle.x, circle.y, circle.diameter, "white");
         } else {
             canvas_over.fillRect(circle.x, circle.y, circle.diameter, circle.diameter, "white");
@@ -479,8 +496,8 @@ function drawPreview(updatePreviews) {
 
     canvas_over.setBlendingMode("source-over");
 
-    if (outlinesEnabled) {
-        if (previewMode === "circle") {
+    if (settings.outlinesEnabled) {
+        if (settings.previewMode === "circle") {
             canvas_over.setLineDash([1, 2]);
             canvas_over.drawCircleInSquare(circle.x, circle.y, circle.diameter, "white", 1);
         } else {

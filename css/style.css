@@ -38,12 +38,21 @@ body, html, #container {
 #renderView {
     background:#eee;
     width:500px;
+    max-width:70%;
     border-radius:5px;
     padding:12px 24px;
     position:absolute;
     left:50%;
-    top:100px;
+    top:10%;
     transform:translate(-50%, 0%);
+    max-height:70%;
+    height:auto;
+    overflow:auto;
+}
+
+#render-img {
+    max-width:300px;
+    margin: 8px 0;
 }
 
 #renderView h1 {
@@ -78,12 +87,6 @@ body, html, #container {
     text-decoration:none;
     text-align:center;
     font-weight:bold;
-}
-
-#render-img {
-    max-height:500px;
-    max-width:500px;
-    margin: 8px 0;
 }
 
 #previews {

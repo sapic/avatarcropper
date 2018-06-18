@@ -475,7 +475,7 @@ function loadImg() {
         circle.diameter = img.width > img.height ? img.height : img.width;
         circle.diameter /= 2;
         document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.png");
-        document.getElementById("render-save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.gif");
+        document.getElementById("render-save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped." + (currentFiletype === "image/gif" ? "gif" : "png"));
         drawPreview();
         shouldHide = false;
 

@@ -177,6 +177,8 @@ function init() {
         }
 
         document.getElementById("renderContainer").style.display = "none";
+        var url = document.getElementById("render-img").src;
+        url && URL.revokeObjectURL(url);
     });
 
     document.getElementById("renderView").addEventListener("click", function(e) {
@@ -203,94 +205,7 @@ function init() {
         return false;
     });
 
-    document.getElementById("save").addEventListener("click", function() {
-        if (currentFiletype === "image/gif") {
-            if (this.href) {
-                this.removeAttribute("href");
-            }
-
-            gif = new SuperGif({
-                gif: canvas.cloneNode()
-            });
-            
-            document.getElementById("renderContainer").style.display = "block";
-            document.getElementById("renderView-progressBar").style.display = "block";
-            document.getElementById("renderView-progress").style.width = "0%";
-            document.getElementById("render-header").innerText = "Rendering...";
-            document.getElementById("render-save").style.display = "none";
-            document.getElementById("render-img").src = "";
-            currentlyRendering = true;
-
-            gif.load(function() {
-                var saveGif = new GIF({
-                    workers: 2,
-                    quality: 1,
-                    dither: false,
-                    width: circle.diameter,
-                    height: circle.diameter,
-                    debug: false,
-                    copy: true
-                });
-
-                var len = gif.get_length();
-                var count = 0;
-
-                for (var i = 0; i < len; i++) {
-                    let j = i;
-                    gif.move_to(i);
-
-                    var c = new Canvas(document.createElement("canvas"));
-                    c.resize(circle.diameter, circle.diameter, false);
-                    c.clear();
-                    c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-                    /*if (settings.previewMode === "circle") {
-                        c.setBlendingMode("destination-in");
-                        c.fillCircleInSquare(0, 0, c.width(), "white");
-                    }*/
-                    
-                    c.toImage(function(img) {
-                        img.crossOrigin = "anonymous"
-                        saveGif.addFrame(img, {
-                            delay: gif.get_frames()[j].delay * 10
-                        });
-                        count++;
-
-                        if (count === len) {
-                            saveGif.render();
-                        }
-                    });
-                }
-                
-                saveGif.on("finished", function(blob) {
-                    var url = URL.createObjectURL(blob);
-                    document.getElementById("render-img").src = url;
-                    document.getElementById("renderView-progressBar").style.display = "none";
-                    document.getElementById("render-save").style.display = "block";
-                    document.getElementById("render-header").innerText = "Rendered! yayy";
-                    currentlyRendering = false;
-                });
-
-                saveGif.on("abort", function() {
-                    console.log("fuckkk");
-                });
-
-                saveGif.on("progress", function(e) {
-                    document.getElementById("renderView-progress").style.width = (e * 100) + "%";
-                });
-
-            });
-        } else {
-            var c = new Canvas(document.createElement("canvas"));
-            c.resize(circle.diameter, circle.diameter, false);
-            c.clear();
-            c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-            if (settings.previewMode === "circle") {
-                c.setBlendingMode("destination-in");
-                c.fillCircleInSquare(0, 0, c.width(), "white");
-            }
-            this.href = c.toDataURL().replace("image/png", "application/octet-stream");
-        }
-    });
+    document.getElementById("save").addEventListener("click", render);
 
     document.getElementById("render-save").addEventListener("click", function() {
         this.href = document.getElementById("render-img").src;
@@ -403,6 +318,101 @@ function init() {
     canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
 
     slider_opacity_inputfn();
+}
+
+function display_renderStart() {
+    document.getElementById("renderContainer").style.display = "block";
+    document.getElementById("renderView-progressBar").style.display = "block";
+    document.getElementById("renderView-progress").style.width = "0%";
+    document.getElementById("render-header").innerText = "Rendering...";
+    document.getElementById("render-save").style.display = "none";
+    document.getElementById("render-img").src = "";
+}
+
+function display_renderFinished(url) {
+    document.getElementById("render-img").src = url;
+    document.getElementById("renderView-progressBar").style.display = "none";
+    document.getElementById("render-save").style.display = "block";
+    document.getElementById("render-header").innerText = "Rendered! yayy";
+}
+
+function render() {
+    display_renderStart();
+    if (currentFiletype === "image/gif") {
+        gif = new SuperGif({
+            gif: canvas.cloneNode()
+        });
+        currentlyRendering = true;
+
+        gif.load(function() {
+            var saveGif = new GIF({
+                workers: 2,
+                quality: 1,
+                dither: false,
+                width: circle.diameter,
+                height: circle.diameter,
+                debug: false,
+                copy: true
+            });
+
+            var len = gif.get_length();
+            var count = 0;
+
+            for (var i = 0; i < len; i++) {
+                let j = i;
+                gif.move_to(i);
+
+                var c = new Canvas(document.createElement("canvas"));
+                c.resize(circle.diameter, circle.diameter, false);
+                c.clear();
+                c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+                /*if (settings.previewMode === "circle") {
+                    c.setBlendingMode("destination-in");
+                    c.fillCircleInSquare(0, 0, c.width(), "white");
+                }*/
+                
+                c.toImage(function(img) {
+                    img.crossOrigin = "anonymous"
+                    saveGif.addFrame(img, {
+                        delay: gif.get_frames()[j].delay * 10
+                    });
+                    count++;
+
+                    if (count === len) {
+                        saveGif.render();
+                    }
+                });
+            }
+            
+            saveGif.on("finished", function(blob) {
+                var url = URL.createObjectURL(blob);
+                display_renderFinished(url);
+                currentlyRendering = false;
+            });
+
+            saveGif.on("abort", function() {
+                console.log("fuckkk");
+            });
+
+            saveGif.on("progress", function(e) {
+                document.getElementById("renderView-progress").style.width = (e * 100) + "%";
+            });
+
+        });
+    } else {
+        var c = new Canvas(document.createElement("canvas"));
+        c.resize(circle.diameter, circle.diameter, false);
+        c.clear();
+        c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+        if (settings.previewMode === "circle") {
+            c.setBlendingMode("destination-in");
+            c.fillCircleInSquare(0, 0, c.width(), "white");
+        }
+        c.canvas.toBlob((function(blob) {
+            var url = URL.createObjectURL(blob);
+            display_renderFinished(url);
+        }).bind(this));
+    }
 }
 
 function hideContribs() {

@@ -246,6 +246,12 @@ body, html, #container {
 
 #save {
     font-weight:bold;
+    background:#bbff55;
+    color:#111;
+}
+
+#save:hover {
+    border:1px solid #11aa11;
 }
 
 #input-file {

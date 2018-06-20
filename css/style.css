@@ -175,6 +175,7 @@ body, html, #container {
     position:absolute;
     left:-1px;
     top:-1px;
+    display:none;
 }
 
 #canvas, #canvas-over {
@@ -333,4 +334,35 @@ input[type=range]::-webkit-slider-thumb {
     margin:0;
     cursor: pointer;
     -webkit-appearance: none;
+}
+
+#dragDropOverlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background-color: #2F3136;
+    z-index: 99999;
+
+    /* auto-prefixed in-place... messy but necessary */
+    flex-flow: column;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-flow: column;
+
+    align-items: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+
+    justify-content: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+}
+
+#dragDropOverlay div {
+    -webkit-box-flex: 0;
+        -ms-flex: 0 1 auto;
+            flex: 0 1 auto;
 }

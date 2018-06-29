@@ -50,6 +50,13 @@ body, html, #container {
     overflow:auto;
 }
 
+#render-close {
+    position:absolute;
+    right:16px;
+    cursor:pointer;
+    font-size:2em;
+}
+
 #render-img {
     max-width:300px;
     margin: 8px 0;
@@ -140,6 +147,10 @@ body, html, #container {
     margin-left:4px;
 }
 
+.donate > input {
+    background:transparent;
+}
+
 #contriblist {
     display:inline-block;
     position:absolute;
@@ -175,6 +186,7 @@ body, html, #container {
     position:absolute;
     left:-1px;
     top:-1px;
+    z-index:-100;
 }
 
 #canvas, #canvas-over {

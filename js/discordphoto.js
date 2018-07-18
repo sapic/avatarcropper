@@ -13,6 +13,8 @@ var currentSrc;
 var currentFiletype;
 var currentlyRendering = false;
 
+var zoomFactor = 1;
+
 var settings = {
     previewMode: "circle",
     maskTransparency: 0,
@@ -132,8 +134,7 @@ function createPreviewCanvas(size) {
     var mw = "calc(100% - " + runningX + "px)";
     //var mh = "calc(100% - " + (canvas_previews[0].__size + padding + padding) + "px)";
 
-    document.getElementById("canvas").style["max-width"] = mw;
-    document.getElementById("canvas-over").style["max-width"] = mw;
+    document.getElementById("container-canvas").style["width"] = mw;
 
     circleOrSquarePreviews();
 
@@ -156,7 +157,7 @@ function init() {
     document.getElementById("btn-outlines").classList[settings.outlinesEnabled ? "add" : "remove"]("toggle-active");
 
     canvas = document.getElementById("canvas");
-    canvas_over = new Canvas(document.getElementById("canvas-over"));
+    canvas_over = new Canvas(document.getElementById("canvas-over"), Canvas.flags.useDeepCalc);
 
     createPreviewCanvas(128);
     createPreviewCanvas(90);
@@ -201,6 +202,9 @@ function init() {
         return false;
     });
 
+    document.getElementById("zoom-in").addEventListener("click", zoomIn);
+    document.getElementById("zoom-out").addEventListener("click", zoomOut);
+    document.getElementById("zoom-fit").addEventListener("click", zoomFit);
     document.getElementById("save").addEventListener("click", render);
 
     document.getElementById("render-save").addEventListener("click", function() {
@@ -314,6 +318,33 @@ function init() {
     canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
 
     slider_opacity_inputfn();
+}
+
+function zoom(factor) {
+    factor = factor || zoomFactor;
+    zoomFactor = factor;
+    canvas_over.zoom(factor);
+    Canvas.zoomElement(canvas, factor);
+}
+
+function zoomIn() {
+    zoomFactor *= 1.1;
+    zoom();
+}
+
+function zoomOut() {
+    zoomFactor /= 1.1;
+    zoom();
+}
+
+function zoomFit() {
+    var cr = document.getElementById("container-canvas").getBoundingClientRect();
+    var ir = { width: canvas_over.width(), height: canvas_over.height() };
+
+    var fw = cr.width / ir.width;
+    var fh = cr.height / ir.height;
+
+    zoom(Math.min(fw, fh));
 }
 
 function display_renderClose() {
@@ -489,6 +520,8 @@ function loadImg() {
         canvas_previews.forEach(o => {
             o.img.src = currentSrc;
         });
+
+        zoomFit();
     });
 }
 
@@ -575,6 +608,7 @@ function getMouseAction(x, y) {
 }
 
 window.addEventListener("load", init);
+window.addEventListener("resize", zoomFit);
 
 // from https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser //
 window.mobilecheck = function() {

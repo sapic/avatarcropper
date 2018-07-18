@@ -189,8 +189,9 @@ body, html, #container {
     z-index:-100;
 }
 
-#canvas, #canvas-over {
+#container-canvas {
     max-height:100%;
+    height:100%;
     max-width:calc(100% - 400px);
     margin:0;
     padding:0;
@@ -198,6 +199,15 @@ body, html, #container {
     left:0;
     top:0;
     z-index: 1;
+    overflow:auto;
+}
+
+#canvas, #canvas-over {
+    margin:0;
+    padding:0;
+    position:absolute;
+    left:0;
+    top:0;
 }
 
 #canvas-over {
@@ -235,7 +245,7 @@ body, html, #container {
     z-index:-1;
 }
 
-.menu-item {
+.menu-item, .menu-item > button {
     text-align:center;
     cursor:pointer;
     color:#eee;
@@ -249,7 +259,7 @@ body, html, #container {
     width:100%;
     padding:0;
     margin:0;
-    box-sizing:border-box;
+    box-sizing:content-box;
     float:left;
     position:relative;
 }
@@ -257,6 +267,25 @@ body, html, #container {
 .menu-item:hover {
     border:1px solid #aaa;
     line-height:30px;
+    box-sizing:border-box;
+}
+
+.menu-item:hover > button {
+    height:30px;
+    line-height:30px;
+}
+
+.menu-item > button {
+    width:auto;
+    float:unset;
+    width:48px;
+    background:#444;
+    float:right;
+}
+
+.menu-item > button:hover {
+    background:#eee;
+    color:#333;
 }
 
 #save {
@@ -282,7 +311,7 @@ body, html, #container {
     color:#111 !important;
 }
 
-#slider-opacity {
+#slider-opacity, #slider-zoom {
     position:absolute;
     left:0;
     top:0;
@@ -298,13 +327,14 @@ body, html, #container {
 
 input[type="range"] {
     margin: 0px;
+    opacity:0.5;
 }
 
-#slider-opacity:focus {
+#slider-opacity:focus, #slider-zoom:focus {
     outline: none;
 }
 
-#slider-opacity::-moz-range-track {
+#slider-opacity::-moz-range-track, #slider-zoom::-moz-range-track {
     background:transparent;
     width:100%;
     height:100%;
@@ -325,7 +355,7 @@ input[type=range]::-moz-range-thumb {
     cursor: pointer;
 }
 
-#slider-opacity::-webkit-slider-runnable-track {
+input[type=range]::-webkit-slider-runnable-track {
     background:transparent;
     width:100%;
     height:100%;

@@ -457,8 +457,13 @@ function display_renderClose() {
     }
 
     document.getElementById("renderContainer").style.display = "none";
-    var url = document.getElementById("render-img").src;
-    url && URL.revokeObjectURL(url);
+
+    var bs = document.getElementById("render-types").children;
+    for (var i = 0; i < bs.length; i++) {
+        URL.revokeObjectURL(bs[i]._url);
+    }
+
+    document.getElementById("render-types").innerHTML = "";
 }
 
 function display_renderStart() {
@@ -466,15 +471,51 @@ function display_renderStart() {
     document.getElementById("renderView-progressBar").style.display = "block";
     document.getElementById("renderView-progress").style.width = "0%";
     document.getElementById("render-header").innerText = "Rendering...";
+    document.getElementById("render-types").style.display = "none";
     document.getElementById("render-save").style.display = "none";
     document.getElementById("render-img").src = "";
 }
 
-function display_renderFinished(url) {
-    document.getElementById("render-img").src = url;
+function display_renderFinished(arr) {
+    // arr is array of objects with url and type properties
+
+    document.getElementById("render-img").src = arr[0].url;
     document.getElementById("renderView-progressBar").style.display = "none";
+    document.getElementById("render-types").style.display = "block";
     document.getElementById("render-save").style.display = "block";
     document.getElementById("render-header").innerText = "Rendered! yayy";
+    
+    var $t = document.getElementById("render-types");
+
+    var bc = function() {
+        document.getElementById("render-img").src = this._url;
+        var bs = document.getElementsByClassName("render-types-button");
+        for (var i = 0; i < bs.length; i++) {
+            bs[i].classList.remove("toggle-active");
+        }
+
+        this.classList.add("toggle-active");
+    };
+
+    for (var i = 0; i < arr.length; i++) {
+        let $b = document.createElement("button");
+        $b.className = "render-types-button";
+        $b.style.width = (1 / arr.length * 100) + "%";
+        $b.innerText = arr[i].type;
+        $b._url = arr[i].url;
+        $b.addEventListener("click", bc.bind($b));
+
+        $t.appendChild($b);
+
+        if (i === 0) {
+            bc.bind($b)();
+        }
+    }
+
+    setTimeout(function() {
+        var $c = document.getElementById("renderView");
+        $c.scrollTop = $c.scrollHeight;
+    }, 50);
 }
 
 function render() {
@@ -518,6 +559,7 @@ function render() {
                         delay: gif.get_frames()[j].delay * 10
                     });
                     count++;
+                    document.getElementById("renderView-progress").style.width = (((count / len) * 50)) + "%";
 
                     if (count === len) {
                         saveGif.render();
@@ -527,7 +569,12 @@ function render() {
             
             saveGif.on("finished", function(blob) {
                 var url = URL.createObjectURL(blob);
-                display_renderFinished(url);
+                display_renderFinished([
+                    {
+                        url: url,
+                        type: "GIF"
+                    }
+                ]);
                 currentlyRendering = false;
             });
 
@@ -536,7 +583,7 @@ function render() {
             });
 
             saveGif.on("progress", function(e) {
-                document.getElementById("renderView-progress").style.width = (e * 100) + "%";
+                document.getElementById("renderView-progress").style.width = (50 + (e * 50)) + "%";
             });
 
         });
@@ -545,13 +592,43 @@ function render() {
         c.resize(circle.diameter, circle.diameter, false);
         c.clear();
         c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        if (settings.previewMode === "circle") {
-            c.setBlendingMode("destination-in");
-            c.fillCircleInSquare(0, 0, c.width(), "white");
-        }
+
+        var cc = new Canvas(document.createElement("canvas"));
+        cc.resize(circle.diameter, circle.diameter, false);
+        cc.clear();
+        cc.drawImage(c.canvas, 0, 0);
+
+        cc.setBlendingMode("destination-in");
+        cc.fillCircleInSquare(0, 0, c.width(), "white");
+
+        var url, urlc;
+        var count = 0;
+
+        var check = function() {
+            if (count === 2) {
+                display_renderFinished([
+                    {
+                        "url": url,
+                        "type": "Square"
+                    },
+                    {
+                        "url": urlc,
+                        "type": "Circle"
+                    }
+                ]);
+            }
+        };
+
         c.canvas.toBlob((function(blob) {
-            var url = URL.createObjectURL(blob);
-            display_renderFinished(url);
+            url = URL.createObjectURL(blob);
+            count++;
+            check();
+        }).bind(this));
+
+        cc.canvas.toBlob((function(blob) {
+            urlc = URL.createObjectURL(blob);
+            count++;
+            check();
         }).bind(this));
     }
 }

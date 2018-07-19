@@ -48,6 +48,7 @@ body, html, #container {
     max-height:70%;
     height:auto;
     overflow:auto;
+    text-align:center;
 }
 
 #render-close {
@@ -57,8 +58,15 @@ body, html, #container {
     font-size:2em;
 }
 
+
+#render-types {
+    width:100%;
+    overflow:hidden;
+}
+
 #render-img {
     max-width:300px;
+    min-width:300px;
     margin: 8px 0;
 }
 
@@ -82,7 +90,7 @@ body, html, #container {
     border-radius:3px;
 }
 
-#render-save {
+#render-save, .render-types-button {
     background:#333;
     color:#eee;
     border:0;
@@ -94,6 +102,14 @@ body, html, #container {
     text-decoration:none;
     text-align:center;
     font-weight:bold;
+    box-sizing:border-box;
+}
+
+.render-types-button {
+    display:inline-block;
+    margin-bottom:4px;
+    border-radius:0;
+    border:1px solid #aaa;
 }
 
 #previews {

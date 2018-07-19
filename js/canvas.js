@@ -964,14 +964,18 @@ Canvas.prototype.getImageData32 = function(x, y, w, h) {
 Canvas.prototype.extractImage =
 Canvas.prototype.toImage =
 Canvas.prototype.getImage = function(cb) {
-    var ret = new Image();
+    this.canvas.toBlob(function(blob) {
+        var ret = new Image();
 
-    ret.onload = function() {
-        cb(this);
-        this.onload = null;
-    };
-
-    ret.src = this.toDataURL();
+        ret.onload = function() {
+            cb(this);
+            this.onload = null;
+            URL.revokeObjectURL(this.src);
+        };
+    
+        var url = URL.createObjectURL(blob);
+        ret.src = url;
+    });
 };
 
 /**

@@ -108,6 +108,7 @@ body, html, #container {
 .render-types-button {
     display:inline-block;
     margin-bottom:4px;
+    margin-top:8px;l
     border-radius:0;
     border:1px solid #aaa;
 }

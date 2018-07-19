@@ -1,5 +1,6 @@
 var canvas, canvas_over;
 var canvas_previews = [];
+var canvas_preview_rects = [];
 var currentAction = "none";
 var circle = {
     x: 0,
@@ -8,7 +9,7 @@ var circle = {
 };
 var shouldHide = true;
 var tpixels = false;
-var mouseOrigin, circleOrigin;
+var mouseOrigin, circleOrigin, scrollOrigin;
 var currentSrc;
 var currentFiletype;
 var currentlyRendering = false;
@@ -79,6 +80,8 @@ function createPreviewCanvas(size) {
     var runningX = 0;
     var largest = size;
 
+    canvas_preview_rects = [];
+
     for (var i = 0; i < canvas_previews.length; i++) {
         if (canvas_previews[i].size > largest) {
             largest = canvas_previews[i].size;
@@ -124,8 +127,19 @@ function createPreviewCanvas(size) {
         canvas_previews.push(previewObj);
     }
 
+    var wr = document.body.getBoundingClientRect();
+
     for (var i = 0; i < canvas_previews.length; i++) {
         canvas_previews[i].container.style.right = runningX + "px";
+
+        let rect = {
+            x: wr.width - (runningX + canvas_previews[i].size + padding),
+            y: wr.height - padding - canvas_previews[i].size - padding,
+            width: canvas_previews[i].size + padding * 2,
+            height: canvas_previews[i].size + padding * 2
+        };
+
+        canvas_preview_rects.push(rect);
         runningX += canvas_previews[i].size + padding;
     }
 
@@ -136,6 +150,8 @@ function createPreviewCanvas(size) {
 
     document.getElementById("container-canvas").style["width"] = mw;
 
+    zoomFit();
+
     circleOrSquarePreviews();
 
     if (shouldHide) {
@@ -143,6 +159,13 @@ function createPreviewCanvas(size) {
     } else {
         drawPreview();
     }
+}
+
+function rectsIntersect(r1, r2) {
+    return !(r2.x >= r1.x + r1.width
+        || r2.x + r2.width <= r1.x
+        || r2.y >= r1.y + r1.height
+        || r2.y + r2.height <= r1.y);
 }
 
 function applyToPreviewCanvas(fn) {
@@ -224,6 +247,24 @@ function init() {
             canvas_over.canvas.style.cursor = "default";
         }
 
+        /*if (currentAction === "none" || currentAction === "new") {
+            if (md) {
+                var dx = x - mouseOrigin.x;
+                var dy = y - mouseOrigin.y;
+    
+                var container = document.getElementById("container-canvas");
+                
+                if (container.scrollWidth > container.clientWidth) {
+                    container.scrollLeft = scrollOrigin.x - dx;
+                }
+                
+                if (container.scrollHeight > container.clientHeight) {
+                    container.scrollTop = scrollOrigin.y - dy;
+                }
+            }
+            return;
+        }*/
+
         if (currentAction === "none") return;
 
         if (currentAction === "move") {
@@ -298,7 +339,9 @@ function init() {
     });
 
     canvas_over.canvas.addEventListener("touchmove", function(e) {
-        e.preventDefault();
+        if (!(currentAction === "new" || currentAction === "none")) {
+            e.preventDefault();
+        }
     });
 
     canvas_over.setMouseDown(function(x, y, e) {
@@ -306,6 +349,10 @@ function init() {
         currentAction = action;
 
         mouseOrigin = {x, y};
+        scrollOrigin = {
+            x: document.getElementById("container-canvas").scrollLeft,
+            y: document.getElementById("container-canvas").scrollTop
+        };
         circleOrigin = {};
         Object.assign(circleOrigin, circle);
     });
@@ -318,6 +365,13 @@ function init() {
     canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
 
     slider_opacity_inputfn();
+
+    
+    var container = document.getElementById("container-canvas");
+    var menu = document.getElementById("container-buttons");
+
+    //container.style.width = (document.body.clientWidth - menu.clientWidth) + "px";
+    container.style.height = "100%";
 }
 
 function zoom(factor) {
@@ -338,13 +392,63 @@ function zoomOut() {
 }
 
 function zoomFit() {
-    var cr = document.getElementById("container-canvas").getBoundingClientRect();
+    if (shouldHide) {
+        return;
+    }
+
+    var container = document.getElementById("container-canvas");
+    var menu = document.getElementById("container-buttons");
+    var cr = container.getBoundingClientRect();
     var ir = { width: canvas_over.width(), height: canvas_over.height() };
 
     var fw = cr.width / ir.width;
     var fh = cr.height / ir.height;
+    var f = Math.min(fw, fh);
 
-    zoom(Math.min(fw, fh));
+    var dw = 1;
+    var dh = ir.height / ir.width;
+
+    var nr = {
+        x: 0,
+        y: 0,
+        width: ir.width * f,
+        height: ir.height * f
+    };
+
+    while (!canvas_preview_rects.some(function(r) {
+        if (rectsIntersect(nr, r)) {
+            //console.log(JSON.parse(JSON.stringify(nr)), JSON.parse(JSON.stringify(r)));
+            return true;
+        } else {
+            return false;
+        }
+    }) && !(nr.height >= document.getElementById("container").clientHeight)
+    && (!nr.width >= document.body.clientWidth - menu.clientWidth)) {
+        nr.width += dw;
+        nr.height += dh;
+    }
+
+    //document.getElementById("container-canvas").style["width"] = cr.width + "px";
+
+    zoom(nr.height / ir.height);
+
+    var delta = container.scrollWidth - container.clientWidth;
+
+    if (delta > 0) {
+        nr.width -= delta;
+        nr.height -= (ir.height / ir.width) * delta;
+        zoom(nr.height / ir.height);
+    }
+
+
+    var delta = container.scrollHeight - container.clientHeight;
+
+    if (delta > 0) {
+        nr.height -= delta;
+        nr.width -= (ir.width / ir.height) * delta;
+
+        zoom(nr.height / ir.height);
+    }
 }
 
 function display_renderClose() {

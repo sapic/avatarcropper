@@ -192,7 +192,7 @@ body, html, #container {
 #container-canvas {
     max-height:100%;
     height:100%;
-    max-width:calc(100% - 400px);
+    /*max-width:calc(100% - 400px);*/
     margin:0;
     padding:0;
     position:absolute;
@@ -200,6 +200,7 @@ body, html, #container {
     top:0;
     z-index: 1;
     overflow:auto;
+    overscroll-behavior:contain;
 }
 
 #canvas, #canvas-over {

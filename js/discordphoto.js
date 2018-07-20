@@ -13,6 +13,7 @@ var mouseOrigin, circleOrigin, scrollOrigin;
 var currentSrc;
 var currentFiletype;
 var currentlyRendering = false;
+var shouldStopRendering = false;
 
 var zoomFactor = 1;
 
@@ -453,6 +454,7 @@ function zoomFit() {
 
 function display_renderClose() {
     if (currentlyRendering) {
+        shouldStopRendering = true;
         return;
     }
 
@@ -519,6 +521,7 @@ function display_renderFinished(arr) {
 }
 
 function render() {
+    shouldStopRendering = false;
     display_renderStart();
     if (currentFiletype === "image/gif") {
         gif = new SuperGif({
@@ -528,7 +531,7 @@ function render() {
 
         gif.load(function() {
             var saveGif = new GIF({
-                workers: 2,
+                workers: 3,
                 quality: 1,
                 dither: false,
                 width: circle.diameter,
@@ -538,10 +541,8 @@ function render() {
             });
 
             var len = gif.get_length();
-            var count = 0;
 
-            for (var i = 0; i < len; i++) {
-                let j = i;
+            var renderFrame = function(i, cb) {
                 gif.move_to(i);
 
                 var c = new Canvas(document.createElement("canvas"));
@@ -552,20 +553,36 @@ function render() {
                     c.setBlendingMode("destination-in");
                     c.fillCircleInSquare(0, 0, c.width(), "white");
                 }*/
+
+                if (shouldStopRendering) {
+                    currentlyRendering = false;
+                    display_renderClose();
+                    return;
+                }
                 
                 c.toImage(function(img) {
+                    if (shouldStopRendering) {
+                        currentlyRendering = false;
+                        display_renderClose();
+                        return;
+                    }
+
                     img.crossOrigin = "anonymous"
                     saveGif.addFrame(img, {
-                        delay: gif.get_frames()[j].delay * 10
+                        delay: gif.get_frames()[i].delay * 10
                     });
-                    count++;
-                    document.getElementById("renderView-progress").style.width = (((count / len) * 50)) + "%";
+                    i++;
+                    document.getElementById("renderView-progress").style.width = (((i / len) * 50)) + "%";
 
-                    if (count === len) {
+                    if (i === len) {
                         saveGif.render();
+                    } else {
+                        cb(i, cb);
                     }
                 });
-            }
+            };
+
+            renderFrame(0, renderFrame);
             
             saveGif.on("finished", function(blob) {
                 var url = URL.createObjectURL(blob);
@@ -579,13 +596,24 @@ function render() {
             });
 
             saveGif.on("abort", function() {
-                console.log("fuckkk");
+                currentlyRendering = false;
+                display_renderClose();
             });
 
             saveGif.on("progress", function(e) {
                 document.getElementById("renderView-progress").style.width = (50 + (e * 50)) + "%";
+
+                if (shouldStopRendering) {
+                    saveGif.abort();
+                }
             });
 
+        },
+    
+        function(e) {
+            if (e.lengthComputable) {
+                var progress = e.loaded / e.total;
+            }
         });
     } else {
         var c = new Canvas(document.createElement("canvas"));

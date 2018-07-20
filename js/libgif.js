@@ -926,7 +926,7 @@
             get_auto_play    : function() { return options.auto_play },
             get_length       : function() { return player.length() },
             get_current_frame: function() { return player.current_frame() },
-            load_url: function(src,callback){
+            load_url: function(src,callback,onprogress){
                 if (!load_setup(callback)) return;
 
                 var h = new XMLHttpRequest();
@@ -968,13 +968,16 @@
                     setTimeout(doParse, 0);
                 };
                 h.onprogress = function (e) {
-                    if (e.lengthComputable) doShowProgress(e.loaded, e.total, true);
+                    if (e.lengthComputable) {
+                        doShowProgress(e.loaded, e.total, true);
+                    }
+                    onprogress(e);
                 };
                 h.onerror = function() { doLoadError('xhr'); };
                 h.send();
             },
-            load: function (callback) {
-                this.load_url(gif.getAttribute('rel:animated_src') || gif.src,callback);
+            load: function (callback,onprogress) {
+                this.load_url(gif.getAttribute('rel:animated_src') || gif.src,callback,onprogress);
             },
             load_raw: function(arr, callback) {
                 if (!load_setup(callback)) return;

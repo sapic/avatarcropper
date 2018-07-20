@@ -389,15 +389,16 @@
                     return this.emit("progress", 0)
                 };
                 GIF.prototype.abort = function() {
-                    var worker;
-                    while (true) {
-                        worker = this.activeWorkers.shift();
-                        if (worker == null) {
-                            break
-                        }
-                        this.log("killing active worker");
-                        worker.terminate()
-                    }
+                    this.activeWorkers.forEach(function(worker) {
+                        worker.terminate();
+                    });
+                    this.activeWorkers = [];
+
+                    this.freeWorkers.forEach(function(worker) {
+                        worker.terminate();
+                    });
+                    this.freeWorkers = [];
+
                     this.running = false;
                     return this.emit("abort")
                 };
@@ -480,17 +481,18 @@
                 GIF.prototype.renderNextFrame = function() {
                     var frame, task, worker;
                     if (this.freeWorkers.length === 0) {
+                        return;
                         throw new Error("No free workers")
                     }
                     if (this.nextFrame >= this.frames.length) {
-                        return
+                        return;
                     }
                     frame = this.frames[this.nextFrame++];
                     worker = this.freeWorkers.shift();
                     task = this.getTask(frame);
                     this.log("starting frame " + (task.index + 1) + " of " + this.frames.length);
                     this.activeWorkers.push(worker);
-                    return worker.postMessage(task)
+                    return worker.postMessage(task);
                 };
                 GIF.prototype.getContextData = function(ctx) {
                     return ctx.getImageData(0, 0, this.options.width, this.options.height).data

@@ -441,8 +441,7 @@ function zoomFit() {
         zoom(nr.height / ir.height);
     }
 
-
-    var delta = container.scrollHeight - container.clientHeight;
+    delta = container.scrollHeight - container.clientHeight;
 
     if (delta > 0) {
         nr.height -= delta;

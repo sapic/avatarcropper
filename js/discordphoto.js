@@ -177,6 +177,12 @@ function applyToPreviewCanvas(fn) {
 
 function init() {
     loadSettings();
+    if (dragdrop) {
+        dragdrop.init(document.getElementById("dragDropOverlay"));
+        dragdrop.softEvents.onnewinput = function(input) {
+            loadImg(input);
+        }
+    }
     document.getElementById("slider-opacity").value = settings.maskTransparency;
     document.getElementById("btn-outlines").classList[settings.outlinesEnabled ? "add" : "remove"]("toggle-active");
 
@@ -188,7 +194,11 @@ function init() {
     createPreviewCanvas(40);
     //createPreviewCanvas(30);
 
-    document.getElementById("input-file").addEventListener("change", loadImg);
+    document.getElementById("input-file").addEventListener("change", function(e) {
+        if (this.files && this.files[0]) {
+            loadImg(this.files[0]);
+        } else console.info("It's dead, Jim. %o %o", e, this);
+    });
     document.getElementById("closeContrib").addEventListener("click", hideContribs);
     document.getElementById("supportersLink").addEventListener("click", showSupporters);
 
@@ -690,9 +700,8 @@ function btn_outlines_clickFn() {
     drawPreview(false);
 }
 
-function loadImg() {
-    if (!this.files[0]) return;
-    var file = this.files[0];
+function loadImg(file) {
+    if (!file) return;
     currentFiletype = file.type;
 
     Canvas.fileToImage(file, function(img) {

@@ -30,6 +30,12 @@ function Canvas(canvas, flags) {
     this.horizontalAligned = flags & Canvas.flags.halign;
     this.verticalAligned = flags & Canvas.flags.valign;
 
+    if (this.horizontalAligned || this.verticalAligned) {
+        this.canvas.style["transform-origin"] = "center";
+    } else {
+        this.canvas.style["transform-origin"] = "top left";
+    }
+
     this.lastPos = undefined;
 
     if (this.usingDeepCalc) {
@@ -144,6 +150,22 @@ Canvas.prototype.deepCalcPosition = function() {
     this.offset = { x: x, y: y };
 };
 
+Canvas.prototype.zoom =
+Canvas.prototype.scale = function(x, y) {    
+    x = x || 1;
+    y = y || x;
+
+    this.canvas.style["transform"] = "scale(" + x + ", " + y + ")";
+};
+
+Canvas.zoomElement = function(e, x, y) {
+    x = x || 1;
+    y = y || x;
+
+    e.style["transform-origin"] = "top left";
+    e.style.transform = "scale(" + x + ", " + y + ")";
+};
+
 /**
  * Sets function to use when mouse is moved on canvas (or touch moved)
  * @param {Function} fn - function to be called on mousemove (or touchmove)
@@ -194,23 +216,27 @@ Canvas.prototype.pos = function(e) {
         y = e.changedTouches[0].pageY;
     }
 
+    if (this.usingDeepCalc) {
+        this.deepCalcPosition();
+    }
+
     var ox = this.usingDeepCalc ? this.offset.x : this.canvas.offsetLeft;
     var oy = this.usingDeepCalc ? this.offset.y : this.canvas.offsetTop;
 
     if (this.horizontalAligned && ox > 0) {
-        ox = (2 * ox - this.canvas.offsetWidth) / 2;
+        ox = (2 * ox - this.canvas.getBoundingClientRect().width) / 2;
     }
 
     if (this.verticalAligned && oy > 0) {
-        oy = (2 * oy - this.canvas.offsetHeight) / 2;
+        oy = (2 * oy - this.canvas.getBoundingClientRect().height) / 2;
     }
 
     x -= ox;
     y -= oy;
 
 
-    x *= this.canvas.width / this.canvas.offsetWidth;
-    y *= this.canvas.height / this.canvas.offsetHeight;
+    x *= this.canvas.width / this.canvas.getBoundingClientRect().width;
+    y *= this.canvas.height / this.canvas.getBoundingClientRect().height;
 
     return { "x": x, "y": y };
 };
@@ -938,14 +964,18 @@ Canvas.prototype.getImageData32 = function(x, y, w, h) {
 Canvas.prototype.extractImage =
 Canvas.prototype.toImage =
 Canvas.prototype.getImage = function(cb) {
-    var ret = new Image();
+    this.canvas.toBlob(function(blob) {
+        var ret = new Image();
 
-    ret.onload = function() {
-        cb(this);
-        this.onload = null;
-    };
-
-    ret.src = this.toDataURL();
+        ret.onload = function() {
+            cb(this);
+            this.onload = null;
+            URL.revokeObjectURL(this.src);
+        };
+    
+        var url = URL.createObjectURL(blob);
+        ret.src = url;
+    });
 };
 
 /**

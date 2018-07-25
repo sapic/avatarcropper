@@ -1,5 +1,6 @@
 var canvas, canvas_over;
 var canvas_previews = [];
+var canvas_preview_rects = [];
 var currentAction = "none";
 var circle = {
     x: 0,
@@ -8,10 +9,13 @@ var circle = {
 };
 var shouldHide = true;
 var tpixels = false;
-var mouseOrigin, circleOrigin;
+var mouseOrigin, circleOrigin, scrollOrigin;
 var currentSrc;
 var currentFiletype;
 var currentlyRendering = false;
+var shouldStopRendering = false;
+
+var zoomFactor = 1;
 
 var settings = {
     previewMode: "circle",
@@ -77,6 +81,8 @@ function createPreviewCanvas(size) {
     var runningX = 0;
     var largest = size;
 
+    canvas_preview_rects = [];
+
     for (var i = 0; i < canvas_previews.length; i++) {
         if (canvas_previews[i].size > largest) {
             largest = canvas_previews[i].size;
@@ -122,8 +128,19 @@ function createPreviewCanvas(size) {
         canvas_previews.push(previewObj);
     }
 
+    var wr = document.body.getBoundingClientRect();
+
     for (var i = 0; i < canvas_previews.length; i++) {
         canvas_previews[i].container.style.right = runningX + "px";
+
+        let rect = {
+            x: wr.width - (runningX + canvas_previews[i].size + padding),
+            y: wr.height - padding - canvas_previews[i].size - padding,
+            width: canvas_previews[i].size + padding * 2,
+            height: canvas_previews[i].size + padding * 2
+        };
+
+        canvas_preview_rects.push(rect);
         runningX += canvas_previews[i].size + padding;
     }
 
@@ -132,8 +149,9 @@ function createPreviewCanvas(size) {
     var mw = "calc(100% - " + runningX + "px)";
     //var mh = "calc(100% - " + (canvas_previews[0].__size + padding + padding) + "px)";
 
-    document.getElementById("canvas").style["max-width"] = mw;
-    document.getElementById("canvas-over").style["max-width"] = mw;
+    document.getElementById("container-canvas").style["width"] = mw;
+
+    zoomFit();
 
     circleOrSquarePreviews();
 
@@ -142,6 +160,13 @@ function createPreviewCanvas(size) {
     } else {
         drawPreview();
     }
+}
+
+function rectsIntersect(r1, r2) {
+    return !(r2.x >= r1.x + r1.width
+        || r2.x + r2.width <= r1.x
+        || r2.y >= r1.y + r1.height
+        || r2.y + r2.height <= r1.y);
 }
 
 function applyToPreviewCanvas(fn) {
@@ -162,7 +187,7 @@ function init() {
     document.getElementById("btn-outlines").classList[settings.outlinesEnabled ? "add" : "remove"]("toggle-active");
 
     canvas = document.getElementById("canvas");
-    canvas_over = new Canvas(document.getElementById("canvas-over"));
+    canvas_over = new Canvas(document.getElementById("canvas-over"), Canvas.flags.useDeepCalc);
 
     createPreviewCanvas(128);
     createPreviewCanvas(90);
@@ -178,18 +203,14 @@ function init() {
     document.getElementById("supportersLink").addEventListener("click", showSupporters);
 
     if (mobilecheck()) {
-        hideContribs();
+        var link = document.createElement("link");
+        link.href = "css/mobile.css"
+        link.rel = "stylesheet";
+        document.getElementsByTagName("head")[0].appendChild(link);
     }
 
-    document.getElementById("renderContainer").addEventListener("click", function() {
-        if (currentlyRendering) {
-            return;
-        }
-
-        document.getElementById("renderContainer").style.display = "none";
-        var url = document.getElementById("render-img").src;
-        url && URL.revokeObjectURL(url);
-    });
+    document.getElementById("renderContainer").addEventListener("click", display_renderClose);
+    document.getElementById("render-close").addEventListener("click", display_renderClose);
 
     document.getElementById("renderView").addEventListener("click", function(e) {
         e.stopPropagation();
@@ -215,6 +236,9 @@ function init() {
         return false;
     });
 
+    document.getElementById("zoom-in").addEventListener("click", zoomIn);
+    document.getElementById("zoom-out").addEventListener("click", zoomOut);
+    document.getElementById("zoom-fit").addEventListener("click", zoomFit);
     document.getElementById("save").addEventListener("click", render);
 
     document.getElementById("render-save").addEventListener("click", function() {
@@ -233,6 +257,24 @@ function init() {
         } else {
             canvas_over.canvas.style.cursor = "default";
         }
+
+        /*if (currentAction === "none" || currentAction === "new") {
+            if (md) {
+                var dx = x - mouseOrigin.x;
+                var dy = y - mouseOrigin.y;
+    
+                var container = document.getElementById("container-canvas");
+                
+                if (container.scrollWidth > container.clientWidth) {
+                    container.scrollLeft = scrollOrigin.x - dx;
+                }
+                
+                if (container.scrollHeight > container.clientHeight) {
+                    container.scrollTop = scrollOrigin.y - dy;
+                }
+            }
+            return;
+        }*/
 
         if (currentAction === "none") return;
 
@@ -308,7 +350,9 @@ function init() {
     });
 
     canvas_over.canvas.addEventListener("touchmove", function(e) {
-        e.preventDefault();
+        if (!(currentAction === "new" || currentAction === "none")) {
+            e.preventDefault();
+        }
     });
 
     canvas_over.setMouseDown(function(x, y, e) {
@@ -316,6 +360,10 @@ function init() {
         currentAction = action;
 
         mouseOrigin = {x, y};
+        scrollOrigin = {
+            x: document.getElementById("container-canvas").scrollLeft,
+            y: document.getElementById("container-canvas").scrollTop
+        };
         circleOrigin = {};
         Object.assign(circleOrigin, circle);
     });
@@ -328,6 +376,106 @@ function init() {
     canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
 
     slider_opacity_inputfn();
+
+    
+    var container = document.getElementById("container-canvas");
+    var menu = document.getElementById("container-buttons");
+
+    //container.style.width = (document.body.clientWidth - menu.clientWidth) + "px";
+    container.style.height = "100%";
+}
+
+function zoom(factor) {
+    factor = factor || zoomFactor;
+    zoomFactor = factor;
+    canvas_over.zoom(factor);
+    Canvas.zoomElement(canvas, factor);
+}
+
+function zoomIn() {
+    zoomFactor *= 1.1;
+    zoom();
+}
+
+function zoomOut() {
+    zoomFactor /= 1.1;
+    zoom();
+}
+
+function zoomFit() {
+    if (shouldHide) {
+        return;
+    }
+
+    var container = document.getElementById("container-canvas");
+    var menu = document.getElementById("container-buttons");
+    var cr = container.getBoundingClientRect();
+    var ir = { width: canvas_over.width(), height: canvas_over.height() };
+
+    var fw = cr.width / ir.width;
+    var fh = cr.height / ir.height;
+    var f = Math.min(fw, fh);
+
+    var dw = 1;
+    var dh = ir.height / ir.width;
+
+    var nr = {
+        x: 0,
+        y: 0,
+        width: ir.width * f,
+        height: ir.height * f
+    };
+
+    while (!canvas_preview_rects.some(function(r) {
+        if (rectsIntersect(nr, r)) {
+            //console.log(JSON.parse(JSON.stringify(nr)), JSON.parse(JSON.stringify(r)));
+            return true;
+        } else {
+            return false;
+        }
+    }) && !(nr.height >= document.getElementById("container").clientHeight)
+    && (!nr.width >= document.body.clientWidth - menu.clientWidth)) {
+        nr.width += dw;
+        nr.height += dh;
+    }
+
+    //document.getElementById("container-canvas").style["width"] = cr.width + "px";
+
+    zoom(nr.height / ir.height);
+
+    var delta = container.scrollWidth - container.clientWidth;
+
+    if (delta > 0) {
+        nr.width -= delta;
+        nr.height -= (ir.height / ir.width) * delta;
+        zoom(nr.height / ir.height);
+    }
+
+
+    var delta = container.scrollHeight - container.clientHeight;
+
+    if (delta > 0) {
+        nr.height -= delta;
+        nr.width -= (ir.width / ir.height) * delta;
+
+        zoom(nr.height / ir.height);
+    }
+}
+
+function display_renderClose() {
+    if (currentlyRendering) {
+        shouldStopRendering = true;
+        return;
+    }
+
+    document.getElementById("renderContainer").style.display = "none";
+
+    var bs = document.getElementById("render-types").children;
+    for (var i = 0; i < bs.length; i++) {
+        URL.revokeObjectURL(bs[i]._url);
+    }
+
+    document.getElementById("render-types").innerHTML = "";
 }
 
 function display_renderStart() {
@@ -335,18 +483,55 @@ function display_renderStart() {
     document.getElementById("renderView-progressBar").style.display = "block";
     document.getElementById("renderView-progress").style.width = "0%";
     document.getElementById("render-header").innerText = "Rendering...";
+    document.getElementById("render-types").style.display = "none";
     document.getElementById("render-save").style.display = "none";
     document.getElementById("render-img").src = "";
 }
 
-function display_renderFinished(url) {
-    document.getElementById("render-img").src = url;
+function display_renderFinished(arr) {
+    // arr is array of objects with url and type properties
+
+    document.getElementById("render-img").src = arr[0].url;
     document.getElementById("renderView-progressBar").style.display = "none";
+    document.getElementById("render-types").style.display = "block";
     document.getElementById("render-save").style.display = "block";
     document.getElementById("render-header").innerText = "Rendered! yayy";
+    
+    var $t = document.getElementById("render-types");
+
+    var bc = function() {
+        document.getElementById("render-img").src = this._url;
+        var bs = document.getElementsByClassName("render-types-button");
+        for (var i = 0; i < bs.length; i++) {
+            bs[i].classList.remove("toggle-active");
+        }
+
+        this.classList.add("toggle-active");
+    };
+
+    for (var i = 0; i < arr.length; i++) {
+        let $b = document.createElement("button");
+        $b.className = "render-types-button";
+        $b.style.width = (1 / arr.length * 100) + "%";
+        $b.innerText = arr[i].type;
+        $b._url = arr[i].url;
+        $b.addEventListener("click", bc.bind($b));
+
+        $t.appendChild($b);
+
+        if (i === 0) {
+            bc.bind($b)();
+        }
+    }
+
+    setTimeout(function() {
+        var $c = document.getElementById("renderView");
+        $c.scrollTop = $c.scrollHeight;
+    }, 50);
 }
 
 function render() {
+    shouldStopRendering = false;
     display_renderStart();
     if (currentFiletype === "image/gif") {
         gif = new SuperGif({
@@ -356,7 +541,7 @@ function render() {
 
         gif.load(function() {
             var saveGif = new GIF({
-                workers: 2,
+                workers: 3,
                 quality: 1,
                 dither: false,
                 width: circle.diameter,
@@ -366,10 +551,8 @@ function render() {
             });
 
             var len = gif.get_length();
-            var count = 0;
 
-            for (var i = 0; i < len; i++) {
-                let j = i;
+            var renderFrame = function(i, cb) {
                 gif.move_to(i);
 
                 var c = new Canvas(document.createElement("canvas"));
@@ -380,47 +563,110 @@ function render() {
                     c.setBlendingMode("destination-in");
                     c.fillCircleInSquare(0, 0, c.width(), "white");
                 }*/
+
+                if (shouldStopRendering) {
+                    currentlyRendering = false;
+                    display_renderClose();
+                    return;
+                }
                 
                 c.toImage(function(img) {
+                    if (shouldStopRendering) {
+                        currentlyRendering = false;
+                        display_renderClose();
+                        return;
+                    }
+
                     img.crossOrigin = "anonymous"
                     saveGif.addFrame(img, {
-                        delay: gif.get_frames()[j].delay * 10
+                        delay: gif.get_frames()[i].delay * 10
                     });
-                    count++;
+                    i++;
+                    document.getElementById("renderView-progress").style.width = (((i / len) * 50)) + "%";
 
-                    if (count === len) {
+                    if (i === len) {
                         saveGif.render();
+                    } else {
+                        cb(i, cb);
                     }
                 });
-            }
+            };
+
+            renderFrame(0, renderFrame);
             
             saveGif.on("finished", function(blob) {
                 var url = URL.createObjectURL(blob);
-                display_renderFinished(url);
+                display_renderFinished([
+                    {
+                        url: url,
+                        type: "GIF"
+                    }
+                ]);
                 currentlyRendering = false;
             });
 
             saveGif.on("abort", function() {
-                console.log("fuckkk");
+                currentlyRendering = false;
+                display_renderClose();
             });
 
             saveGif.on("progress", function(e) {
-                document.getElementById("renderView-progress").style.width = (e * 100) + "%";
+                document.getElementById("renderView-progress").style.width = (50 + (e * 50)) + "%";
+
+                if (shouldStopRendering) {
+                    saveGif.abort();
+                }
             });
 
+        },
+    
+        function(e) {
+            if (e.lengthComputable) {
+                var progress = e.loaded / e.total;
+            }
         });
     } else {
         var c = new Canvas(document.createElement("canvas"));
         c.resize(circle.diameter, circle.diameter, false);
         c.clear();
         c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
-        if (settings.previewMode === "circle") {
-            c.setBlendingMode("destination-in");
-            c.fillCircleInSquare(0, 0, c.width(), "white");
-        }
+
+        var cc = new Canvas(document.createElement("canvas"));
+        cc.resize(circle.diameter, circle.diameter, false);
+        cc.clear();
+        cc.drawImage(c.canvas, 0, 0);
+
+        cc.setBlendingMode("destination-in");
+        cc.fillCircleInSquare(0, 0, c.width(), "white");
+
+        var url, urlc;
+        var count = 0;
+
+        var check = function() {
+            if (count === 2) {
+                display_renderFinished([
+                    {
+                        "url": url,
+                        "type": "Square"
+                    },
+                    {
+                        "url": urlc,
+                        "type": "Circle"
+                    }
+                ]);
+            }
+        };
+
         c.canvas.toBlob((function(blob) {
-            var url = URL.createObjectURL(blob);
-            display_renderFinished(url);
+            url = URL.createObjectURL(blob);
+            count++;
+            check();
+        }).bind(this));
+
+        cc.canvas.toBlob((function(blob) {
+            urlc = URL.createObjectURL(blob);
+            count++;
+            check();
         }).bind(this));
     }
 }
@@ -492,6 +738,8 @@ function loadImg(file) {
         canvas_previews.forEach(o => {
             o.img.src = currentSrc;
         });
+
+        zoomFit();
     });
 }
 
@@ -578,6 +826,7 @@ function getMouseAction(x, y) {
 }
 
 window.addEventListener("load", init);
+window.addEventListener("resize", zoomFit);
 
 // from https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser //
 window.mobilecheck = function() {
@@ -585,3 +834,23 @@ window.mobilecheck = function() {
     (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
     return check;
 };
+
+// from https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+if (!HTMLCanvasElement.prototype.toBlob) {
+    Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+        value: function (callback, type, quality) {
+            var canvas = this;
+            setTimeout(function() {
+                var binStr = atob( canvas.toDataURL(type, quality).split(',')[1] ),
+                    len = binStr.length,
+                    arr = new Uint8Array(len);
+
+                for (var i = 0; i < len; i++ ) {
+                arr[i] = binStr.charCodeAt(i);
+                }
+
+                callback(new Blob([arr], { type: type || 'image/png' }));
+            });
+        }
+    });
+}

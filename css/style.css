@@ -115,6 +115,13 @@ body, html, #container {
     border:1px solid #aaa;
 }
 
+#render-pleaseWait {
+    display:none;
+    color:#CC0000;
+    font-style:italic;
+    margin-top:4px;
+}
+
 #previews {
     position:absolute;
     right:16px;

@@ -71,6 +71,9 @@
         root.SuperGif = factory();
     }
 }(this, function () {
+    var shouldAbort = false;
+    var abortFn = null;
+    
     // Generic functions
     var bitsToNum = function (ba) {
         return ba.reduce(function (s, n) {
@@ -406,6 +409,12 @@
                     break;
                 default:
                     throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
+            }
+
+            if (shouldAbort) {
+                abortFn && abortFn();
+                shouldAbort = false;
+                return;
             }
 
             if (block.type !== 'eof') setTimeout(parseBlock, 0);
@@ -926,8 +935,10 @@
             get_auto_play    : function() { return options.auto_play },
             get_length       : function() { return player.length() },
             get_current_frame: function() { return player.current_frame() },
-            load_url: function(src,callback,onprogress){
+            load_url: function(src,callback,onprogress,onabort){
                 if (!load_setup(callback)) return;
+
+                abortFn = onabort;
 
                 var h = new XMLHttpRequest();
                 // new browsers (XMLHttpRequest2-compliant)
@@ -971,19 +982,22 @@
                     if (e.lengthComputable) {
                         doShowProgress(e.loaded, e.total, true);
                     }
-                    onprogress(e);
+                    onprogress && onprogress(e);
                 };
                 h.onerror = function() { doLoadError('xhr'); };
                 h.send();
             },
-            load: function (callback,onprogress) {
-                this.load_url(gif.getAttribute('rel:animated_src') || gif.src,callback,onprogress);
+            load: function (callback, onprogress, onabort) {
+                this.load_url(gif.getAttribute('rel:animated_src') || gif.src, callback, onprogress, onabort);
             },
             load_raw: function(arr, callback) {
                 if (!load_setup(callback)) return;
                 if (!initialized) init();
                 stream = new Stream(arr);
                 setTimeout(doParse, 0);
+            },
+            abort: function() {
+                shouldAbort = true;
             },
             set_frame_offset: setFrameOffset
         };

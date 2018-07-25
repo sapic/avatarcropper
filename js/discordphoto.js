@@ -14,6 +14,8 @@ var currentSrc;
 var currentFiletype;
 var currentlyRendering = false;
 var shouldStopRendering = false;
+var queuedFile = null;
+var loadGif = null;
 
 var zoomFactor = 1;
 
@@ -469,10 +471,20 @@ function zoomFit() {
 function display_renderClose() {
     if (currentlyRendering) {
         shouldStopRendering = true;
-        return;
+        loadGif && loadGif.abort();
+        document.getElementById("render-pleaseWait").style.display = "block";
+        return false;
+    }
+
+    if (queuedFile) {
+        var temp = queuedFile;
+        queuedFile = null;
+        loadImg(temp);
+        return true;
     }
 
     document.getElementById("renderContainer").style.display = "none";
+    document.getElementById("render-pleaseWait").style.display = "none";
 
     var bs = document.getElementById("render-types").children;
     for (var i = 0; i < bs.length; i++) {
@@ -480,6 +492,7 @@ function display_renderClose() {
     }
 
     document.getElementById("render-types").innerHTML = "";
+    return true;
 }
 
 function display_renderStart() {
@@ -538,12 +551,15 @@ function render() {
     shouldStopRendering = false;
     display_renderStart();
     if (currentFiletype === "image/gif") {
-        gif = new SuperGif({
+        var gif = new SuperGif({
             gif: canvas.cloneNode()
         });
         currentlyRendering = true;
 
-        gif.load(function() {
+        loadGif = gif;
+
+        var onload = function() {
+            loadGif = null;
             var saveGif = new GIF({
                 workers: 3,
                 quality: 1,
@@ -621,13 +637,11 @@ function render() {
                     saveGif.abort();
                 }
             });
+        };
 
-        },
-    
-        function(e) {
-            if (e.lengthComputable) {
-                var progress = e.loaded / e.total;
-            }
+        gif.load(onload, undefined, function() {
+            currentlyRendering = false;
+            display_renderClose();
         });
     } else {
         var c = new Canvas(document.createElement("canvas"));
@@ -707,6 +721,12 @@ function btn_outlines_clickFn() {
 
 function loadImg(file) {
     if (!file) return;
+
+    if (!display_renderClose()) {
+        queuedFile = file;
+        return;
+    }
+
     currentFiletype = file.type;
 
     Canvas.fileToImage(file, function(img) {

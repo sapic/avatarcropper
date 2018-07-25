@@ -939,6 +939,7 @@
                 if (!load_setup(callback)) return;
 
                 abortFn = onabort;
+                shouldAbort = false;
 
                 var h = new XMLHttpRequest();
                 // new browsers (XMLHttpRequest2-compliant)

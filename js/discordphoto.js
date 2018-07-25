@@ -640,6 +640,7 @@ function render() {
         };
 
         gif.load(onload, undefined, function() {
+            loadGif = null;
             currentlyRendering = false;
             display_renderClose();
         });

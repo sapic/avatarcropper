@@ -18,6 +18,7 @@ var queuedFile = null;
 var loadGif = null;
 
 var zoomFactor = 1;
+var zoomFitted = false;
 
 var settings = {
     previewMode: "circle",
@@ -153,7 +154,7 @@ function createPreviewCanvas(size) {
 
     document.getElementById("container-canvas").style["width"] = mw;
 
-    zoomFit();
+    zoomFit(false);
 
     circleOrSquarePreviews();
 
@@ -201,7 +202,7 @@ function init() {
             loadImg(this.files[0]);
         } else console.info("It's dead, Jim. %o %o", e, this);
     });
-    document.getElementById("closeContrib").addEventListener("click", hideContribs);
+    document.getElementById("closeContrib").addEventListener("click", display_contribs_close);
     document.getElementById("supportersLink").addEventListener("click", showSupporters);
 
     if (mobilecheck()) {
@@ -246,7 +247,7 @@ function init() {
 
     document.getElementById("zoom-in").addEventListener("click", zoomIn);
     document.getElementById("zoom-out").addEventListener("click", zoomOut);
-    document.getElementById("zoom-fit").addEventListener("click", zoomFit);
+    document.getElementById("zoom-fit").addEventListener("click", function() { zoomFit(true); });
     document.getElementById("save").addEventListener("click", render);
 
     document.getElementById("render-save").addEventListener("click", function() {
@@ -401,19 +402,29 @@ function zoom(factor) {
 }
 
 function zoomIn() {
+    zoomFitted = false;
     zoomFactor *= 1.1;
     zoom();
 }
 
 function zoomOut() {
+    zoomFitted = false;
     zoomFactor /= 1.1;
     zoom();
 }
 
-function zoomFit() {
+function zoomFit(force) {
     if (shouldHide) {
         return;
     }
+
+    if (force === undefined) force = true;
+
+    if (!zoomFitted && !force) {
+        return;
+    }
+
+    zoomFitted = true;
 
     if (detectIE() !== false) {
         zoom(1);
@@ -704,9 +715,10 @@ function render() {
     }
 }
 
-function hideContribs() {
+function display_contribs_close() {
     document.getElementById("contributors").style.display = "none";
     document.getElementById("container").style.height = "100%";
+    zoomFit(false);
 }
 
 function showSupporters() {
@@ -778,7 +790,7 @@ function loadImg(file) {
             o.img.src = currentSrc;
         });
 
-        zoomFit();
+        zoomFit(true);
     });
 }
 
@@ -865,7 +877,7 @@ function getMouseAction(x, y) {
 }
 
 window.addEventListener("load", init);
-window.addEventListener("resize", zoomFit);
+window.addEventListener("resize", function() { zoomFit(false); });
 
 // from https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser //
 window.mobilecheck = function() {

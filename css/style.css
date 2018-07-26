@@ -24,7 +24,7 @@ body, html, #container {
     display:none;
 }
 
-#renderContainer {
+#renderContainer, #container-whatsNew {
     position:absolute;
     left:0;
     top:0;
@@ -37,7 +37,7 @@ body, html, #container {
     display:none;
 }
 
-#renderView {
+#renderView, #whatsNew {
     background:#eee;
     width:500px;
     max-width:70%;
@@ -53,7 +53,7 @@ body, html, #container {
     text-align:center;
 }
 
-#render-close {
+#render-close, #whatsNew-close {
     position:absolute;
     right:16px;
     cursor:pointer;
@@ -96,7 +96,7 @@ body, html, #container {
     background:#333;
     color:#eee;
     border:0;
-    padding:6px 10px;
+    padding:10px;
     font-size:18px;
     border-radius:5px;
     cursor:pointer;
@@ -105,6 +105,27 @@ body, html, #container {
     text-align:center;
     font-weight:bold;
     box-sizing:border-box;
+}
+
+#renderView .render-types-button {
+    border-radius:0;
+    border-left-width:0;
+    border-right-width:0;
+    margin-left:0;
+    margin-right:0;
+    padding:6px;
+}
+
+#renderView .render-types-button:first-of-type {
+    border-left-width:1px;
+    border-top-left-radius:5px;
+    border-bottom-left-radius:5px;
+}
+
+#renderView .render-types-button:last-of-type {
+    border-right-width:1px;
+    border-top-right-radius:5px;
+    border-bottom-right-radius:5px;
 }
 
 .render-types-button {
@@ -205,7 +226,7 @@ body, html, #container {
     color:white;
 }
 
-#feedback, #supportersLink {
+#feedback, #supportersLink, #link-whatsNew {
     text-decoration:underline;
     cursor:pointer;
 }
@@ -426,4 +447,27 @@ input[type=range]::-webkit-slider-thumb {
     -webkit-box-flex: 0;
         -ms-flex: 0 1 auto;
             flex: 0 1 auto;
+}
+
+#whatsNew > h1 {
+    margin-bottom:0;
+}
+
+#whatsNew > div > h2 {
+    text-decoration:underline;
+    margin:0;
+    padding:0;
+    text-align:left;
+    font-size:1em;
+    margin-top:16px;
+}
+
+#whatsNew > div > ul {
+    text-align:left;
+    margin:8px 0;
+    padding-left:24px;
+}
+
+#whatsNew > div > ul > li {
+    margin:4px 0;
 }

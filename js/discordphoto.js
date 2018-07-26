@@ -211,12 +211,18 @@ function init() {
         document.getElementsByTagName("head")[0].appendChild(link);
     }
 
-    document.getElementById("renderContainer").addEventListener("click", display_renderClose);
-    document.getElementById("render-close").addEventListener("click", display_renderClose);
+    document.getElementById("renderContainer").addEventListener("click", display_render_close);
+    document.getElementById("render-close").addEventListener("click", display_render_close);
+    document.getElementById("container-whatsNew").addEventListener("click", display_whatsNew_close);
+    document.getElementById("whatsNew-close").addEventListener("click", display_whatsNew_close);
+    document.getElementById("link-whatsNew").addEventListener("click", display_whatsNew_open);
 
-    document.getElementById("renderView").addEventListener("click", function(e) {
+    var _stopProp = function(e) {
         e.stopPropagation();
-    });
+    };
+
+    document.getElementById("renderView").addEventListener("click", _stopProp);
+    document.getElementById("whatsNew").addEventListener("click", _stopProp);
 
     document.getElementById("switch-square").addEventListener("click", function() {
         squarePreviews();
@@ -468,7 +474,15 @@ function zoomFit() {
     }
 }
 
-function display_renderClose() {
+function display_whatsNew_open() {
+    document.getElementById("container-whatsNew").style.display = "block";
+}
+
+function display_whatsNew_close() {
+    document.getElementById("container-whatsNew").style.display = "none";
+}
+
+function display_render_close() {
     if (currentlyRendering) {
         shouldStopRendering = true;
         loadGif && loadGif.abort();
@@ -495,7 +509,7 @@ function display_renderClose() {
     return true;
 }
 
-function display_renderStart() {
+function display_render_start() {
     document.getElementById("renderContainer").style.display = "block";
     document.getElementById("renderView-progressBar").style.display = "block";
     document.getElementById("renderView-progress").style.width = "0%";
@@ -505,7 +519,7 @@ function display_renderStart() {
     document.getElementById("render-img").src = "";
 }
 
-function display_renderFinished(arr) {
+function display_render_finished(arr) {
     // arr is array of objects with url and type properties
 
     document.getElementById("render-img").src = arr[0].url;
@@ -549,7 +563,7 @@ function display_renderFinished(arr) {
 
 function render() {
     shouldStopRendering = false;
-    display_renderStart();
+    display_render_start();
     if (currentFiletype === "image/gif") {
         var gif = new SuperGif({
             gif: canvas.cloneNode()
@@ -586,14 +600,14 @@ function render() {
 
                 if (shouldStopRendering) {
                     currentlyRendering = false;
-                    display_renderClose();
+                    display_render_close();
                     return;
                 }
                 
                 c.toImage(function(img) {
                     if (shouldStopRendering) {
                         currentlyRendering = false;
-                        display_renderClose();
+                        display_render_close();
                         return;
                     }
 
@@ -616,7 +630,7 @@ function render() {
             
             saveGif.on("finished", function(blob) {
                 var url = URL.createObjectURL(blob);
-                display_renderFinished([
+                display_render_finished([
                     {
                         url: url,
                         type: "GIF"
@@ -627,7 +641,7 @@ function render() {
 
             saveGif.on("abort", function() {
                 currentlyRendering = false;
-                display_renderClose();
+                display_render_close();
             });
 
             saveGif.on("progress", function(e) {
@@ -642,7 +656,7 @@ function render() {
         gif.load(onload, undefined, function() {
             loadGif = null;
             currentlyRendering = false;
-            display_renderClose();
+            display_render_close();
         });
     } else {
         var c = new Canvas(document.createElement("canvas"));
@@ -663,7 +677,7 @@ function render() {
 
         var check = function() {
             if (count === 2) {
-                display_renderFinished([
+                display_render_finished([
                     {
                         "url": url,
                         "type": "Square"
@@ -723,7 +737,7 @@ function btn_outlines_clickFn() {
 function loadImg(file) {
     if (!file) return;
 
-    if (!display_renderClose()) {
+    if (!display_render_close()) {
         queuedFile = file;
         return;
     }

@@ -205,12 +205,12 @@ function init() {
     document.getElementById("closeContrib").addEventListener("click", display_contribs_close);
     document.getElementById("supportersLink").addEventListener("click", showSupporters);
 
-    if (mobilecheck()) {
+    /*if (mobilecheck()) {
         var link = document.createElement("link");
         link.href = "css/mobile.css"
         link.rel = "stylesheet";
         document.getElementsByTagName("head")[0].appendChild(link);
-    }
+    }*/
 
     document.getElementById("renderContainer").addEventListener("click", display_render_close);
     document.getElementById("render-close").addEventListener("click", display_render_close);

@@ -180,6 +180,12 @@ function applyToPreviewCanvas(fn) {
 
 function init() {
     loadSettings();
+
+    if (detectIE() && !settings.dismissedIE) {
+        alert("hey so your browser isn't really supported ... things should still work but they will be slower/ugly due to how internet explorer/edge function (They don't conform to web standards). i'd recommend switching to firefox or chrome!! but you don't have to if you don't want to. this is the only time you'll see this message unless u clear ur cache or something. ok bye");
+        setSetting("dismissedIE", true);
+    }
+    
     if (dragdrop) {
         dragdrop.init(document.getElementById("dragDropOverlay"));
         dragdrop.softEvents.onnewinput = function(input) {
@@ -426,10 +432,10 @@ function zoomFit(force) {
 
     zoomFitted = true;
 
-    if (detectIE() !== false) {
+    /*if (detectIE() !== false) {
         zoom(1);
         return;
-    }
+    }*/
 
     var container = document.getElementById("container-canvas");
     var menu = document.getElementById("container-buttons");

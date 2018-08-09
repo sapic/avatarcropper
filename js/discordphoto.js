@@ -466,23 +466,33 @@ function zoomFit(force) {
     //document.getElementById("container-canvas").style["width"] = cr.width + "px";
 
     zoom(nr.height / ir.height);
+    //console.log("---");
+    //console.log("zoom1: ", nr.height / ir.height);
 
-    var delta = container.scrollWidth - container.clientWidth;
+    /*window.requestAnimationFrame(function() {
 
-    if (delta > 0) {
-        nr.width -= delta;
-        nr.height -= (ir.height / ir.width) * delta;
-        zoom(nr.height / ir.height);
-    }
+        var delta = container.scrollWidth - container.clientWidth;
+        //console.log("dx: ", delta);
+    
+        if (delta > 0) {
+            nr.width -= delta;
+            nr.height -= (ir.height / ir.width) * delta;
+            zoom(nr.height / ir.height);
+            //console.log("zoomx: ", nr.height / ir.height);
+        }
+    
+        delta = container.scrollHeight - container.clientHeight;
+        //console.log("dy: ", delta);
+    
+        if (delta > 0) {
+            nr.height -= delta;
+            nr.width -= (ir.width / ir.height) * delta;
+    
+            zoom(nr.height / ir.height);
+            //console.log("zoomy: ", nr.height / ir.height);
+        }
 
-    delta = container.scrollHeight - container.clientHeight;
-
-    if (delta > 0) {
-        nr.height -= delta;
-        nr.width -= (ir.width / ir.height) * delta;
-
-        zoom(nr.height / ir.height);
-    }
+    });*/
 }
 
 function display_whatsNew_open() {

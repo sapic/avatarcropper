@@ -24,7 +24,7 @@ body, html, #container {
     display:none;
 }
 
-#renderContainer, #container-whatsNew {
+#renderContainer, #container-whatsNew, #container-tutorial {
     position:absolute;
     left:0;
     top:0;
@@ -37,7 +37,7 @@ body, html, #container {
     display:none;
 }
 
-#renderView, #whatsNew {
+#renderView, #whatsNew, #tutorial {
     background:#eee;
     width:500px;
     max-width:70%;
@@ -53,7 +53,7 @@ body, html, #container {
     text-align:center;
 }
 
-#render-close, #whatsNew-close {
+#render-close, #whatsNew-close, #tutorial-close {
     position:absolute;
     right:16px;
     cursor:pointer;
@@ -66,16 +66,25 @@ body, html, #container {
     overflow:hidden;
 }
 
-#render-img {
+#render-img, #tutorial img {
     max-width:300px;
     min-width:300px;
     margin: 8px 0;
 }
 
-#renderView h1 {
+#renderView h1, #tutorial h1 {
     margin:0;
     font-weight:normal;
     font-size:32px;
+}
+
+#tutorial h1 {
+    margin:8px 0;
+}
+
+#tutorial img {
+    margin: 8px 0;
+    width: 80%;
 }
 
 #renderView-progressBar {
@@ -472,6 +481,11 @@ input[type=range]::-webkit-slider-thumb {
     margin:4px 0;
 }
 
+#copyright {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 @media (max-width:840px) {
     #copyright {
         display:none;
@@ -489,7 +503,7 @@ input[type=range]::-webkit-slider-thumb {
         display:none;
     }
     
-    #render-img {
+    #render-img, #tutorial img {
         max-width:87%;
         min-width:87%;
     }
@@ -510,7 +524,7 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 @media (max-height:710px) {
-    #renderView, #whatsNew {
+    #renderView, #whatsNew, #tutorial {
         width:100%;
         max-width:100%;
         min-width:100%;

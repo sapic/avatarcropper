@@ -223,6 +223,9 @@ function init() {
     document.getElementById("container-whatsNew").addEventListener("click", display_whatsNew_close);
     document.getElementById("whatsNew-close").addEventListener("click", display_whatsNew_close);
     document.getElementById("link-whatsNew").addEventListener("click", display_whatsNew_open);
+    document.getElementById("container-tutorial").addEventListener("click", display_tutorial_close);
+    document.getElementById("tutorial-close").addEventListener("click", display_tutorial_close);
+    document.getElementById("copyright").addEventListener("click", display_tutorial_open);
 
     var _stopProp = function(e) {
         e.stopPropagation();
@@ -507,6 +510,14 @@ function display_whatsNew_open() {
 
 function display_whatsNew_close() {
     document.getElementById("container-whatsNew").style.display = "none";
+}
+
+function display_tutorial_open() {
+    document.getElementById("container-tutorial").style.display = "block";
+}
+
+function display_tutorial_close() {
+    document.getElementById("container-tutorial").style.display = "none";
 }
 
 function display_render_close() {
@@ -807,6 +818,11 @@ function loadImg(file) {
         });
 
         zoomFit(true);
+
+        if (!settings.dismissedTutorial) {
+            display_tutorial_open();
+            //setSetting("dismissedTutorial", true);
+        }
     });
 }
 
@@ -831,13 +847,8 @@ function drawPreview(updatePreviews) {
     canvas_over.setBlendingMode("source-over");
 
     if (settings.outlinesEnabled) {
-        if (settings.previewMode === "circle") {
-            canvas_over.setLineDash([1, 2]);
-            canvas_over.drawCircleInSquare(circle.x, circle.y, circle.diameter, "white", 1);
-        } else {
-            canvas_over.setLineDash([1]);
-            canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
-        }
+        canvas_over.setLineDash([1]);
+        canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
     }
 
     if (updatePreviews) {

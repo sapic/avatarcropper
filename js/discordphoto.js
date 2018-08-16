@@ -821,7 +821,7 @@ function loadImg(file) {
 
         if (!settings.dismissedTutorial) {
             display_tutorial_open();
-            //setSetting("dismissedTutorial", true);
+            setSetting("dismissedTutorial", true);
         }
     });
 }

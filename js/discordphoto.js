@@ -82,26 +82,17 @@ function createPreviewCanvas(size) {
 
     var padding = 16;
     var runningX = 0;
-    var largest = size;
 
     canvas_preview_rects = [];
 
-    for (var i = 0; i < canvas_previews.length; i++) {
-        if (canvas_previews[i].size > largest) {
-            largest = canvas_previews[i].size;
-        }
-    }
-
-    previewObj.largest = largest;
-
     var $container = document.createElement("div");
     $container.className = "canvas-preview-container";
-    $container.style.width = largest + "px";
-    $container.style.height = largest + "px";
+    $container.style.width = size + "px";
+    $container.style.height = size + "px";
     $container.style["z-index"] = -size;
     previewObj.container = $container;
 
-    var c = new Canvas({ width: largest, height: largest });
+    var c = new Canvas({ width: size, height: size });
     c.__size = size;
     c.canvas.title = size + "x" + size;
     c.canvas.className = "canvas-preview";
@@ -885,8 +876,8 @@ function drawPreview(updatePreviews) {
             o.img.style.transform = "scale(" + scale + ")";
             o.img.style.position = "absolute";
             
-            var x = o.largest - o.size;
-            var y = o.largest - o.size;
+            var x = 0;
+            var y = 0;
 
             x -= circle.x * scale;
             y -= circle.y * scale;

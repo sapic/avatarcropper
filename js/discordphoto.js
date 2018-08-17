@@ -641,7 +641,7 @@ function render() {
                     return;
                 }
                 
-                c.toImage(function(img) {
+                c.createImage(function(img) {
                     if (shouldStopRendering) {
                         currentlyRendering = false;
                         display_render_close();

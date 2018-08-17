@@ -43,9 +43,9 @@ function circlePreviews() {
     canvas_previews.forEach(o => {
         let c = o.canvas;
         c.fill("#2F3136");
-        c.setBlendingMode("destination-out");
-        c.fillCircleInSquare(c.width() - o.size, c.height() - o.size, o.size, "white");
-        c.setBlendingMode("source-over");
+        c.blendMode = "destination-out";
+        c.fillCircleInSquare(c.width - o.size, c.height - o.size, o.size, "white");
+        c.blendMode = "source-over";
     });
 }
 
@@ -57,9 +57,9 @@ function squarePreviews() {
     canvas_previews.forEach(o => {
         let c = o.canvas;
         c.fill("#2F3136");
-        c.setBlendingMode("destination-out");
-        c.fillRect(c.width() - o.size, c.height() - o.size, o.size, o.size, "white");
-        c.setBlendingMode("source-over");
+        c.blendMode = "destination-out";
+        c.fillRect(c.width - o.size, c.height - o.size, o.size, o.size, "white");
+        c.blendMode = "source-over";
     });
 }
 
@@ -101,8 +101,7 @@ function createPreviewCanvas(size) {
     $container.style["z-index"] = -size;
     previewObj.container = $container;
 
-    var c = new Canvas(document.createElement("canvas"));
-    c.resize(largest, largest, false);
+    var c = new Canvas({ width: largest, height: largest });
     c.__size = size;
     c.canvas.title = size + "x" + size;
     c.canvas.className = "canvas-preview";
@@ -192,11 +191,15 @@ function init() {
             loadImg(input);
         }
     }
+
     document.getElementById("slider-opacity").value = settings.maskTransparency;
     document.getElementById("btn-outlines").classList[settings.outlinesEnabled ? "add" : "remove"]("toggle-active");
 
     canvas = document.getElementById("canvas");
-    canvas_over = new Canvas(document.getElementById("canvas-over"), Canvas.flags.useDeepCalc);
+    canvas_over = new Canvas({
+        canvasElement: document.getElementById("canvas-over"),
+        deepCalc: true
+    });
 
     createPreviewCanvas(128);
     createPreviewCanvas(90);
@@ -263,7 +266,7 @@ function init() {
         this.href = document.getElementById("render-img").src;
     });
 
-    canvas_over.setMouseMove(function(x, y, md, lx, ly, e) {
+    canvas_over.mouse.addEventListener("move", function(x, y, md, lx, ly, ox, oy, e) {
         var action = currentAction === "none" ? getMouseAction(x, y) : currentAction;
         if (action === "move") {
             canvas_over.canvas.style.cursor = "move";
@@ -373,11 +376,11 @@ function init() {
         }
     });
 
-    canvas_over.setMouseDown(function(x, y, e) {
+    canvas_over.mouse.addEventListener("down", function(x, y, e) {
         var action = getMouseAction(x, y);
         currentAction = action;
 
-        mouseOrigin = {x, y};
+        mouseOrigin = { x, y };
         scrollOrigin = {
             x: document.getElementById("container-canvas").scrollLeft,
             y: document.getElementById("container-canvas").scrollTop
@@ -386,28 +389,35 @@ function init() {
         Object.assign(circleOrigin, circle);
     });
 
-    canvas_over.setMouseUp(function() {
+    canvas_over.mouse.addEventListener("up", function() {
         currentAction = "none";
         drawPreview();
     });
 
-    canvas_over.setMouseLeave(canvas_over.mouseUpEvents[0]);
+    canvas_over.mouse.addEventListener("leave", canvas_over.mouse.events.up[0]);
 
     slider_opacity_inputfn();
-
     
     var container = document.getElementById("container-canvas");
-    var menu = document.getElementById("container-buttons");
+    //var menu = document.getElementById("container-buttons");
 
     //container.style.width = (document.body.clientWidth - menu.clientWidth) + "px";
     container.style.height = "100%";
+}
+
+function zoomElement(element, x, y) {
+    x = x || 1;
+    y = y || x;
+
+    element.style["transform-origin"] = "top left";
+    element.style.transform = "scale(" + x + ", " + y + ")";
 }
 
 function zoom(factor) {
     factor = factor || zoomFactor;
     zoomFactor = factor;
     canvas_over.zoom(factor);
-    Canvas.zoomElement(canvas, factor);
+    zoomElement(canvas, factor);
 }
 
 function zoomIn() {
@@ -443,7 +453,7 @@ function zoomFit(force) {
     var container = document.getElementById("container-canvas");
     var menu = document.getElementById("container-buttons");
     var cr = container.getBoundingClientRect();
-    var ir = { width: canvas_over.width(), height: canvas_over.height() };
+    var ir = { width: canvas_over.width, height: canvas_over.height };
 
     var fw = cr.width / ir.width;
     var fh = cr.height / ir.height;
@@ -627,12 +637,10 @@ function render() {
             var renderFrame = function(i, cb) {
                 gif.move_to(i);
 
-                var c = new Canvas(document.createElement("canvas"));
-                c.resize(circle.diameter, circle.diameter, false);
-                c.clear();
+                var c = new Canvas({ width: circle.diameter, height: circle.diameter });
                 c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
                 /*if (settings.previewMode === "circle") {
-                    c.setBlendingMode("destination-in");
+                    c.blendMode = "destination-in";
                     c.fillCircleInSquare(0, 0, c.width(), "white");
                 }*/
 
@@ -697,18 +705,14 @@ function render() {
             display_render_close();
         });
     } else {
-        var c = new Canvas(document.createElement("canvas"));
-        c.resize(circle.diameter, circle.diameter, false);
-        c.clear();
+        var c = new Canvas({ width: circle.diameter, height: circle.diameter });
         c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
 
-        var cc = new Canvas(document.createElement("canvas"));
-        cc.resize(circle.diameter, circle.diameter, false);
-        cc.clear();
+        var cc = new Canvas({ width: circle.diameter, height: circle.diameter });
         cc.drawImage(c.canvas, 0, 0);
 
-        cc.setBlendingMode("destination-in");
-        cc.fillCircleInSquare(0, 0, c.width(), "white");
+        cc.blendMode = "destination-in";
+        cc.fillCircleInSquare(0, 0, c.width, "white");
 
         var url, urlc;
         var count = 0;
@@ -728,17 +732,17 @@ function render() {
             }
         };
 
-        c.canvas.toBlob((function(blob) {
+        c.createBlob(function(blob) {
             url = URL.createObjectURL(blob);
             count++;
             check();
-        }).bind(this));
+        });
 
-        cc.canvas.toBlob((function(blob) {
+        cc.createBlob(function(blob) {
             urlc = URL.createObjectURL(blob);
             count++;
             check();
-        }).bind(this));
+        });
     }
 }
 
@@ -760,7 +764,7 @@ function slider_opacity_inputfn() {
 function btn_addPreview_clickFn() {
     var size = parseInt(prompt("Enter a custom size like 256"));
     if (isNaN(size)) {
-        // you're dumb
+        alert("Bad size make sure its a number");
     } else {
         createPreviewCanvas(size);
     }
@@ -784,7 +788,7 @@ function loadImg(file) {
     currentFiletype = file.type;
 
     Canvas.fileToImage(file, function(img) {
-        tpixels = false;
+        /*tpixels = false;
         canvas_over.drawImage(img, 0, 0);
         var data = canvas_over.getImageData().data;
         for (var i = 0; i < data.length; i += 4) {
@@ -793,28 +797,38 @@ function loadImg(file) {
                 break;
             }
         }
-        canvas_over.clear();
+        canvas_over.clear();*/
 
         var es = document.getElementsByClassName("hidden");
         for (var i = 0; i < es.length; i++) {
-            es[i].style.display = "inline-block";
+            es[i].style.display = "inline-block"; // TODO: make this fallback to css
         }
+
+        canvas_over.resize(img.width, img.height, false);
+        canvas_over.clear();
+
         canvas.innerWidth = img.width;
         canvas.innerHeight = img.height;
-        canvas_over.resize(img.width, img.height, false);
-        canvas.src = window.URL.createObjectURL(file);
+        canvas.src = img.src;
         circle.x = 0;
         circle.y = 0;
-        circle.diameter = img.width > img.height ? img.height : img.width;
+        circle.diameter = Math.min(img.width, img.height);
         circle.diameter /= 2;
         //document.getElementById("save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped.png");
+        
         document.getElementById("render-save").setAttribute("download", file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped." + (currentFiletype === "image/gif" ? "gif" : "png"));
+        
         drawPreview();
         shouldHide = false;
 
-        currentSrc = canvas.src;
+        if (currentSrc)
+        {
+            URL.revokeObjectURL(currentSrc);
+        }
+
+        currentSrc = img.src;
         canvas_previews.forEach(o => {
-            o.img.src = currentSrc;
+            o.img.src = img.src;
         });
 
         zoomFit(true);
@@ -823,7 +837,7 @@ function loadImg(file) {
             display_tutorial_open();
             setSetting("dismissedTutorial", true);
         }
-    });
+    }, false);
 }
 
 function drawPreview(updatePreviews) {
@@ -836,7 +850,7 @@ function drawPreview(updatePreviews) {
     if (settings.maskTransparency !== 1) {
         canvas_over.fill("rgba(0,0,0," + (1 - settings.maskTransparency) + ")");
 
-        canvas_over.setBlendingMode("destination-out");
+        canvas_over.blendMode = "destination-out";
         if (settings.previewMode === "circle") {
             canvas_over.fillCircleInSquare(circle.x, circle.y, circle.diameter, "white");
         } else {
@@ -844,11 +858,11 @@ function drawPreview(updatePreviews) {
         }
     }
 
-    canvas_over.setBlendingMode("source-over");
+    canvas_over.blendMode = "source-over";
 
     if (settings.outlinesEnabled) {
-        canvas_over.setLineDash([1]);
-        canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1);
+        canvas_over.lineDash = [ Math.min(canvas_over.width, canvas_over.height) / 100 ];
+        canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
     }
 
     if (updatePreviews) {

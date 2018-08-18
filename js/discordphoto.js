@@ -856,11 +856,9 @@ function drawPreview(updatePreviews) {
         
         if (settings.previewMode === "circle") {
             canvas_over.drawCircleInSquare(circle.x, circle.y, circle.diameter, "white", 1);
-            canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
-        
-        } else {
-            canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
         }
+        
+        canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
     }
 
     if (updatePreviews) {

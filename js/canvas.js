@@ -425,6 +425,16 @@ class Canvas
         this.context.fill();
     };
 
+    drawCircleInSquare(x, y, diameter, color, lineWidth)
+    {
+        this.color = color;
+        this.lineWidth = lineWidth;
+
+        this.context.beginPath();
+        this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
+        this.context.stroke();
+    };
+
 
 
     static fileToImage(file, callback, autoRevoke = true) {

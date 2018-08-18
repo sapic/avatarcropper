@@ -853,7 +853,14 @@ function drawPreview(updatePreviews) {
 
     if (settings.outlinesEnabled) {
         canvas_over.lineDash = [ Math.min(canvas_over.width, canvas_over.height) / 100 ];
-        canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
+        
+        if (settings.previewMode === "circle") {
+            canvas_over.drawCircleInSquare(circle.x, circle.y, circle.diameter, "white", 1);
+            canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
+        
+        } else {
+            canvas_over.drawRect(circle.x, circle.y, circle.diameter, circle.diameter, "white", 1, zoomFactor >= 1);
+        }
     }
 
     if (updatePreviews) {

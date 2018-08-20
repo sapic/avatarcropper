@@ -169,6 +169,10 @@ function applyToPreviewCanvas(fn) {
 }
 
 function init() {
+    document.getElementById("container").classList.remove("hidden");
+    document.getElementById("contributors").classList.remove("hidden");
+    document.getElementById("container-loading").classList.add("hidden-forever");
+
     loadSettings();
 
     if (detectIE() && !settings.dismissedIE) {

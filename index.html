@@ -25,13 +25,17 @@
     </head>
     <body>
 
+        <div id="container-loading">
+            <span>Loading...</span>
+        </div>
+
         <div id="dragDropOverlay">
             <div>
                 <span style="font-size: 3em; color: #fff;">Drop Image Anywhere</span>
             </div>
         </div>
 
-        <div id="container" class="">
+        <div id="container" class="hidden">
             <div id="renderContainer">
                 <div id="renderView">
                     <div id="render-close">❌</div>
@@ -124,7 +128,7 @@
 
         </div>
 
-        <div id="contributors">
+        <div id="contributors" class="hidden">
 
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" class="donate">
                 <input type="hidden" name="cmd" value="_s-xclick">

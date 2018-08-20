@@ -1,6 +1,5 @@
 var canvas, canvas_over;
 var canvas_previews = [];
-var canvas_preview_rects = [];
 var currentAction = "none";
 var circle = {
     x: 0,
@@ -83,8 +82,6 @@ function createPreviewCanvas(size) {
     var padding = 16;
     var runningX = 0;
 
-    canvas_preview_rects = [];
-
     var $container = document.createElement("div");
     $container.className = "canvas-preview-container";
     $container.style.width = size + "px";
@@ -133,7 +130,7 @@ function createPreviewCanvas(size) {
             height: canvas_previews[i].size + padding * 2
         };
 
-        canvas_preview_rects.push(rect);
+        canvas_previews[i].rect = rect;
         runningX += canvas_previews[i].size + padding;
     }
 
@@ -464,7 +461,9 @@ function zoomFit(force) {
         height: ir.height * f
     };
 
-    while (!canvas_preview_rects.some(function(r) {
+    while (!canvas_previews.some(function(o) {
+        let r = o.rect;
+
         if (rectsIntersect(nr, r)) {
             //console.log(JSON.parse(JSON.stringify(nr)), JSON.parse(JSON.stringify(r)));
             return true;
@@ -758,8 +757,8 @@ function slider_opacity_inputfn() {
 
 function btn_addPreview_clickFn() {
     var size = parseInt(prompt("Enter a custom size like 256"));
-    if (isNaN(size)) {
-        alert("Bad size make sure its a number");
+    if (isNaN(size) || size <= 0) {
+        alert("Bad size make sure its a number over 0");
     } else {
         createPreviewCanvas(size);
     }

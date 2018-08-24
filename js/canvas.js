@@ -36,7 +36,7 @@ class Canvas
         }
 
         this.usingDeepCalc = options.deepCalc || false;
-        this.useImageSmoothing = options.imageSmoothing || false;
+        this.pixelated = options.pixelated || false;
 
         if (this.usingDeepCalc)
         {
@@ -70,6 +70,15 @@ class Canvas
         this.canvas.addEventListener("touchend", this.mouseUp.bind(this));
         this.canvas.addEventListener("mouseleave", this.mouseLeave.bind(this));
         this.canvas.addEventListener("touchcancel", this.mouseLeave.bind(this));
+    }
+
+    static round(x)
+    {
+        let negative = x < 0;
+        x = Math.abs(x);
+        x = (x + 0.5) | 0;
+        if (negative) x = -x;
+        return x;
     }
 
     resize(w, h, redraw)
@@ -238,19 +247,29 @@ class Canvas
         return this.canvas.getContext("2d");
     }
 
-    set useImageSmoothing(bool)
+    set pixelated(bool)
     {
+        bool = !bool;
+
         let ctx = this.context;
         ctx.mozImageSmoothingEnabled = bool;
         ctx.webkitImageSmoothingEnabled = bool;
         ctx.msImageSmoothingEnabled = bool;
         ctx.imageSmoothingEnabled = bool;
+
+        let types = [ "optimizeSpeed", "crisp-edges", "-moz-crisp-edges", "-webkit-optimize-contrast", "optimize-contrast", "pixelated" ];
+        
+        types.forEach(type => this.canvas.style["image-rendering"] = type);
+        this.canvas.style.msInterpolationMode = "nearest-neighbor";
     }
 
     get width() { return this.canvas.width; }
     set width(w) { this.resize(w, this.height); }
     get height() { return this.canvas.height; }
     set height(h) { this.resize(this.width, h); }
+
+    get opacity() { return this.context.globalAlpha; }
+    set opacity(opacity) { this.context.globalAlpha = opacity; }
 
     get color() { return this.context.fillStyle; }
     set color(val)
@@ -320,10 +339,10 @@ class Canvas
         if (w === undefined) w = image.width;
         if (h === undefined) h = image.height;
 
-        x = Math.round(x);
-        y = Math.round(y);
-        w = Math.round(w);
-        h = Math.round(h);
+        x = Canvas.round(x);
+        y = Canvas.round(y);
+        w = Canvas.round(w);
+        h = Canvas.round(h);
         
         this.context.drawImage(image, x, y, w, h);
     }
@@ -346,17 +365,45 @@ class Canvas
         if (w === undefined) w = cw;
         if (h === undefined) h = ch;
         
-        x = Math.round(x);
-        y = Math.round(y);
-        cx = Math.round(cx);
-        cy = Math.round(cy);
-        cw = Math.round(cw);
-        ch = Math.round(ch);
-        w = Math.round(w);
-        h = Math.round(h);
+        x = Canvas.round(x);
+        y = Canvas.round(y);
+        cx = Canvas.round(cx);
+        cy = Canvas.round(cy);
+        cw = Canvas.round(cw);
+        ch = Canvas.round(ch);
+        w = Canvas.round(w);
+        h = Canvas.round(h);
 
         this.context.drawImage(image, cx, cy, cw, ch, x, y, w, h);
     }
+    
+    drawRotatedCroppedImage(image, rotate, anchorX, anchorY, x, y, cx, cy, cw, ch, w, h)
+    {
+        if (image instanceof Canvas)
+        {
+            image = image.canvas;
+        }
+
+        if (w === undefined) w = cw;
+        if (h === undefined) h = ch;
+        
+        x = Canvas.round(x);
+        y = Canvas.round(y);
+        cx = Canvas.round(cx);
+        cy = Canvas.round(cy);
+        cw = Canvas.round(cw);
+        ch = Canvas.round(ch);
+        w = Canvas.round(w);
+        h = Canvas.round(h);
+    
+        var ctx = this.context;
+    
+        ctx.save();
+        ctx.translate(x + anchorX, y + anchorY);
+        ctx.rotate(rotate);
+        ctx.drawImage(image, cx, cy, cw, ch, -anchorX, -anchorY, w, h);
+        ctx.restore();
+    };
 
     // use closures to make function factory function for onclick etc
 
@@ -377,10 +424,10 @@ class Canvas
 
         if (sharp === undefined) sharp = true;
 
-        x = Math.round(x);
-        y = Math.round(y);
-        w = Math.round(w);
-        h = Math.round(h);
+        x = Canvas.round(x);
+        y = Canvas.round(y);
+        w = Canvas.round(w);
+        h = Canvas.round(h);
 
         if (sharp)
         {
@@ -395,10 +442,10 @@ class Canvas
     {
         this.color = color;
 
-        x = Math.round(x);
-        y = Math.round(y);
-        w = Math.round(w);
-        h = Math.round(h);
+        x = Canvas.round(x);
+        y = Canvas.round(y);
+        w = Canvas.round(w);
+        h = Canvas.round(h);
 
         this.context.fillRect(x, y, w, h);
     }

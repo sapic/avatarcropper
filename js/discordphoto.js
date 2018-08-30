@@ -747,7 +747,7 @@ function display_contribs_close() {
 }
 
 function showSupporters() {
-    alert("Thanks to these people for donating and contributing to my work!!\n\nGlen Cathey\nBetty Glez\nMax Abbot\nMetalSonicDash\nand 2 anons:)\n\nI always ask before publishing a name so just let me know if you'd prefer to stay anonymous!\nok thx love u");
+    alert("Thanks to these people for donating and contributing to my work!!\n\nGlen Cathey\nBetty Glez\nMax Abbot\nMetalSonicDash\nAlmxg Levi\nand 2 anons:)\n\nI always ask before publishing a name so just let me know if you'd prefer to stay anonymous!\nok thx love u");
 }
 
 function slider_opacity_inputfn() {

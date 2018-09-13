@@ -756,7 +756,14 @@ function slider_opacity_inputfn() {
 }
 
 function btn_addPreview_clickFn() {
-    var size = parseInt(prompt("Enter a custom size like 256"));
+    var size = prompt("Enter a custom size like 256");
+
+    if (size === null) { // cancelled
+        return;
+    }
+
+    size = parseInt(size);
+    
     if (isNaN(size) || size <= 0) {
         alert("Bad size make sure its a number over 0");
     } else {

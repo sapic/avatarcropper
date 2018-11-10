@@ -4,7 +4,23 @@ var currentAction = "none";
 var circle = {
     x: 0,
     y: 0,
-    diameter: 32
+    diameter: 32,
+    cx: function(cx)
+    {
+        if (cx !== undefined)
+        {
+            circle.x = cx - circle.diameter / 2;
+        }
+        return circle.x + circle.diameter / 2;
+    },
+    cy: function(cy)
+    {
+        if (cy !== undefined)
+        {
+            circle.y = cy - circle.diameter / 2;
+        }
+        return circle.y + circle.diameter / 2;
+    }
 };
 var shouldHide = true;
 var tpixels = false;
@@ -167,6 +183,14 @@ function applyToPreviewCanvas(fn) {
     }
 }
 
+function validateCircle()
+{
+    if (circle.x < 0) circle.x = 0;
+    if (circle.y < 0) circle.y = 0;
+    if (circle.x + circle.diameter > canvas_over.width) circle.x = canvas_over.width - circle.diameter;
+    if (circle.y + circle.diameter > canvas_over.height) circle.y = canvas_over.height - circle.diameter;
+}
+
 function init() {
     document.getElementById("container").classList.remove("hidden");
     document.getElementById("contributors").classList.remove("hidden");
@@ -204,6 +228,8 @@ function init() {
     document.getElementById("input-file").addEventListener("change", function(e) {
         if (this.files && this.files[0]) {
             loadImg(this.files[0]);
+            this.value = null;
+            console.log(this.files[0]);
         } else console.info("It's dead, Jim. %o %o", e, this);
     });
     document.getElementById("closeContrib").addEventListener("click", display_contribs_close);
@@ -301,10 +327,7 @@ function init() {
             circle.x = circleOrigin.x + dx;
             circle.y = circleOrigin.y + dy;
 
-            if (circle.x < 0) circle.x = 0;
-            if (circle.y < 0) circle.y = 0;
-            if (circle.x + circle.diameter > canvas_over.width) circle.x = canvas_over.width - circle.diameter;
-            if (circle.y + circle.diameter > canvas_over.height) circle.y = canvas_over.height - circle.diameter;
+            validateCircle();
         } else if (currentAction === "resize") {
             var xr = x < circle.x + circle.diameter / 2;
             var yr = y < circle.y + circle.diameter / 2;
@@ -410,6 +433,8 @@ function zoomElement(element, x, y) {
 }
 
 function zoom(factor) {
+    document.getElementById("container-canvas").scrollTop = 0;
+    document.getElementById("container-canvas").scrollLeft = 0;
     let rotatePart = "";
     
     if (canvas.style.transform.indexOf(" rotate") !== -1) {
@@ -450,7 +475,8 @@ function zoom(factor) {
 }
 
 function rotate(deg) {
-    deg = deg || currentRotation;
+    let odeg = currentRotation;
+    if (deg === undefined) deg = currentRotation;
     currentRotation = deg;
     
     if (canvas.style.transform.indexOf(" rotate") !== -1) {
@@ -460,7 +486,6 @@ function rotate(deg) {
         );
     }
 
-    console.log(canvas.style.transform);
     let b4 = canvas.style.transform;
 
     canvas.style.left = "0px";
@@ -473,7 +498,6 @@ function rotate(deg) {
     canvas.style.transform = b4 + " rotate(" + deg + "deg)";
 
     let r = canvas.getBoundingClientRect();
-    console.log(or, r);
     let dx = -r.left;
     let dy = -r.top;
     
@@ -482,8 +506,26 @@ function rotate(deg) {
 
     canvas_over.width *= (r.width / or.width);
     canvas_over.height *= (r.height / or.height);
-    drawPreview(true);
+
+    /*let circleMagnitude = Math.sqrt(
+        Math.pow(canvas_over.width - circle.cx(), 2) +
+        Math.pow(canvas_over.height - circle.cy(), 2)
+    );
+
+    let rad = ((deg - 90) / 180) * Math.PI;
+    let orad = ((odeg - 90) / 180) * Math.PI;
+
+    let cdx = Math.cos(rad) - Math.cos(orad);
+    let cdy = Math.sin(rad) - Math.sin(orad);
+    cdx *= circleMagnitude;
+    cdy *= circleMagnitude;
+
+    circle.x += cdx;
+    circle.y += cdy;*/
+
     zoomFitted && zoomFit();
+    validateCircle();
+    drawPreview(true);
 }
 
 function zoomIn() {
@@ -910,6 +952,7 @@ function loadImg(file) {
             o.img.src = img.src;
         });
 
+        rotate(0);
         zoomFit(true);
 
         if (!settings.dismissedTutorial) {
@@ -966,7 +1009,7 @@ function drawPreview(updatePreviews) {
 
         canvas_previews.forEach(o => {
             var scale = o.size / circle.diameter;
-            o.img.style.transform = "scale(" + scale + ")";
+            o.img.style.transform = "scale(" + scale + ") rotate(" + currentRotation + "deg)";
             o.img.style.position = "absolute";
             
             var x = 0;
@@ -974,6 +1017,17 @@ function drawPreview(updatePreviews) {
 
             x -= circle.x * scale;
             y -= circle.y * scale;
+
+            let dx = canvas.style.left || "0px";
+            dx = parseFloat(dx.substr(0, dx.length - 2));
+            let dy = canvas.style.top || "0px";
+            dy = parseFloat(dy.substr(0, dy.length - 2));
+            
+            dx *= (1 / zoomFactor);
+            dy *= (1 / zoomFactor);
+
+            x += dx * scale;
+            y += dy * scale;
 
             o.img.style.left = x + "px";
             o.img.style.top = y + "px";

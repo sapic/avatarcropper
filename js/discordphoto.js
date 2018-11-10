@@ -747,8 +747,25 @@ function render() {
             var renderFrame = function(i, cb) {
                 gif.move_to(i);
 
-                var c = new Canvas({ width: circle.diameter, height: circle.diameter });
-                c.drawCroppedImage(gif.get_canvas(), 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+                
+                let rc = new Canvas({ 
+                    width: canvas_over.width,
+                    height: canvas_over.height,
+                    pixelated: true
+                });
+                rc.drawRotatedImage(
+                    gif.get_canvas(),
+                    currentRotation / 180 * Math.PI,
+                    canvas_over.width / 2 - canvas.width / 2,
+                    canvas_over.height / 2 - canvas.height / 2
+                );
+
+                var c = new Canvas({
+                    width: circle.diameter,
+                    height: circle.diameter,
+                    pixelated: true
+                });
+                c.drawCroppedImage(rc, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
                 /*if (settings.previewMode === "circle") {
                     c.blendMode = "destination-in";
                     c.fillCircleInSquare(0, 0, c.width(), "white");
@@ -815,11 +832,19 @@ function render() {
             display_render_close();
         });
     } else {
+        let rc = new Canvas({ width: canvas_over.width, height: canvas_over.height });
+        rc.drawRotatedImage(
+            canvas,
+            currentRotation / 180 * Math.PI,
+            canvas_over.width / 2 - canvas.width / 2,
+            canvas_over.height / 2 - canvas.height / 2
+        );
+
         var c = new Canvas({ width: circle.diameter, height: circle.diameter });
-        c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
+        c.drawCroppedImage(rc, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter);
 
         var cc = new Canvas({ width: circle.diameter, height: circle.diameter });
-        cc.drawImage(c.canvas, 0, 0);
+        cc.drawImage(c, 0, 0);
 
         cc.blendMode = "destination-in";
         cc.fillCircleInSquare(0, 0, c.width, "white");
@@ -953,6 +978,7 @@ function loadImg(file) {
         });
 
         rotate(0);
+        document.getElementById("slider-rotation").value = 0;
         zoomFit(true);
 
         if (!settings.dismissedTutorial) {

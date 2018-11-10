@@ -376,6 +376,27 @@ class Canvas
 
         this.context.drawImage(image, cx, cy, cw, ch, x, y, w, h);
     }
+
+    drawRotatedImage(image, rotate, x, y, w, h) {
+        if (image instanceof Canvas)
+        {
+            image = image.canvas;
+        }
+
+        if (w === undefined) w = image.width;
+        if (h === undefined) h = image.height;
+        
+        x = Canvas.round(x);
+        y = Canvas.round(y);
+        w = Canvas.round(w);
+        h = Canvas.round(h);
+    
+        this.context.save();
+        this.context.translate(x + w / 2, y + h / 2);
+        this.context.rotate(rotate);
+        this.context.drawImage(image, -w / 2, -h / 2, w, h);
+        this.context.restore();
+    };
     
     drawRotatedCroppedImage(image, rotate, anchorX, anchorY, x, y, cx, cy, cw, ch, w, h)
     {

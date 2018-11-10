@@ -19,6 +19,8 @@ var loadGif = null;
 var zoomFactor = 1;
 var zoomFitted = false;
 
+var currentRotation = 0;
+
 var settings = {
     previewMode: "circle",
     maskTransparency: 0,
@@ -299,8 +301,8 @@ function init() {
 
             if (circle.x < 0) circle.x = 0;
             if (circle.y < 0) circle.y = 0;
-            if (circle.x + circle.diameter > canvas.innerWidth) circle.x = canvas.innerWidth - circle.diameter;
-            if (circle.y + circle.diameter > canvas.innerHeight) circle.y = canvas.innerHeight - circle.diameter;
+            if (circle.x + circle.diameter > canvas_over.width) circle.x = canvas_over.width - circle.diameter;
+            if (circle.y + circle.diameter > canvas_over.height) circle.y = canvas_over.height - circle.diameter;
         } else if (currentAction === "resize") {
             var xr = x < circle.x + circle.diameter / 2;
             var yr = y < circle.y + circle.diameter / 2;
@@ -318,31 +320,31 @@ function init() {
                         dd = Math.min(circleOrigin.x, circleOrigin.y);
                     }
                 } else {
-                    if (circleOrigin.x - dd < 0 || circleOrigin.y + circleOrigin.diameter + dd > canvas.innerHeight) {
-                        dd = Math.min(circleOrigin.x, canvas.innerHeight - circleOrigin.y - circleOrigin.diameter);
+                    if (circleOrigin.x - dd < 0 || circleOrigin.y + circleOrigin.diameter + dd > canvas_over.height) {
+                        dd = Math.min(circleOrigin.x, canvas_over.height - circleOrigin.y - circleOrigin.diameter);
                     }
                 }
             } else {
                 if (yr) {
-                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.innerWidth || circleOrigin.y - dd < 0) {
-                        dd = Math.min(canvas.innerWidth - circleOrigin.x - circleOrigin.diameter, circleOrigin.y);
+                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas_over.width || circleOrigin.y - dd < 0) {
+                        dd = Math.min(canvas_over.width - circleOrigin.x - circleOrigin.diameter, circleOrigin.y);
                     }
                 } else {
-                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas.innerWidth || circleOrigin.y + circleOrigin.diameter + dd > canvas.innerHeight) {
-                        dd = Math.min(canvas.innerWidth - circleOrigin.x - circleOrigin.diameter, canvas.innerHeight - circleOrigin.y - circleOrigin.diameter);
+                    if (circleOrigin.x + circleOrigin.diameter + dd > canvas_over.width || circleOrigin.y + circleOrigin.diameter + dd > canvas_over.height) {
+                        dd = Math.min(canvas_over.width - circleOrigin.x - circleOrigin.diameter, canvas_over.height - circleOrigin.y - circleOrigin.diameter);
                     }
                 }
             }
-            if (circle.diameter > canvas.innerWidth) {
+            if (circle.diameter > canvas_over.width) {
                 // panic
                 circle.x = 0;
                 circle.y = 0;
-                circle.diameter = canvas.innerWidth;
+                circle.diameter = canvas_over.width;
                 alert("fuck");
-            } else if (circle.diameter > canvas.innerHeight) {
+            } else if (circle.diameter > canvas_over.height) {
                 circle.x = 0;
                 circle.y = 0;
-                circle.diameter = canvas.innerHeight;
+                circle.diameter = canvas_over.height;
                 alert("fuck");
             } else {
                 circle.diameter = circleOrigin.diameter + dd;
@@ -406,10 +408,80 @@ function zoomElement(element, x, y) {
 }
 
 function zoom(factor) {
+    let rotatePart = "";
+    
+    if (canvas.style.transform.indexOf(" rotate") !== -1) {
+        rotatePart = canvas.style.transform.substr(
+            canvas.style.transform.indexOf(" rotate")
+        );
+    }
+
     factor = factor || zoomFactor;
     zoomFactor = factor;
     canvas_over.zoom(factor);
     zoomElement(canvas, factor);
+    canvas.style.transform += rotatePart;
+
+    let r = canvas.getBoundingClientRect();
+    
+    if (r.left !== 0)
+    {
+        let current = canvas.style.left || "0px";
+        current = current.substr(0, current.length - 2);
+
+        current = parseFloat(current);
+        current -= r.left;
+
+        canvas.style.left = current + "px";
+    }
+    
+    if (r.top !== 0)
+    {
+        let current = canvas.style.top || "0px";
+        current = current.substr(0, current.length - 2);
+
+        current = parseFloat(current);
+        current -= r.top;
+
+        canvas.style.top = current + "px";
+    }
+}
+
+function rotate(deg) {
+    deg = deg || currentRotation;
+    currentRotation = deg;
+    
+    if (canvas.style.transform.indexOf(" rotate") !== -1) {
+        canvas.style.transform = canvas.style.transform.substr(
+            0,
+            canvas.style.transform.indexOf(" rotate")
+        );
+    }
+
+    console.log(canvas.style.transform);
+    let b4 = canvas.style.transform;
+
+    canvas.style.left = "0px";
+    canvas.style.top = "0px";
+
+    canvas_over.resize(canvas.width, canvas.height);
+
+    let or = canvas.getBoundingClientRect();
+
+    canvas.style.transform = b4 + " rotate(" + deg + "deg)";
+
+    let r = canvas.getBoundingClientRect();
+    console.log(or, r);
+    let dx = -r.left;
+    let dy = -r.top;
+    
+    canvas.style.left = dx + "px";
+    canvas.style.top = dy + "px";
+
+    canvas_over.width *= (r.width / or.width);
+    canvas_over.height *= (r.height / or.height);
+    drawPreview(true);
+    zoomFitted && zoomFit();
 }
 
 function zoomIn() {

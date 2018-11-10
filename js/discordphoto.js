@@ -477,6 +477,9 @@ function zoom(factor) {
 function rotate(deg) {
     let odeg = currentRotation;
     if (deg === undefined) deg = currentRotation;
+
+    deg = parseFloat(deg);
+
     currentRotation = deg;
     
     if (canvas.style.transform.indexOf(" rotate") !== -1) {
@@ -897,7 +900,21 @@ function slider_opacity_inputfn() {
 }
 
 function slider_rotation_inputfn() {
-    rotate(document.getElementById("slider-rotation").value);
+    let deg = parseInt(document.getElementById("slider-rotation").value);
+
+    if (Math.abs(deg - 90) <= 2) {
+        deg = 90;
+    } else if (Math.abs(deg + 90) <= 2) {
+        deg = -90;
+    } else if (Math.abs(deg) <= 2) {
+        deg = 0;
+    } else if (Math.abs(deg - 180) <= 2) {
+        deg = 180;
+    } else if (Math.abs(deg + 180) <= 2) {
+        deg = -180;
+    }
+
+    rotate(deg);
 }
 
 function btn_addPreview_clickFn() {
@@ -947,8 +964,10 @@ function loadImg(file) {
 
         var es = document.getElementsByClassName("hidden");
         for (var i = 0; i < es.length; i++) {
-            es[i].style.display = "inline-block"; // TODO: make this fallback to css
+            es[i].style.display = "inline-block";
         }
+
+        //document.getElementById("label-open").classList.add("half");
 
         canvas_over.resize(img.width, img.height, false);
         canvas_over.clear();

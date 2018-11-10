@@ -360,7 +360,7 @@ body, html, #container, #container-loading {
     font-size:16px;
 }
 
-#container-buttons > .switch {
+#container-buttons > .switch, #container-buttons > .half {
     width:50%;
 }
 

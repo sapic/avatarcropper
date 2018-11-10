@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Avatar Cropper</title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/style.css?version=1">
         <link rel="shortcut icon" href="favicon.png">
         <!--<script src="js/jquery-2.1.4.min.js"></script>-->
         <script src="js/storage.js"></script>
@@ -67,8 +67,8 @@
                 <div id="fuck-ranges" class="hidden menu-item"><div>Mask Transparency</div><input type="range" value="0" min="0" max="1" step="0.01" id="slider-opacity" /></div>
                 <div id="zoom" class="hidden menu-item"><span>Zoom:</span><button id="zoom-fit">Fit</button><button id="zoom-in">+</button><button id="zoom-out">-</button></div>
                 <div id="rotate" class="hidden menu-item"><div>Rotation</div><input type="range" value="0" min="-180" max="180" step="1" id="slider-rotation" /></div>
-                <button id="btn-addPreview" class="hidden menu-item">Add Preview Size</button>
-                <button id="btn-outlines" class="toggle toggle-active menu-item hidden">Toggle Mask Outline</button>
+                <button id="btn-addPreview" class="hidden half menu-item">Add Preview</button>
+                <button id="btn-outlines" class="toggle toggle-active half menu-item hidden">Mask Outline</button>
                 <a id="save" class="save hidden menu-item">Render/Save</a>
                 <!--div id="note" class="hidden">Note: It's usually best to preview as a circle but save as a square for Discord.</div-->
             </div>

@@ -187,6 +187,7 @@ function init() {
     }
 
     document.getElementById("slider-opacity").value = settings.maskTransparency;
+    document.getElementById("slider-rotation").value = 0;
     document.getElementById("btn-outlines").classList[settings.outlinesEnabled ? "add" : "remove"]("toggle-active");
 
     canvas = document.getElementById("canvas");
@@ -244,6 +245,7 @@ function init() {
     circleOrSquarePreviews();
 
     document.getElementById("slider-opacity").addEventListener("input", slider_opacity_inputfn);
+    document.getElementById("slider-rotation").addEventListener("input", slider_rotation_inputfn);
     document.getElementById("btn-addPreview").addEventListener("click", btn_addPreview_clickFn);
     document.getElementById("btn-outlines").addEventListener("click", btn_outlines_clickFn);
 
@@ -827,6 +829,10 @@ function slider_opacity_inputfn() {
     drawPreview(false);
 }
 
+function slider_rotation_inputfn() {
+    rotate(document.getElementById("slider-rotation").value);
+}
+
 function btn_addPreview_clickFn() {
     var size = prompt("Enter a custom size like 256");
 
@@ -955,7 +961,7 @@ function drawPreview(updatePreviews) {
                 c.drawImage(cv_2, 0, 0);
             } else {
                 c.drawCroppedImage(canvas, 0, 0, circle.x, circle.y, circle.diameter, circle.diameter, c.width(), c.height());
-            }
+            }"scale(0.523863, 0.523863) rotate(436deg)"
         });*/
 
         canvas_previews.forEach(o => {

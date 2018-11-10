@@ -369,7 +369,7 @@ body, html, #container, #container-loading {
     color:#111 !important;
 }
 
-#slider-opacity, #slider-zoom {
+#slider-opacity, #slider-rotation {
     position:absolute;
     left:0;
     top:0;
@@ -388,11 +388,11 @@ input[type="range"] {
     opacity:0.5;
 }
 
-#slider-opacity:focus, #slider-zoom:focus {
+#slider-opacity:focus, #slider-rotation:focus {
     outline: none;
 }
 
-#slider-opacity::-moz-range-track, #slider-zoom::-moz-range-track {
+#slider-opacity::-moz-range-track, #slider-rotation::-moz-range-track {
     background:transparent;
     width:100%;
     height:100%;

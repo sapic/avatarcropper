@@ -39,7 +39,7 @@ var currentRotation = 0;
 
 var settings = {
     previewMode: "circle",
-    maskTransparency: 0,
+    maskTransparency: 0.25,
     outlinesEnabled: true
 };
 

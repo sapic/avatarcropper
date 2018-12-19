@@ -33,7 +33,7 @@ var queuedFile = null;
 var loadGif = null;
 
 var zoomFactor = 1;
-var zoomFitted = false;
+var __zoomFitted = false;
 
 var currentRotation = 0;
 
@@ -569,19 +569,33 @@ function rotate(deg) {
     circle.x += cdx;
     circle.y += cdy;*/
 
-    zoomFitted && zoomFit();
+    isZoomFitted() && zoomFit();
     validateCircle();
     drawPreview(true);
 }
 
+function _setZoomFitted(bool) {
+    __zoomFitted = bool;
+
+    if (bool) {
+        document.getElementById("container-canvas").style.overflow = "hidden";
+    } else {
+        document.getElementById("container-canvas").style.overflow = "auto";
+    }
+}
+
+function isZoomFitted() {
+    return __zoomFitted;
+}
+
 function zoomIn() {
-    zoomFitted = false;
+    _setZoomFitted(false);
     zoomFactor *= 1.1;
     zoom();
 }
 
 function zoomOut() {
-    zoomFitted = false;
+    _setZoomFitted(false);
     zoomFactor /= 1.1;
     zoom();
 }
@@ -593,11 +607,11 @@ function zoomFit(force) {
 
     if (force === undefined) force = true;
 
-    if (!zoomFitted && !force) {
+    if (!isZoomFitted() && !force) {
         return;
     }
 
-    zoomFitted = true;
+    _setZoomFitted(true);
 
     /*if (detectIE() !== false) {
         zoom(1);
@@ -613,34 +627,9 @@ function zoomFit(force) {
     var fh = cr.height / ir.height;
     var f = Math.min(fw, fh);
 
-    var dw = 1;
-    var dh = ir.height / ir.width;
-
-    var nr = {
-        x: 0,
-        y: 0,
-        width: ir.width * f,
-        height: ir.height * f
-    };
-
-    while (!canvas_previews.some(function(o) {
-        let r = o.rect;
-
-        if (rectsIntersect(nr, r)) {
-            //console.log(JSON.parse(JSON.stringify(nr)), JSON.parse(JSON.stringify(r)));
-            return true;
-        } else {
-            return false;
-        }
-    }) && !(nr.height >= document.getElementById("container").clientHeight)
-    && (!nr.width >= document.body.clientWidth - menu.clientWidth)) {
-        nr.width += dw;
-        nr.height += dh;
-    }
-
     //document.getElementById("container-canvas").style["width"] = cr.width + "px";
 
-    zoom(nr.height / ir.height);
+    zoom(f);
     //console.log("---");
     //console.log("zoom1: ", nr.height / ir.height);
 

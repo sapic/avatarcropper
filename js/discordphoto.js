@@ -40,7 +40,8 @@ var currentRotation = 0;
 var settings = {
     previewMode: "circle",
     maskTransparency: 0.25,
-    outlinesEnabled: true
+    outlinesEnabled: true,
+    previewSizes: [ 128, 90, 40 ]
 };
 
 function setSetting(key, value) {
@@ -49,7 +50,10 @@ function setSetting(key, value) {
 }
 
 function loadSettings() {
-    settings = Storage.get("settings", settings);
+    var loaded = Storage.get("settings", {});
+    for (var key in loaded) {
+        settings[key] = loaded[key];
+    }
 }
 
 function circlePreviews() {
@@ -97,9 +101,6 @@ function createPreviewCanvas(size) {
         img: null
     };
 
-    var padding = 16;
-    var runningX = 0;
-
     var $container = document.createElement("div");
     $container.className = "canvas-preview-container";
     $container.style.width = size + "px";
@@ -122,6 +123,38 @@ function createPreviewCanvas(size) {
     previewObj.img = $img;
     $container.appendChild($img);
 
+    var $remove = document.createElement("button");
+    $remove.className = "canvas-preview-remove";
+    $remove.innerText = "✖";
+    $remove.style.display = "none";
+    $remove.addEventListener("click", function() {
+        canvas_previews.splice(canvas_previews.indexOf(previewObj), 1);
+        $container.parentElement.removeChild($container);
+        updatePreviewPositions();
+        setSetting("previewSizes", canvas_previews.map(function(p) {
+            return p.size;
+        }));
+    });
+    $container.appendChild($remove);
+
+    var $size = document.createElement("div");
+    $size.className = "canvas-preview-size";
+    $size.innerText = size + "x" + size;
+    $size.style.display = "none";
+    $container.appendChild($size);
+
+    $container.addEventListener("mouseenter", function() {
+        if (!shouldHide)
+        {
+            $remove.style.display = "";
+            $size.style.display = "";
+        }
+    });
+    $container.addEventListener("mouseleave", function() {
+        $remove.style.display = "none";
+        $size.style.display = "none";
+    });
+
     document.getElementById("previews").appendChild($container);
 
     var inserted = false;
@@ -136,6 +169,25 @@ function createPreviewCanvas(size) {
         canvas_previews.push(previewObj);
     }
 
+    updatePreviewPositions();
+    circleOrSquarePreviews();
+    if (settings.previewSizes.indexOf(size) === -1) // make sure we don't overwrite whlie loading initial sizes
+    {
+        setSetting("previewSizes", canvas_previews.map(function(p) {
+            return p.size;
+        }));
+    }
+
+    if (shouldHide) {
+        c.canvas.className += " hidden";
+    } else {
+        drawPreview();
+    }
+}
+
+function updatePreviewPositions() {
+    var padding = 16;
+    var runningX = 0;
     var wr = document.body.getBoundingClientRect();
 
     for (var i = 0; i < canvas_previews.length; i++) {
@@ -160,14 +212,6 @@ function createPreviewCanvas(size) {
     document.getElementById("container-canvas").style["width"] = mw;
 
     zoomFit(false);
-
-    circleOrSquarePreviews();
-
-    if (shouldHide) {
-        c.canvas.className += " hidden";
-    } else {
-        drawPreview();
-    }
 }
 
 function rectsIntersect(r1, r2) {
@@ -220,10 +264,9 @@ function init() {
         deepCalc: true
     });
 
-    createPreviewCanvas(128);
-    createPreviewCanvas(90);
-    createPreviewCanvas(40);
-    //createPreviewCanvas(30);
+    this.settings.previewSizes.forEach(function(size) {
+        createPreviewCanvas(size);
+    });
 
     document.getElementById("input-file").addEventListener("change", function(e) {
         if (this.files && this.files[0]) {

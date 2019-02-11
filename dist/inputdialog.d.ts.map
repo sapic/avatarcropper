@@ -1,0 +1,1 @@
+{"version":3,"file":"inputdialog.d.ts","sourceRoot":"","sources":["../src/inputdialog.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAGlC,8BAAsB,WAAW,CAAC,CAAC,CAAE,SAAQ,MAAM;gBAEnC,QAAQ,CAAC,EAAG,CAAC,KAAK,EAAG,CAAC,KAAK,IAAI;IAkB3C,OAAc,WAAW,EAAG,GAAG,CAAQ;CAC1C"}

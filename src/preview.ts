@@ -110,6 +110,10 @@ export class Preview extends Widget
             if (this.lastMode === "square")
             {
                 this.mask.clear();
+                if (this.onlineIndicator)
+                {
+                    hideElement(this.onlineIndicator.canvas);
+                }
             }
             else
             {
@@ -117,6 +121,10 @@ export class Preview extends Widget
                 this.mask.blendMode = "destination-out";
                 this.mask.fillCircleInSquare(0, 0, this.size, "white");
                 this.mask.blendMode = "source-over";
+                if (this.onlineIndicator)
+                {
+                    showElement(this.onlineIndicator.canvas);
+                }
             }
         }
 

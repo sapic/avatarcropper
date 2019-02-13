@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -85,12 +85,18 @@ define(["require", "exports", "./widget", "./util", "./canvas"], function (requi
                 this.lastMode = this.cropView.settings.previewMode;
                 if (this.lastMode === "square") {
                     this.mask.clear();
+                    if (this.onlineIndicator) {
+                        util_1.hideElement(this.onlineIndicator.canvas);
+                    }
                 }
                 else {
                     this.mask.fill("#2F3136");
                     this.mask.blendMode = "destination-out";
                     this.mask.fillCircleInSquare(0, 0, this.size, "white");
                     this.mask.blendMode = "source-over";
+                    if (this.onlineIndicator) {
+                        util_1.showElement(this.onlineIndicator.canvas);
+                    }
                 }
             }
             var scale = this.size / this.cropView.cropArea.diameter;

@@ -1,1 +1,0 @@
-{"version":3,"file":"progressbar.d.ts","sourceRoot":"","sources":["../src/progressbar.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAGlC,qBAAa,WAAY,SAAQ,MAAM;IAEnC,OAAO,CAAC,eAAe,CAAe;IACtC,OAAO,CAAC,SAAS,CAAU;;IAehB,QAAQ,EAAY,MAAM;CAUxC"}

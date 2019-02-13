@@ -1,1 +1,0 @@
-{"version":3,"file":"fractionalprogressbar.d.ts","sourceRoot":"","sources":["../src/fractionalprogressbar.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,eAAe,CAAC;AAS5C,qBAAa,qBAAsB,SAAQ,WAAW;IAElD,OAAO,CAAC,aAAa,CAAuB;IAC5C,OAAO,CAAC,cAAc,CAAc;;IAO7B,eAAe,CAAC,gBAAgB,EAAG,MAAM,EAAE,aAAa,EAAG,MAAM;IAMjE,IAAI;IAaJ,KAAK;CAKf"}

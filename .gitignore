@@ -2,3 +2,4 @@ ignore
 node_modules
 .cache
 *.d.ts
+*.map

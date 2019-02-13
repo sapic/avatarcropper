@@ -1,5 +1,6 @@
 export declare type SortFunction<T> = (a: T, b: T) => boolean;
 export declare function createElement(type: string, className?: string): HTMLElement;
+export declare function getIEVersion(): boolean | number;
 export declare function makePixelated(e: HTMLImageElement | HTMLCanvasElement, pixelate?: boolean): void;
 export declare function createOptionElement(text: string, value: string): HTMLOptionElement;
 export declare function hideElement(element: HTMLElement): void;

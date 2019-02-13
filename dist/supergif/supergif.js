@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -19,6 +19,7 @@ define(["require", "exports", "./parser", "./stream", "../eventclass"], function
         function SuperGif(gifImgElement, opts) {
             var _this = _super.call(this) || this;
             _this.gifImgElement = gifImgElement;
+            _this.shouldStopParsing = false;
             _this.options = {
                 autoPlay: true
             };
@@ -74,6 +75,7 @@ define(["require", "exports", "./parser", "./stream", "../eventclass"], function
             return _this;
         }
         SuperGif.prototype.abort = function () {
+            this.shouldStopParsing = true;
             if (this.parser) {
                 this.parser.abort();
             }
@@ -408,7 +410,12 @@ define(["require", "exports", "./parser", "./stream", "../eventclass"], function
                 }
                 var stream = new stream_1.SuperGifStream(data);
                 setTimeout(function () {
-                    _this.parseStream(stream);
+                    if (!_this.shouldStopParsing) {
+                        _this.parseStream(stream);
+                    }
+                    else {
+                        _this.emitEvent("abort");
+                    }
                 }, 0);
             };
             request.onprogress = function (e) {

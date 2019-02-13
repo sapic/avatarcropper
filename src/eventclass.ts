@@ -17,8 +17,14 @@ export class EventClass
         }
     }
 
-    protected emitEvent(event : string, ...args : any[]) : void
+    public emitEvent(event : string, ...args : any[]) : void
     {
+        if (!this.events.has(event))
+        {
+            console.warn("event not yet created: " + event);
+            this.events.set(event, []);
+        }
+
         this.events.get(event).forEach(fn => fn(...args));
     }
 
@@ -26,7 +32,8 @@ export class EventClass
     {
         if (!this.events.has(event))
         {
-            throw "no such event: " + event;
+            console.warn("event not yet created: " + event);
+            this.events.set(event, []);
         }
 
         this.events.get(event).push(fn);
@@ -43,3 +50,5 @@ export class EventClass
         this.on(event, wrapperFn);
     }
 }
+
+export let GlobalEvents = new EventClass();

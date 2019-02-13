@@ -1,9 +1,12 @@
 import { Widget } from "./widget";
 export interface Settings {
+    previewSizes: number[];
     maskOpacity: number;
     previewMode: "circle" | "square";
     outlinesEnabled: boolean;
     antialias: boolean;
+    dismissedTutorial: boolean;
+    dismissedIE: boolean;
 }
 export declare class AvatarCropper extends Widget {
     private cropView;

@@ -6,6 +6,7 @@ export declare class Previews extends Widget {
     readonly padding: number;
     private _size;
     constructor(cropView: CropView);
+    readonly sizeArray: number[];
     addPreviewSize(size: number): void;
     private removePreview;
     readonly width: number;

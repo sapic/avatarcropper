@@ -1,6 +1,7 @@
 $background: #2F3136;
+$footerHeight: 36px;
 
-html, body, #container, .avatarCropper, .dialog-backdrop
+html, body, #container, .dialog-backdrop, #bigOverlay
 {
     width: 100%;
     height: 100%;
@@ -11,55 +12,135 @@ html, body, #container, .avatarCropper, .dialog-backdrop
     margin: 0;
     font-family: Helvetica, sans-serif;
     user-select: none;
+    overflow: hidden;
+}
+
+body
+{
+    background-color: $background;
+}
+
+#bigOverlay
+{
+    z-index: 2000;
+    height: calc(100% - #{$footerHeight});
+    //background-color: rgba(0,0,0,0.5);
+
+    #bigOverlayText
+    {
+        font-size: 3em;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        white-space: nowrap;
+        text-align: center;
+    }
 }
 
 .dialog-backdrop
 {
     background-color: rgba(0,0,0,0.7);
     z-index: 1000;
-
-    .dialog
-    {
-        background: #eee;
-        width: 500px;
-        max-width: 70%;
-        border-radius: 5px;
-        padding: 12px 24px;
-        position: absolute;
-        left: 50%;
-        top: 10%;
-        transform: translate(-50%, 0%);
-        max-height: 70%;
-        height: auto;
-        overflow: auto;
-        text-align: center;
-    }
 }
 
 .dialog
 {
+    $paddingY: 12px;
+    $paddingX: 28px;
+    $innerPaddingX: 12px;
+    $maxWidth: 70vh;
+    $maxHeight: 70vh;
+    $minWidth: 500px;
+
     background: #eee;
-    width: 500px;
-    max-width: 70%;
+    min-width: $minWidth;
+    max-width: $maxWidth;
     border-radius: 5px;
-    padding: 12px 24px;
+    padding: $paddingY $paddingX;
     position: absolute;
     left: 50%;
     top: 10%;
     transform: translate(-50%, 0%);
-    max-height: 70%;
+    max-height: $maxHeight;
     height: auto;
     overflow: auto;
     text-align: center;
 
-    .close
+    &.closable
     {
-        position: absolute;
-        right: 16px;
-        cursor: pointer;
-        font-size: 2em;
+        max-width: calc(#{$maxWidth} + #{$paddingX - $innerPaddingX} * 2);
+        max-height: calc(#{$maxHeight} + #{$paddingY} * 2);
+        min-width: calc(#{$minWidth} + #{$paddingX} * 2);
+        overflow: hidden;
+        padding: 0;
+
+        .close
+        {
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            cursor: pointer;
+            font-size: 2em;
+        }
+
+        .innerContent
+        {
+            padding: $paddingY $paddingX + $innerPaddingX;
+            overflow: auto;
+            box-sizing: border-box;
+            max-height: inherit;
+        }
+    }
+}
+
+.dialog-whatsNew
+{
+    h1
+    {
+        margin-bottom: 0;
+        text-align: center;
     }
 
+    h2
+    {
+        text-decoration: underline;
+        margin: 0;
+        padding: 0;
+        font-size: 1em;
+        margin-top: 16px;
+        text-align: left;
+    }
+
+    ul
+    {
+        text-align: left;
+        margin: 8px 0;
+        padding-left: 24px;
+
+        li
+        {
+            margin: 4px 0;
+        }
+    }
+}
+
+.dialog-supporters
+{
+    .innerContent
+    {
+        padding: 24px 24px !important;
+    }
+
+    h1
+    {
+        margin-top: 0;
+    }
+}
+
+.dialog-render
+{
     .pleaseWait
     {
         color: #CC0000;
@@ -154,10 +235,103 @@ html, body, #container, .avatarCropper, .dialog-backdrop
     }
 }
 
-#container, .avatarCropper
+.dialog-tutorial
 {
-    background-color: $background;
+    h1
+    {
+        margin: 8px 0;
+        font-size: 32px;
+    }
+
+    .image
+    {
+        max-width: 300px;
+        min-width: 300px;
+        margin: 16px 0 12px 0;
+    }
+}
+
+#container
+{
     z-index: 0;
+    height: calc(100% - #{$footerHeight});
+}
+
+#footer
+{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: $footerHeight;
+    line-height: $footerHeight;
+    color: white;
+    padding: 0 8px;
+    background: #555;
+    
+    font-size: 16px;
+    font-family: Helvetica;
+    z-index: 1;
+
+    *
+    {
+        display: inline-block;
+        color: white;
+    }
+
+    .donate
+    {
+        margin-top: 4px;
+        margin-left: 4px;
+        float: left;
+
+        input
+        {
+            background: transparent;
+        }
+    }
+
+    .link
+    {
+        text-decoration: underline;
+        cursor: pointer;
+        color: #ddd;
+
+        &:hover
+        {
+            color: white;
+        }
+    }
+
+    div
+    {
+        height: $footerHeight;
+        line-height: $footerHeight;
+    }
+
+    #footerLeft
+    {
+        position: absolute;
+        top: 0;
+        margin-left: 12px;
+    }
+
+    #footerRight
+    {
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        & > *
+        {
+            margin-right: 12px;
+        }
+    }
+
+    #closeFooter
+    {
+        cursor: pointer;
+    }
 }
 
 #f
@@ -230,7 +404,7 @@ html, body, #container, .avatarCropper, .dialog-backdrop
             width: 50%;
         }
 
-        &.toggled, &.toggleMenu
+        &.toggled
         {
             background:#eee;
             color:#333;
@@ -439,5 +613,79 @@ html, body, #container, .avatarCropper, .dialog-backdrop
                 box-sizing: border-box;
             }
         }
+    }
+}
+
+@media (max-width: 800px)
+{
+    #link-whatsNew
+    {
+        display: none;
+    }
+
+    /*.dialog-render img, .dialog-tutorial img
+    {
+        max-width: 87%;
+        min-width: 87%;
+    }*/
+
+    .dialog-backdrop .dialog
+    {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        max-height: 100%;
+        top: 0;
+        left: 0;
+        transform: unset;
+        box-sizing: border-box;
+        margin: 0;
+        border-radius: 0;
+        text-align: center;
+    }
+
+    .dialog-render .save
+    {
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 620px)
+{
+    #link-help
+    {
+        display: none;
+    }
+}
+
+@media (max-width: 490px)
+{
+    #footerLeft
+    {
+        display: none;
+    }
+}
+
+@media (max-width: 400px)
+{
+    .dialog-render .image, .dialog-tutorial .image
+    {
+        max-width: 100%;
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 375px)
+{
+    #footer
+    {
+        display: none;
+    }
+
+    #container, #bigOverlay
+    {
+        height: 100%;
     }
 }

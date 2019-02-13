@@ -178,7 +178,7 @@ define(["require", "exports"], function (require, exports) {
                 var ctx = this.context;
                 ctx.mozImageSmoothingEnabled = bool;
                 ctx.webkitImageSmoothingEnabled = bool;
-                //ctx.msImageSmoothingEnabled = bool;
+                //(<any>ctx).msImageSmoothingEnabled = bool;
                 ctx.imageSmoothingEnabled = bool;
                 if (!bool) {
                     var types = ["optimizeSpeed", "crisp-edges", "-moz-crisp-edges", "-webkit-optimize-contrast", "optimize-contrast", "pixelated"];

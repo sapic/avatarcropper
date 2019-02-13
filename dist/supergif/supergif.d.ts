@@ -1,6 +1,7 @@
 import { EventClass } from '../eventclass';
 export declare class SuperGif extends EventClass {
     private gifImgElement;
+    private shouldStopParsing;
     private options;
     private hdr;
     private loadErrorCause;

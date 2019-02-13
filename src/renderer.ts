@@ -35,6 +35,8 @@ export class Renderer extends ClosableDialog
     {
         super();
 
+        this.dialog.classList.add("dialog-render");
+
         this.createEvent("close");
 
         this.cropView = cropView;
@@ -101,6 +103,12 @@ export class Renderer extends ClosableDialog
         {
             this.loadGif = null;
 
+            if (this.shouldStopRendering)
+            {
+                this.currentlyRendering = false;
+                this.tryClose();
+            }
+
             let saveGif = new GIF({
                 workers: 3,
                 quality: 1,
@@ -159,6 +167,7 @@ export class Renderer extends ClosableDialog
                         url: url
                     }
                 ]);
+                
                 this.currentlyRendering = false;
             });
 
@@ -353,7 +362,7 @@ export class Renderer extends ClosableDialog
         let bs = this.optionBar.children;
         for (let i = 0; i < bs.length; i++)
         {
-            URL.revokeObjectURL((<any>bs[i]).url);
+            (<any>bs[i]).url && URL.revokeObjectURL((<any>bs[i]).url);
         }
 
         this.emitEvent("close");

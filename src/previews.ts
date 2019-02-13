@@ -15,8 +15,21 @@ export class Previews extends Widget
         super(createElement("div", "previews"));
 
         this.createEvent("sizechange");
+        this.createEvent("sizeArrayChange");
 
         this.cropView = cropView;
+    }
+
+    public get sizeArray() : number[]
+    {
+        let ret = [];
+
+        this.previews.forEach(preview =>
+        {
+            ret.push(preview.size);
+        });
+
+        return ret;
     }
 
     public addPreviewSize(size : number)
@@ -33,6 +46,8 @@ export class Previews extends Widget
         );
         this.render();
         p.update();
+
+        this.emitEvent("sizeArrayChange", this.sizeArray);
     }
 
     private removePreview(preview : Preview)
@@ -40,6 +55,8 @@ export class Previews extends Widget
         array_remove(this.previews, preview);
         this.removeChild(preview);
         this.render();
+        
+        this.emitEvent("sizeArrayChange", this.sizeArray);
     }
 
     public get width() : number

@@ -21,4 +21,10 @@ export class Dialog extends Widget
 
         this.hide();
     }
+
+    show()
+    {
+        super.show();
+        this.contentContainer.scrollTop = 0;
+    }
 }

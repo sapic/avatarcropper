@@ -4,14 +4,14 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1) {
+define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var AvatarCropper = /** @class */ (function (_super) {
@@ -21,22 +21,29 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             _this.menuToggle = true;
             _this.firstOpened = false;
             _this.settings = {
+                previewSizes: [30, 40, 64, 128],
                 maskOpacity: 0.5,
                 previewMode: "circle",
                 outlinesEnabled: true,
-                antialias: true
+                antialias: true,
+                dismissedTutorial: false,
+                dismissedIE: false
             };
             _this.loadSettings();
             _this.constructMenu();
             _this.cropView = new cropview_1.CropView(_this.settings);
             _this.previews = new previews_1.Previews(_this.cropView);
             _this.appendChild(_this.cropView, _this.previews);
-            _this.previews.addPreviewSize(128);
-            _this.previews.addPreviewSize(30);
-            _this.previews.addPreviewSize(40);
-            _this.previews.addPreviewSize(64);
+            _this.settings.previewSizes.forEach(function (size) {
+                _this.previews.addPreviewSize(size);
+            });
+            _this.previews.on("sizeArrayChange", function (sizeArray) {
+                _this.settings.previewSizes = sizeArray;
+                _this.saveSettings();
+            });
             window.addEventListener("resize", _this.handleResize.bind(_this));
             _this.previews.on("sizechange", _this.handleResize.bind(_this));
+            eventclass_1.GlobalEvents.on("resize", _this.handleResize.bind(_this));
             _this.cropView.on("antialiaschange", function (antialiased) {
                 if (antialiased) {
                     _this.antialiasButton.classList.add("toggled");
@@ -48,6 +55,15 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 _this.saveSettings();
             });
             _this.handleResize();
+            document.getElementById("bigOverlayText").innerText = "Open file";
+            document.getElementById("bigOverlay").style.cursor = "pointer";
+            document.getElementById("bigOverlay").style["z-index"] = "999";
+            document.getElementById("bigOverlay").setAttribute("for", "openInput");
+            if (util_1.getIEVersion() !== false && !_this.settings.dismissedIE) {
+                window.alert("hey so your browser isn't really supported ... things should still work but they will be slower/ugly due to how internet explorer/edge function (They don't conform to web standards). i'd recommend switching to firefox or chrome!! but you don't have to if you don't want to. this is the only time you'll see this message unless u clear ur cache or something. ok bye");
+                _this.settings.dismissedIE = true;
+                _this.saveSettings();
+            }
             return _this;
         }
         AvatarCropper.prototype.loadFromFile = function (file) {
@@ -69,22 +85,22 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             var _this = this;
             this.menu = util_1.createElement("div", "menu");
             var openFile = util_1.createElement("input", "openInput show");
+            openFile.id = "openInput";
             openFile.type = "file";
             openFile.addEventListener("change", function (e) {
                 if (openFile.files && openFile.files[0]) {
                     _this.openFile(openFile.files[0]);
                 }
             });
-            this.openFileLabel = util_1.createElement("label", "open item show");
+            this.openFileLabel = util_1.createElement("label", "open half item show");
             this.openFileLabel.innerText = "Open File...";
             this.openFileLabel.appendChild(openFile);
             this.menu.appendChild(this.openFileLabel);
-            this.toggleMenuButton = util_1.createElement("button", "toggleMenu item show");
-            this.toggleMenuButton.setAttribute("uptext", "▲");
+            this.toggleMenuButton = util_1.createElement("button", "half item show");
+            this.toggleMenuButton.setAttribute("uptext", "Collapse Menu");
             this.toggleMenuButton.setAttribute("downtext", "▼");
             this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute("uptext");
             this.toggleMenuButton.addEventListener("click", this.toggleMenu.bind(this));
-            this.toggleMenuButton.style.display = "none";
             this.menu.appendChild(this.toggleMenuButton);
             var circle = util_1.createElement("button", "open item half");
             circle.innerText = "Circle";
@@ -104,8 +120,6 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 _this.cropView && _this.cropView.refresh(); // will update previews as well
                 _this.saveSettings();
             });
-            circle.style.display = "none";
-            square.style.display = "none";
             this.menu.appendChild(circle);
             this.menu.appendChild(square);
             if (this.settings.previewMode === "circle") {
@@ -118,7 +132,6 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             tSlider.on("slide", this.setTransparency.bind(this));
             tSlider.on("change", this.saveSettings.bind(this));
             tSlider.value = 1 - this.settings.maskOpacity;
-            tSlider.container.style.display = "none";
             this.menu.appendChild(tSlider.container);
             var zoomBar = util_1.createElement("div", "item zoomBar");
             var zoomLabel = util_1.createElement("div", "zoomLabel");
@@ -136,7 +149,6 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             zoomBar.appendChild(zoomFit);
             zoomBar.appendChild(zoomIn);
             zoomBar.appendChild(zoomOut);
-            zoomBar.style.display = "none";
             this.menu.appendChild(zoomBar);
             var rSlider = new labeledslider_1.LabelSlider(-180, 180, 1, "Rotation", "item rotation");
             rSlider.on("slide", function (deg) {
@@ -158,17 +170,14 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 _this.setRotation(deg);
             });
             rSlider.value = 0;
-            rSlider.container.style.display = "none";
             this.menu.appendChild(rSlider.container);
             this.flipHButton = util_1.createElement("button", "half item");
             this.flipHButton.innerText = "Flip Horiz.";
             this.flipHButton.addEventListener("click", this.flipHorizontal.bind(this));
-            this.flipHButton.style.display = "none";
             this.menu.appendChild(this.flipHButton);
             this.flipVButton = util_1.createElement("button", "half item");
             this.flipVButton.innerText = "Flip Vertical";
             this.flipVButton.addEventListener("click", this.flipVertical.bind(this));
-            this.flipVButton.style.display = "none";
             this.menu.appendChild(this.flipVButton);
             this.antialiasButton = util_1.createElement("button", "half item");
             this.antialiasButton.innerText = "Antialias";
@@ -178,23 +187,19 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             if (this.settings.antialias) {
                 this.antialiasButton.classList.add("toggled");
             }
-            util_1.hideElement(this.antialiasButton);
             this.menu.appendChild(this.antialiasButton);
             this.maskOutlineButton = util_1.createElement("button", "half item");
             this.maskOutlineButton.innerText = "Mask Outline";
             this.maskOutlineButton.addEventListener("click", this.toggleMaskOutline.bind(this, true));
             this.toggleMaskOutline(false);
-            this.maskOutlineButton.style.display = "none";
             this.menu.appendChild(this.maskOutlineButton);
             var addPreview = util_1.createElement("button", "item");
-            addPreview.innerText = "Add Preview";
+            addPreview.innerText = "Add Preview Size";
             addPreview.addEventListener("click", this.promptAddPreview.bind(this));
-            addPreview.style.display = "none";
             this.menu.appendChild(addPreview);
             var render = util_1.createElement("button", "item render show");
             render.innerText = "Render/Save";
             render.addEventListener("click", this.renderCroppedImage.bind(this));
-            render.style.display = "none";
             this.menu.appendChild(render);
             this.appendChild(this.menu);
         };
@@ -212,12 +217,14 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                         child.style.display = "none";
                     }
                 });
+                this.toggleMenuButton.classList.add("toggled");
                 this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute("downtext");
             }
             else {
                 Array.from(this.menu.children).forEach(function (child) {
                     child.style.display = "";
                 });
+                this.toggleMenuButton.classList.remove("toggled");
                 this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute("uptext");
             }
             this.menuToggle = !this.menuToggle;
@@ -247,7 +254,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             this.cropView.rotate(deg);
         };
         AvatarCropper.prototype.promptAddPreview = function () {
-            var sizeStr = window.prompt("Enter a custom size like 256");
+            var sizeStr = window.prompt("Enter a custom size\nDefault sizes are 30, 40, 64, and 128\nNote: 30 will come with a discord online indicator");
             if (sizeStr === null) // cancelled
              {
                 return;
@@ -257,7 +264,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 alert("Bad size make sure it's a number over 0");
             }
             else {
-                this.previews.addPreviewSize(size);
+                this.previews.addPreviewSize(size); // emits sizeArrayChange event which changes settings so dw
             }
         };
         AvatarCropper.prototype.openFile = function (file) {
@@ -266,11 +273,11 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             this.cropView.setImageFromFile(file);
             if (!this.firstOpened) {
                 this.firstOpened = true;
-                Array.from(this.menu.children).forEach(function (child) {
-                    child.style.display = "";
-                });
-                this.openFileLabel.style.width = "50%";
-                this.toggleMenuButton.style.width = "50%";
+                this.show();
+                util_1.hideElement(document.getElementById("bigOverlay"));
+                document.getElementById("bigOverlay").removeAttribute("for");
+                document.getElementById("bigOverlay").style.cursor = "";
+                document.getElementById("bigOverlay").style["z-index"] = "";
             }
             if (this.cropView.currentFileType === "gif") {
                 util_1.hideElement(this.flipHButton);
@@ -279,6 +286,11 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             else {
                 util_1.showElement(this.flipHButton);
                 util_1.showElement(this.flipVButton);
+            }
+            if (!this.settings.dismissedTutorial) {
+                footer_1.showTutorial();
+                this.settings.dismissedTutorial = true;
+                this.saveSettings();
             }
         };
         AvatarCropper.prototype.handleResize = function () {
@@ -291,6 +303,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
         return AvatarCropper;
     }(widget_1.Widget));
     exports.AvatarCropper = AvatarCropper;
+    footer_1.doFooterThings();
     window.a = new AvatarCropper(document.getElementById("container"));
 });
 //# sourceMappingURL=avatarcropper.js.map

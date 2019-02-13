@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22,9 +22,21 @@ define(["require", "exports", "./widget", "./preview", "./util"], function (requ
             _this.padding = 16;
             _this._size = 0;
             _this.createEvent("sizechange");
+            _this.createEvent("sizeArrayChange");
             _this.cropView = cropView;
             return _this;
         }
+        Object.defineProperty(Previews.prototype, "sizeArray", {
+            get: function () {
+                var ret = [];
+                this.previews.forEach(function (preview) {
+                    ret.push(preview.size);
+                });
+                return ret;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Previews.prototype.addPreviewSize = function (size) {
             var p = new preview_1.Preview(size, this.cropView);
             p.on("requestremove", this.removePreview.bind(this, p));
@@ -33,11 +45,13 @@ define(["require", "exports", "./widget", "./preview", "./util"], function (requ
             util_1.array_insert(this.previews, p, function (left, right) { return left.size > right.size; });
             this.render();
             p.update();
+            this.emitEvent("sizeArrayChange", this.sizeArray);
         };
         Previews.prototype.removePreview = function (preview) {
             util_1.array_remove(this.previews, preview);
             this.removeChild(preview);
             this.render();
+            this.emitEvent("sizeArrayChange", this.sizeArray);
         };
         Object.defineProperty(Previews.prototype, "width", {
             get: function () {

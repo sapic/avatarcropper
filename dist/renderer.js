@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23,6 +23,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
             _this.shouldStopRendering = false;
             _this.currentlyRendering = false;
             _this.initialized = false;
+            _this.dialog.classList.add("dialog-render");
             _this.createEvent("close");
             _this.cropView = cropView;
             _this.headerElement = util_1.createElement("h1", "header");
@@ -61,6 +62,10 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
             this.loadGif = gif;
             var onload = function () {
                 _this.loadGif = null;
+                if (_this.shouldStopRendering) {
+                    _this.currentlyRendering = false;
+                    _this.tryClose();
+                }
                 var saveGif = new GIF({
                     workers: 3,
                     quality: 1,
@@ -228,7 +233,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
             }
             var bs = this.optionBar.children;
             for (var i = 0; i < bs.length; i++) {
-                URL.revokeObjectURL(bs[i].url);
+                bs[i].url && URL.revokeObjectURL(bs[i].url);
             }
             this.emitEvent("close");
             this.hide(true);

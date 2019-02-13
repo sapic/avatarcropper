@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -18,7 +18,9 @@ define(["require", "exports", "./closabledialog", "./util"], function (require, 
         __extends(TextDialog, _super);
         function TextDialog() {
             var _this = _super.call(this) || this;
+            _this.dialog.classList.add("text");
             _this.textContent = util_1.createElement("div", "text");
+            _this.appendChild(_this.textContent);
             _this.contentContainer = _this.textContent;
             return _this;
         }

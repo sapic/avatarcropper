@@ -3,6 +3,7 @@ import {SuperGifStream} from './stream';
 import { EventClass } from '../eventclass';
 
 export class SuperGif extends EventClass {
+    private shouldStopParsing : boolean = false;
 
     private options: any = {
         autoPlay: true
@@ -91,6 +92,8 @@ export class SuperGif extends EventClass {
 
     public abort()
     {
+        this.shouldStopParsing = true;
+
         if (this.parser)
         {
             this.parser.abort();
@@ -490,7 +493,14 @@ export class SuperGif extends EventClass {
 
             const stream = new SuperGifStream(data);
             setTimeout(() => {
-                this.parseStream(stream);
+                if (!this.shouldStopParsing)
+                {
+                    this.parseStream(stream);
+                }
+                else
+                {
+                    this.emitEvent("abort");
+                }
             }, 0);
         };
 

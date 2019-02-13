@@ -8,7 +8,10 @@ export class TextDialog extends ClosableDialog
     constructor()
     {
         super();
+        this.dialog.classList.add("text");
+        
         this.textContent = createElement("div", "text");
+        this.appendChild(this.textContent);
         
         this.contentContainer = this.textContent;
     }

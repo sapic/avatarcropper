@@ -1,16 +1,22 @@
 import { Widget } from "./widget";
 import { CropView } from "./cropview";
 import { Previews } from "./previews";
-import { createElement, hideElement, showElement } from "./util";
+import { createElement, hideElement, showElement, getIEVersion } from "./util";
 import { LabelSlider } from "./labeledslider";
 import Storage from "./storage";
+import { doFooterThings, showTutorial } from "./footer";
+import { GlobalEvents } from "./eventclass";
+import { TextDialog } from "./textdialog";
 
 export interface Settings
 {
+    previewSizes : number[],
     maskOpacity : number;
     previewMode : "circle" | "square";
     outlinesEnabled : boolean;
     antialias : boolean;
+    dismissedTutorial : boolean;
+    dismissedIE : boolean;
 }
 
 export class AvatarCropper extends Widget
@@ -30,10 +36,13 @@ export class AvatarCropper extends Widget
     private firstOpened : boolean = false;
 
     private settings : Settings = {
+        previewSizes: [ 30, 40, 64, 128 ],
         maskOpacity: 0.5,
         previewMode: "circle",
         outlinesEnabled: true,
-        antialias: true
+        antialias: true,
+        dismissedTutorial: false,
+        dismissedIE: false
     };
 
     constructor(container : HTMLElement)
@@ -46,14 +55,22 @@ export class AvatarCropper extends Widget
         this.previews = new Previews(this.cropView);
 
         this.appendChild(this.cropView, this.previews);
+        
+        this.settings.previewSizes.forEach(size =>
+        {
+            this.previews.addPreviewSize(size);
+        });
 
-        this.previews.addPreviewSize(128);
-        this.previews.addPreviewSize(30);
-        this.previews.addPreviewSize(40);
-        this.previews.addPreviewSize(64);
+        this.previews.on("sizeArrayChange", (sizeArray : number[]) =>
+        {
+            this.settings.previewSizes = sizeArray;
+            this.saveSettings();
+        });
 
         window.addEventListener("resize", this.handleResize.bind(this));
         this.previews.on("sizechange", this.handleResize.bind(this));
+        GlobalEvents.on("resize", this.handleResize.bind(this));
+        
         this.cropView.on("antialiaschange", (antialiased : boolean) =>
         {
             if (antialiased)
@@ -69,6 +86,19 @@ export class AvatarCropper extends Widget
             this.saveSettings();
         });
         this.handleResize();
+
+        document.getElementById("bigOverlayText").innerText = "Open file";
+        document.getElementById("bigOverlay").style.cursor = "pointer";
+        document.getElementById("bigOverlay").style["z-index"] = "999";
+        document.getElementById("bigOverlay").setAttribute("for", "openInput");
+
+        if (getIEVersion() !== false && !this.settings.dismissedIE)
+        {
+            window.alert("hey so your browser isn't really supported ... things should still work but they will be slower/ugly due to how internet explorer/edge function (They don't conform to web standards). i'd recommend switching to firefox or chrome!! but you don't have to if you don't want to. this is the only time you'll see this message unless u clear ur cache or something. ok bye");
+
+            this.settings.dismissedIE = true;
+            this.saveSettings();
+        }
     }
 
     public loadFromFile(file : File) : void
@@ -101,6 +131,7 @@ export class AvatarCropper extends Widget
         this.menu = createElement("div", "menu");
 
         let openFile = <HTMLInputElement>createElement("input", "openInput show");
+        openFile.id = "openInput";
         openFile.type = "file";
         openFile.addEventListener("change", (e) =>
         {
@@ -110,17 +141,16 @@ export class AvatarCropper extends Widget
             }
         });
 
-        this.openFileLabel = createElement("label", "open item show");
+        this.openFileLabel = createElement("label", "open half item show");
         this.openFileLabel.innerText = "Open File...";
         this.openFileLabel.appendChild(openFile);
         this.menu.appendChild(this.openFileLabel);
 
-        this.toggleMenuButton = createElement("button", "toggleMenu item show");
-        this.toggleMenuButton.setAttribute("uptext", "▲");
+        this.toggleMenuButton = createElement("button", "half item show");
+        this.toggleMenuButton.setAttribute("uptext", "Collapse Menu");
         this.toggleMenuButton.setAttribute("downtext", "▼");
         this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute("uptext");
         this.toggleMenuButton.addEventListener("click", this.toggleMenu.bind(this));
-        this.toggleMenuButton.style.display = "none";
         this.menu.appendChild(this.toggleMenuButton);
 
         let circle = createElement("button", "open item half");
@@ -143,8 +173,6 @@ export class AvatarCropper extends Widget
             this.cropView && this.cropView.refresh(); // will update previews as well
             this.saveSettings();
         });
-        circle.style.display = "none";
-        square.style.display = "none";
         this.menu.appendChild(circle);
         this.menu.appendChild(square);
         
@@ -161,7 +189,6 @@ export class AvatarCropper extends Widget
         tSlider.on("slide", this.setTransparency.bind(this));
         tSlider.on("change", this.saveSettings.bind(this));
         tSlider.value = 1 - this.settings.maskOpacity;
-        tSlider.container.style.display = "none";
         this.menu.appendChild(tSlider.container);
 
         let zoomBar = createElement("div", "item zoomBar");
@@ -180,7 +207,6 @@ export class AvatarCropper extends Widget
         zoomBar.appendChild(zoomFit);
         zoomBar.appendChild(zoomIn);
         zoomBar.appendChild(zoomOut);
-        zoomBar.style.display = "none";
         this.menu.appendChild(zoomBar);
         
         let rSlider = new LabelSlider(-180, 180, 1, "Rotation", "item rotation");
@@ -201,19 +227,16 @@ export class AvatarCropper extends Widget
             this.setRotation(deg);
         });
         rSlider.value = 0;
-        rSlider.container.style.display = "none";
         this.menu.appendChild(rSlider.container);
 
         this.flipHButton = createElement("button", "half item");
         this.flipHButton.innerText = "Flip Horiz.";
         this.flipHButton.addEventListener("click", this.flipHorizontal.bind(this));
-        this.flipHButton.style.display = "none";
         this.menu.appendChild(this.flipHButton);
 
         this.flipVButton = createElement("button", "half item");
         this.flipVButton.innerText = "Flip Vertical";
         this.flipVButton.addEventListener("click", this.flipVertical.bind(this));
-        this.flipVButton.style.display = "none";
         this.menu.appendChild(this.flipVButton);
 
         this.antialiasButton = createElement("button", "half item");
@@ -226,26 +249,22 @@ export class AvatarCropper extends Widget
         {
             this.antialiasButton.classList.add("toggled");
         }
-        hideElement(this.antialiasButton);
         this.menu.appendChild(this.antialiasButton);
 
         this.maskOutlineButton = createElement("button", "half item");
         this.maskOutlineButton.innerText = "Mask Outline";
         this.maskOutlineButton.addEventListener("click", this.toggleMaskOutline.bind(this, true));
         this.toggleMaskOutline(false);
-        this.maskOutlineButton.style.display = "none";
         this.menu.appendChild(this.maskOutlineButton);
 
         let addPreview = createElement("button", "item");
-        addPreview.innerText = "Add Preview";
+        addPreview.innerText = "Add Preview Size";
         addPreview.addEventListener("click", this.promptAddPreview.bind(this));
-        addPreview.style.display = "none";
         this.menu.appendChild(addPreview);
 
         let render = createElement("button", "item render show");
         render.innerText = "Render/Save";
         render.addEventListener("click", this.renderCroppedImage.bind(this));
-        render.style.display = "none";
         this.menu.appendChild(render);
 
         this.appendChild(this.menu);
@@ -274,6 +293,7 @@ export class AvatarCropper extends Widget
                 }
             });
 
+            this.toggleMenuButton.classList.add("toggled");
             this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute("downtext");
         }
         else
@@ -283,6 +303,7 @@ export class AvatarCropper extends Widget
                 (<HTMLElement>child).style.display = "";
             });
 
+            this.toggleMenuButton.classList.remove("toggled");
             this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute("uptext");
         }
 
@@ -327,7 +348,7 @@ export class AvatarCropper extends Widget
 
     private promptAddPreview() : void
     {
-        let sizeStr = window.prompt("Enter a custom size like 256");
+        let sizeStr = window.prompt("Enter a custom size\nDefault sizes are 30, 40, 64, and 128\nNote: 30 will come with a discord online indicator");
 
         if (sizeStr === null) // cancelled
         {
@@ -342,7 +363,7 @@ export class AvatarCropper extends Widget
         }
         else
         {
-            this.previews.addPreviewSize(size);
+            this.previews.addPreviewSize(size); // emits sizeArrayChange event which changes settings so dw
         }
     }
 
@@ -355,13 +376,11 @@ export class AvatarCropper extends Widget
         if (!this.firstOpened)
         {
             this.firstOpened = true;
-            Array.from(this.menu.children).forEach(child =>
-            {
-                (<HTMLElement>child).style.display = "";
-            });
-
-            this.openFileLabel.style.width = "50%";
-            this.toggleMenuButton.style.width = "50%";
+            this.show();
+            hideElement(document.getElementById("bigOverlay"));
+            document.getElementById("bigOverlay").removeAttribute("for");
+            document.getElementById("bigOverlay").style.cursor = "";
+            document.getElementById("bigOverlay").style["z-index"] = "";
         }
 
         if (this.cropView.currentFileType === "gif")
@@ -373,6 +392,13 @@ export class AvatarCropper extends Widget
         {
             showElement(this.flipHButton);
             showElement(this.flipVButton);
+        }
+
+        if (!this.settings.dismissedTutorial)
+        {
+            showTutorial();
+            this.settings.dismissedTutorial = true;
+            this.saveSettings();
         }
     }
 
@@ -387,4 +413,5 @@ export class AvatarCropper extends Widget
     }
 }
 
+doFooterThings();
 (<any>window).a = new AvatarCropper(document.getElementById("container"));

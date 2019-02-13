@@ -16,11 +16,16 @@ define(["require", "exports", "./util"], function (require, exports, util_1) {
             for (var _i = 1; _i < arguments.length; _i++) {
                 args[_i - 1] = arguments[_i];
             }
+            if (!this.events.has(event)) {
+                console.warn("event not yet created: " + event);
+                this.events.set(event, []);
+            }
             this.events.get(event).forEach(function (fn) { return fn.apply(void 0, args); });
         };
         EventClass.prototype.on = function (event, fn) {
             if (!this.events.has(event)) {
-                throw "no such event: " + event;
+                console.warn("event not yet created: " + event);
+                this.events.set(event, []);
             }
             this.events.get(event).push(fn);
         };
@@ -35,5 +40,6 @@ define(["require", "exports", "./util"], function (require, exports, util_1) {
         return EventClass;
     }());
     exports.EventClass = EventClass;
+    exports.GlobalEvents = new EventClass();
 });
 //# sourceMappingURL=eventclass.js.map

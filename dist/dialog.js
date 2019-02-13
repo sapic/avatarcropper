@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28,6 +28,10 @@ define(["require", "exports", "./widget", "./util"], function (require, exports,
             _this.hide();
             return _this;
         }
+        Dialog.prototype.show = function () {
+            _super.prototype.show.call(this);
+            this.contentContainer.scrollTop = 0;
+        };
         return Dialog;
     }(widget_1.Widget));
     exports.Dialog = Dialog;

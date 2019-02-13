@@ -260,10 +260,10 @@ export class Canvas
         bool = !bool;
 
         let ctx = this.context;
-        ctx.mozImageSmoothingEnabled = bool;
-        ctx.webkitImageSmoothingEnabled = bool;
-        //ctx.msImageSmoothingEnabled = bool;
-        ctx.imageSmoothingEnabled = bool;
+        (<any>ctx).mozImageSmoothingEnabled = bool;
+        (<any>ctx).webkitImageSmoothingEnabled = bool;
+        //(<any>ctx).msImageSmoothingEnabled = bool;
+        (<any>ctx).imageSmoothingEnabled = bool;
 
         if (!bool)
         {

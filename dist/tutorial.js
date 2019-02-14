@@ -31,6 +31,7 @@ define(["require", "exports", "./closabledialog", "./util", "./privacypolicy"], 
             learnMore.addEventListener("click", function () {
                 _this.contentContainer.style.userSelect = "text";
                 _this.innerText = privacypolicy_1.PRIVACYPOLICY;
+                _this.contentContainer.scrollTop = 0;
             });
             learnMore.innerText = "learn more";
             var body = util_1.createElement("div");

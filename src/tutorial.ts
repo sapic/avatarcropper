@@ -22,6 +22,7 @@ export class TutorialDialog extends ClosableDialog
         {
             this.contentContainer.style.userSelect = "text";
             this.innerText = PRIVACYPOLICY;
+            this.contentContainer.scrollTop = 0;
         });
         learnMore.innerText = "learn more";
 

@@ -17,6 +17,7 @@ export interface Settings
     antialias : boolean;
     dismissedTutorial : boolean;
     dismissedIE : boolean;
+    dismissedCookie : boolean;
 }
 
 export class AvatarCropper extends Widget
@@ -42,7 +43,8 @@ export class AvatarCropper extends Widget
         outlinesEnabled: true,
         antialias: true,
         dismissedTutorial: false,
-        dismissedIE: false
+        dismissedIE: false,
+        dismissedCookie: false
     };
 
     constructor(container : HTMLElement)
@@ -394,10 +396,11 @@ export class AvatarCropper extends Widget
             showElement(this.flipVButton);
         }
 
-        if (!this.settings.dismissedTutorial)
+        if (!this.settings.dismissedTutorial || !this.settings.dismissedCookie)
         {
             showTutorial();
             this.settings.dismissedTutorial = true;
+            this.settings.dismissedCookie = true;
             this.saveSettings();
         }
     }

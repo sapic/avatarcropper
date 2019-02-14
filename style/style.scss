@@ -257,6 +257,18 @@ body
     height: calc(100% - #{$footerHeight});
 }
 
+.link
+{
+    text-decoration: underline;
+    cursor: pointer;
+    color: #222;
+
+    &:hover
+    {
+        color: #555;
+    }
+}
+
 #footer
 {
     position: absolute;

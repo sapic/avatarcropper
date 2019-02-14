@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27,7 +27,8 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 outlinesEnabled: true,
                 antialias: true,
                 dismissedTutorial: false,
-                dismissedIE: false
+                dismissedIE: false,
+                dismissedCookie: false
             };
             _this.loadSettings();
             _this.constructMenu();
@@ -287,9 +288,10 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 util_1.showElement(this.flipHButton);
                 util_1.showElement(this.flipVButton);
             }
-            if (!this.settings.dismissedTutorial) {
+            if (!this.settings.dismissedTutorial || !this.settings.dismissedCookie) {
                 footer_1.showTutorial();
                 this.settings.dismissedTutorial = true;
+                this.settings.dismissedCookie = true;
                 this.saveSettings();
             }
         };

@@ -187,6 +187,15 @@ body {
   height: calc(100% - 36px);
 }
 
+.link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #222;
+}
+.link:hover {
+  color: #555;
+}
+
 #footer {
   position: absolute;
   left: 0;

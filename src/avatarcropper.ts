@@ -7,6 +7,7 @@ import Storage from "./storage";
 import { doFooterThings, showTutorial } from "./footer";
 import { GlobalEvents } from "./eventclass";
 import { TextDialog } from "./textdialog";
+import { DragDrop } from "./dragdrop";
 
 export interface Settings
 {
@@ -32,6 +33,7 @@ export class AvatarCropper extends Widget
     private flipHButton : HTMLElement;
     private flipVButton : HTMLElement;
     private antialiasButton : HTMLElement;
+    private textOverlay : HTMLLabelElement;
 
     private menuToggle : boolean = true;
     private firstOpened : boolean = false;
@@ -89,10 +91,25 @@ export class AvatarCropper extends Widget
         });
         this.handleResize();
 
-        document.getElementById("bigOverlayText").innerText = "Open file";
-        document.getElementById("bigOverlay").style.cursor = "pointer";
-        document.getElementById("bigOverlay").style["z-index"] = "999";
-        document.getElementById("bigOverlay").setAttribute("for", "openInput");
+        this.textOverlay = <HTMLLabelElement>createElement("label", "bigOverlay");
+        this.textOverlay.innerText = "Open file";
+        this.textOverlay.style.cursor = "pointer";
+        this.textOverlay.setAttribute("for", "openInput");
+
+        let dragDrop = new DragDrop(this.textOverlay);
+        dragDrop.on("drop", (file) =>
+        {
+            this.openFile(file);
+        });
+        dragDrop.on("dragleave", () =>
+        {
+            if (!this.firstOpened)
+            {
+                showElement(this.textOverlay);
+            }
+        });
+
+        this.appendChild(this.textOverlay);
 
         if (getIEVersion() !== false && !this.settings.dismissedIE)
         {
@@ -379,10 +396,9 @@ export class AvatarCropper extends Widget
         {
             this.firstOpened = true;
             this.show();
-            hideElement(document.getElementById("bigOverlay"));
-            document.getElementById("bigOverlay").removeAttribute("for");
-            document.getElementById("bigOverlay").style.cursor = "";
-            document.getElementById("bigOverlay").style["z-index"] = "";
+            hideElement(this.textOverlay);
+            this.textOverlay.removeAttribute("for");
+            this.textOverlay.style.cursor = "";
         }
 
         if (this.cropView.currentFileType === "gif")

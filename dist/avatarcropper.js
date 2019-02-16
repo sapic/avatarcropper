@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1) {
+define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var AvatarCropper = /** @class */ (function (_super) {
@@ -56,10 +56,20 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 _this.saveSettings();
             });
             _this.handleResize();
-            document.getElementById("bigOverlayText").innerText = "Open file";
-            document.getElementById("bigOverlay").style.cursor = "pointer";
-            document.getElementById("bigOverlay").style["z-index"] = "999";
-            document.getElementById("bigOverlay").setAttribute("for", "openInput");
+            _this.textOverlay = util_1.createElement("label", "bigOverlay");
+            _this.textOverlay.innerText = "Open file";
+            _this.textOverlay.style.cursor = "pointer";
+            _this.textOverlay.setAttribute("for", "openInput");
+            var dragDrop = new dragdrop_1.DragDrop(_this.textOverlay);
+            dragDrop.on("drop", function (file) {
+                _this.openFile(file);
+            });
+            dragDrop.on("dragleave", function () {
+                if (!_this.firstOpened) {
+                    util_1.showElement(_this.textOverlay);
+                }
+            });
+            _this.appendChild(_this.textOverlay);
             if (util_1.getIEVersion() !== false && !_this.settings.dismissedIE) {
                 window.alert("hey so your browser isn't really supported ... things should still work but they will be slower/ugly due to how internet explorer/edge function (They don't conform to web standards). i'd recommend switching to firefox or chrome!! but you don't have to if you don't want to. this is the only time you'll see this message unless u clear ur cache or something. ok bye");
                 _this.settings.dismissedIE = true;
@@ -275,10 +285,9 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             if (!this.firstOpened) {
                 this.firstOpened = true;
                 this.show();
-                util_1.hideElement(document.getElementById("bigOverlay"));
-                document.getElementById("bigOverlay").removeAttribute("for");
-                document.getElementById("bigOverlay").style.cursor = "";
-                document.getElementById("bigOverlay").style["z-index"] = "";
+                util_1.hideElement(this.textOverlay);
+                this.textOverlay.removeAttribute("for");
+                this.textOverlay.style.cursor = "";
             }
             if (this.cropView.currentFileType === "gif") {
                 util_1.hideElement(this.flipHButton);

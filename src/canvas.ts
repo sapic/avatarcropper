@@ -554,6 +554,15 @@ export class Canvas
         this.context.fillText(text, x, y);
     }
 
+    fillCircle(x, y, radius, color)
+    {
+        this.color = color;
+
+        this.context.beginPath();
+        this.context.arc(x, y, radius, 0, 2 * Math.PI, false);
+        this.context.fill();
+    }
+
     fillCircleInSquare(x, y, diameter, color)
     {    
         this.color = color;

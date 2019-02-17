@@ -438,6 +438,12 @@ define(["require", "exports"], function (require, exports) {
             this.context.textAlign = align;
             this.context.fillText(text, x, y);
         };
+        Canvas.prototype.fillCircle = function (x, y, radius, color) {
+            this.color = color;
+            this.context.beginPath();
+            this.context.arc(x, y, radius, 0, 2 * Math.PI, false);
+            this.context.fill();
+        };
         Canvas.prototype.fillCircleInSquare = function (x, y, diameter, color) {
             this.color = color;
             this.context.beginPath();

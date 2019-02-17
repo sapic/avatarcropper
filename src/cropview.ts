@@ -38,6 +38,26 @@ class Circle implements ShallowCircle
         this.diameter = radius * 2;
     }
 
+    public get cx() : number
+    {
+        return this.x + this.radius;
+    }
+
+    public set cx(cx : number)
+    {
+        this.x = cx - this.radius;
+    }
+
+    public get cy() : number
+    {
+        return this.y + this.radius;
+    }
+
+    public set cy(cy : number)
+    {
+        this.y = cy - this.radius;
+    }
+
     public reset() : void
     {
         this.x = 0;
@@ -213,6 +233,40 @@ export class CropView extends Widget
             }
             this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter, this.circle.diameter, "white", lineWidth, sharp);
         }
+
+        /*let theta = (90 - this.rotation) / 180 * Math.PI;
+        let cot = (t) => 1 / Math.tan(t);
+        
+        let cx = this.outerWidth / 2;
+        let cy = this.outerHeight / 2;
+        
+        let circleX = this.circle.cx;
+        let circleY = this.circle.cy;
+
+        let xc = circleX - cx;
+        let yc = cy - circleY;
+
+        //console.log(cx, cy, circleX, circleY, dx, dy);
+
+        (<any>window).z = theta;
+
+        let f = (x) => Math.tan(theta) * x;
+        let fp = (x) => -cot(theta) * x;
+        let yy = yc - fp(xc);
+        let fpc = (x) => -cot(theta) * x + yc + cot(theta) * xc;
+        let ix = yy / (Math.tan(theta) + cot(theta));
+        let iy = fpc(ix);
+
+        console.log(xc, yc);
+
+        this.overlay.drawLine(cx, cy, cx + 500, cy - f(500), "red", 2);
+        this.overlay.drawLine(cx, cy, cx - 500, cy - f(-500), "red", 2);
+
+        this.overlay.drawLine(cx, cy, cx + 500, cy - fp(500), "red", 2);
+        this.overlay.drawLine(cx, cy, cx - 500, cy - fp(-500), "red", 2);
+
+        this.overlay.drawLine(circleX, circleY, circleX, circleY + yy, "green", 2);
+        this.overlay.drawLine(circleX, circleY, cx + ix, cy - iy, "blue", 2);*/
     }
 
     // returns size of image (internal res of image) //
@@ -501,7 +555,12 @@ export class CropView extends Widget
         c.context.setTransform(1, 0, 0, 1, 0, 0);
 
         this.loadingImage = true;
-        c.createImage(this.flipHelper.bind(this), undefined, false);
+        c.createImage((img) =>
+        {
+            this.rotate(this.rotation * -1);
+            this.circle.cx = this.outerWidth - this.circle.cx;
+            this.flipHelper(img);
+        }, undefined, false);
     }
 
     public flipVertical() : void
@@ -512,7 +571,12 @@ export class CropView extends Widget
         c.context.setTransform(1, 0, 0, 1, 0, 0);
 
         this.loadingImage = true;
-        c.createImage(this.flipHelper.bind(this), undefined, false);
+        c.createImage((img : HTMLImageElement) =>
+        {
+            this.rotate(-this.rotation);
+            this.circle.cy = this.outerHeight - this.circle.cy;
+            this.flipHelper(img);
+        }, undefined, false);
     }
 
     private flipHelper(image : HTMLImageElement) : void

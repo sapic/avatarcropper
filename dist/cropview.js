@@ -32,6 +32,26 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Circle.prototype, "cx", {
+            get: function () {
+                return this.x + this.radius;
+            },
+            set: function (cx) {
+                this.x = cx - this.radius;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Circle.prototype, "cy", {
+            get: function () {
+                return this.y + this.radius;
+            },
+            set: function (cy) {
+                this.y = cy - this.radius;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Circle.prototype.reset = function () {
             this.x = 0;
             this.y = 0;
@@ -171,6 +191,39 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 }
                 this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter, this.circle.diameter, "white", lineWidth, sharp);
             }
+            /*let theta = (90 - this.rotation) / 180 * Math.PI;
+            let cot = (t) => 1 / Math.tan(t);
+            
+            let cx = this.outerWidth / 2;
+            let cy = this.outerHeight / 2;
+            
+            let circleX = this.circle.cx;
+            let circleY = this.circle.cy;
+    
+            let xc = circleX - cx;
+            let yc = cy - circleY;
+    
+            //console.log(cx, cy, circleX, circleY, dx, dy);
+    
+            (<any>window).z = theta;
+    
+            let f = (x) => Math.tan(theta) * x;
+            let fp = (x) => -cot(theta) * x;
+            let yy = yc - fp(xc);
+            let fpc = (x) => -cot(theta) * x + yc + cot(theta) * xc;
+            let ix = yy / (Math.tan(theta) + cot(theta));
+            let iy = fpc(ix);
+    
+            console.log(xc, yc);
+    
+            this.overlay.drawLine(cx, cy, cx + 500, cy - f(500), "red", 2);
+            this.overlay.drawLine(cx, cy, cx - 500, cy - f(-500), "red", 2);
+    
+            this.overlay.drawLine(cx, cy, cx + 500, cy - fp(500), "red", 2);
+            this.overlay.drawLine(cx, cy, cx - 500, cy - fp(-500), "red", 2);
+    
+            this.overlay.drawLine(circleX, circleY, circleX, circleY + yy, "green", 2);
+            this.overlay.drawLine(circleX, circleY, cx + ix, cy - iy, "blue", 2);*/
         };
         Object.defineProperty(CropView.prototype, "innerWidth", {
             // returns size of image (internal res of image) //
@@ -401,20 +454,30 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             this.loadingImage = false;
         };
         CropView.prototype.flipHorizontal = function () {
+            var _this = this;
             var c = new canvas_1.Canvas({ width: this.image.width, height: this.image.height });
             c.context.scale(-1, 1);
             c.drawImage(this.image, 0, 0, -this.image.width, this.image.height);
             c.context.setTransform(1, 0, 0, 1, 0, 0);
             this.loadingImage = true;
-            c.createImage(this.flipHelper.bind(this), undefined, false);
+            c.createImage(function (img) {
+                _this.rotate(_this.rotation * -1);
+                _this.circle.cx = _this.outerWidth - _this.circle.cx;
+                _this.flipHelper(img);
+            }, undefined, false);
         };
         CropView.prototype.flipVertical = function () {
+            var _this = this;
             var c = new canvas_1.Canvas({ width: this.image.width, height: this.image.height });
             c.context.scale(1, -1);
             c.drawImage(this.image, 0, 0, this.image.width, -this.image.height);
             c.context.setTransform(1, 0, 0, 1, 0, 0);
             this.loadingImage = true;
-            c.createImage(this.flipHelper.bind(this), undefined, false);
+            c.createImage(function (img) {
+                _this.rotate(-_this.rotation);
+                _this.circle.cy = _this.outerHeight - _this.circle.cy;
+                _this.flipHelper(img);
+            }, undefined, false);
         };
         CropView.prototype.flipHelper = function (image) {
             if (this.image.src) {

@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "./supergif/supergif", "./closabledialog"], function (require, exports, util_1, fractionalprogressbar_1, canvas_1, supergif_1, closabledialog_1) {
+define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "./closabledialog"], function (require, exports, util_1, fractionalprogressbar_1, canvas_1, closabledialog_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Renderer = /** @class */ (function (_super) {
@@ -58,7 +58,9 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
         };
         Renderer.prototype.renderGif = function () {
             var _this = this;
-            var gif = new supergif_1.SuperGif(this.cropView.image.cloneNode(), {});
+            var gif = new SuperGif({
+                gif: this.cropView.image.cloneNode()
+            });
             this.loadGif = gif;
             var onload = function () {
                 _this.loadGif = null;
@@ -75,11 +77,11 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                     debug: false,
                     copy: true
                 });
-                var len = gif.getLength();
+                var len = gif.get_length();
                 _this.progressBar.addFractionPart(1 / 6, len);
                 var renderFrame = function (i) {
-                    gif.moveTo(i);
-                    _this.getFrameURLs(gif.getCanvas(), true, false, function (options) {
+                    gif.move_to(i);
+                    _this.getFrameURLs(gif.get_canvas(), true, false, function (options) {
                         var img = new Image();
                         img.addEventListener("load", function () {
                             if (_this.shouldStopRendering) {
@@ -88,7 +90,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                                 return;
                             }
                             saveGif.addFrame(img, {
-                                delay: gif.getFrames()[i].delay * 10
+                                delay: gif.get_frames()[i].delay * 10
                             });
                             _this.progressBar.step();
                             i++;
@@ -124,12 +126,11 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                 });
                 renderFrame(0);
             };
-            gif.on("abort", function () {
+            gif.load(onload, undefined, function () {
                 _this.loadGif = null;
                 _this.currentlyRendering = false;
                 _this.tryClose();
             });
-            gif.load(onload);
         };
         Renderer.prototype.getFrameURLs = function (frame, pixelated, getCircle, callback) {
             var ret = [];

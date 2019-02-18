@@ -476,6 +476,17 @@
                     image = new Blob([data], {
                         type: "image/gif"
                     });
+                    
+                    this.activeWorkers.forEach(function(worker) {
+                        worker.terminate();
+                    });
+                    this.activeWorkers = [];
+
+                    this.freeWorkers.forEach(function(worker) {
+                        worker.terminate();
+                    });
+                    this.freeWorkers = [];
+                    
                     return this.emit("finished", image, data)
                 };
                 GIF.prototype.renderNextFrame = function() {

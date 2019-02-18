@@ -3,10 +3,10 @@ import { Dialog } from "./dialog";
 import { createElement, hideElement, showElement, makePixelated } from "./util";
 import { FractionalProgressBar } from "./fractionalprogressbar";
 import { Canvas } from "./canvas";
-import { SuperGif } from "./supergif/supergif";
 import { ClosableDialog } from "./closabledialog";
 
 declare var GIF : any;
+declare var SuperGif : any;
 
 interface CropOption
 {
@@ -95,7 +95,9 @@ export class Renderer extends ClosableDialog
 
     private renderGif() : void
     {
-        let gif = new SuperGif(<HTMLImageElement>this.cropView.image.cloneNode(), {});
+        let gif = new SuperGif({
+            gif: this.cropView.image.cloneNode()
+        });
 
         this.loadGif = gif;
 
@@ -119,14 +121,14 @@ export class Renderer extends ClosableDialog
                 copy: true
             });
 
-            let len = gif.getLength();
+            let len = gif.get_length();
             this.progressBar.addFractionPart(1/6, len);
 
             let renderFrame = (i : number) =>
             {
-                gif.moveTo(i);
+                gif.move_to(i);
 
-                this.getFrameURLs(gif.getCanvas(), true, false, (options) =>
+                this.getFrameURLs(gif.get_canvas(), true, false, (options) =>
                 {
                     let img = new Image();
                     img.addEventListener("load", () =>
@@ -139,7 +141,7 @@ export class Renderer extends ClosableDialog
                         }
 
                         saveGif.addFrame(img, {
-                            delay: gif.getFrames()[i].delay * 10
+                            delay: gif.get_frames()[i].delay * 10
                         });
 
                         this.progressBar.step();
@@ -190,14 +192,12 @@ export class Renderer extends ClosableDialog
             renderFrame(0);
         };
 
-        gif.on("abort", () =>
+        gif.load(onload, undefined, () =>
         {
             this.loadGif = null;
             this.currentlyRendering = false;
             this.tryClose();
         });
-
-        gif.load(onload);
     }
 
     private getFrameURLs(frame : Canvas | HTMLImageElement | HTMLCanvasElement, pixelated : boolean, getCircle : boolean, callback : (options : CropOption[]) => void) : void

@@ -30,7 +30,7 @@ export function doFooterThings()
     document.getElementById("closeFooter").addEventListener("click", () =>
     {
         document.getElementById("container").style.height = "100%";
-        document.getElementById("bigOverlay").style.height = "100%";
+        (<HTMLElement>document.getElementsByClassName("bigOverlay")[0]).style.height = "100%";
         hideElement(document.getElementById("footer"));
         GlobalEvents.emitEvent("resize");
     });

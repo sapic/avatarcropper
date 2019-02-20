@@ -506,11 +506,11 @@ export class CropView extends Widget
         return this.antialiased;
     }
 
-    public setImageFromFile(file : File)
+    public setImageFromFile(file : File) : boolean
     {
         if (!file || file.type.split("/")[0] !== "image" || this.loadingImage)
         {
-            return;
+            return false;
         }
 
         this.currentFileType = file.type.split("/")[1] === "gif" ? "gif" : "png";
@@ -518,6 +518,7 @@ export class CropView extends Widget
 
         this.loadingImage = true;
         Canvas.fileToImage(file, this.setImageFromFileHelper.bind(this), false);
+        return true;
     }
 
     private setImageFromFileHelper(image : HTMLImageElement)

@@ -427,12 +427,13 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         });
         CropView.prototype.setImageFromFile = function (file) {
             if (!file || file.type.split("/")[0] !== "image" || this.loadingImage) {
-                return;
+                return false;
             }
             this.currentFileType = file.type.split("/")[1] === "gif" ? "gif" : "png";
             this._filename = file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped." + this.currentFileType;
             this.loadingImage = true;
             canvas_1.Canvas.fileToImage(file, this.setImageFromFileHelper.bind(this), false);
+            return true;
         };
         CropView.prototype.setImageFromFileHelper = function (image) {
             if (this.image.src) {

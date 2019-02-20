@@ -279,9 +279,9 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             }
         };
         AvatarCropper.prototype.openFile = function (file) {
-            if (!file)
+            if (!this.cropView.setImageFromFile(file)) {
                 return;
-            this.cropView.setImageFromFile(file);
+            }
             if (!this.firstOpened) {
                 this.firstOpened = true;
                 this.show();

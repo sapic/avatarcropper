@@ -388,9 +388,10 @@ export class AvatarCropper extends Widget
 
     private openFile(file : File) : void
     {
-        if (!file) return;
-
-        this.cropView.setImageFromFile(file);
+        if (!this.cropView.setImageFromFile(file))
+        {
+            return;
+        }
 
         if (!this.firstOpened)
         {

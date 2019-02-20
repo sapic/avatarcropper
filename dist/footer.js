@@ -19,7 +19,6 @@ define(["require", "exports", "./whatsnew", "./util", "./eventclass", "./tutoria
         document.body.appendChild(whatsNew.container);
         document.getElementById("closeFooter").addEventListener("click", function () {
             document.getElementById("container").style.height = "100%";
-            document.getElementsByClassName("bigOverlay")[0].style.height = "100%";
             util_1.hideElement(document.getElementById("footer"));
             eventclass_1.GlobalEvents.emitEvent("resize");
         });

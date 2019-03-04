@@ -9,7 +9,7 @@ export class Canvas
 
     constructor(options)
     {
-        options = options || {};
+        options = options || {}
 
         if (!options.canvasElement)
         {
@@ -25,13 +25,13 @@ export class Canvas
         
         this.resize(options.width, options.height);
 
-        this.translation = { x: 0, y: 0 };
+        this.translation = { x: 0, y: 0 }
 
         this.align =
         {
             horizontal: (options.align && options.align.horizontal) || false,
             vertical: (options.align && options.align.vertical) || false
-        };
+        }
 
         if (this.align.horizontal || this.align.vertical)
         {
@@ -67,7 +67,7 @@ export class Canvas
             {
                 this.events[eventName].push(fn);
             }
-        };
+        }
 
         this.canvas.addEventListener("mousemove", this.mouseMove.bind(this));
         this.canvas.addEventListener("touchmove", this.mouseMove.bind(this));
@@ -143,7 +143,7 @@ export class Canvas
             z = <HTMLElement>z.offsetParent;
         }
 
-        this.offset = { x: x, y: y };
+        this.offset = { x: x, y: y }
     }
 
     posFromEvent(e)
@@ -184,7 +184,7 @@ export class Canvas
         x *= this.canvas.width / bounds.width;
         y *= this.canvas.height / bounds.height;
 
-        return { x, y };
+        return { x, y }
     }
 
     mouseMove(e)
@@ -335,7 +335,7 @@ export class Canvas
                 callback(this);
                 this.onload = null;
                 autoRevoke && URL.revokeObjectURL((<HTMLImageElement>this).src);
-            };
+            }
         
             let url = URL.createObjectURL(blob);
             ret.src = url;
@@ -418,7 +418,7 @@ export class Canvas
         ctx.rotate(rotate);
         ctx.drawImage(image, cx, cy, cw, ch, -anchorX, -anchorY, w, h);
         ctx.restore();
-    };
+    }
 
     // use closures to make function factory function for onclick etc
 
@@ -442,7 +442,7 @@ export class Canvas
         this.context.stroke();
     }
 
-    drawRect(x, y, w, h, color, lineWidth, sharp)
+    drawRect(x : number, y : number, w : number, h : number, color, lineWidth, sharp)
     {
         this.color = color;
         this.lineWidth = lineWidth;
@@ -463,7 +463,7 @@ export class Canvas
         this.context.strokeRect(x, y, w, h);
     }
 
-    fillRect(x, y, w, h, color)
+    fillRect(x : number, y : number, w : number, h : number, color)
     {
         this.color = color;
 
@@ -476,7 +476,7 @@ export class Canvas
     }
 
     // https://stackoverflow.com/a/7838871
-    drawRoundedRect(x, y, w, h, r, color, lineWidth, sharp)
+    drawRoundedRect(x : number, y : number, w : number, h : number, r : number, color, lineWidth, sharp)
     {
         this.color = color;
         this.lineWidth = lineWidth;
@@ -508,7 +508,7 @@ export class Canvas
         this.context.stroke();
     }
 
-    fillRoundedRect(x, y, w, h, r, color, sharp?)
+    fillRoundedRect(x : number, y : number, w : number, h : number, r : number, color, sharp?)
     {
         this.color = color;
 
@@ -554,7 +554,7 @@ export class Canvas
         this.context.fillText(text, x, y);
     }
 
-    fillCircle(x, y, radius, color)
+    fillCircle(x : number, y : number, radius : number, color)
     {
         this.color = color;
 
@@ -563,16 +563,16 @@ export class Canvas
         this.context.fill();
     }
 
-    fillCircleInSquare(x, y, diameter, color)
+    fillCircleInSquare(x : number, y : number, diameter : number, color)
     {    
         this.color = color;
     
         this.context.beginPath();
         this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
         this.context.fill();
-    };
+    }
 
-    drawCircleInSquare(x, y, diameter, color, lineWidth)
+    drawCircleInSquare(x : number, y : number, diameter : number, color, lineWidth)
     {
         this.color = color;
         this.lineWidth = lineWidth;
@@ -580,7 +580,36 @@ export class Canvas
         this.context.beginPath();
         this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
         this.context.stroke();
-    };
+    }
+
+    fillCircleInRect(x : number, y : number, diameterX : number, diameterY : number, color : string)
+    {
+        if (diameterX === diameterY)
+        {
+            return this.fillCircleInSquare(x, y, diameterX, color);
+        }
+        
+        this.color = color;
+
+        this.context.beginPath();
+        this.context.ellipse(x, y, diameterX / 2, diameterY / 2, 0, 0, Math.PI * 2);
+        this.context.fill();
+    }
+
+    drawCircleInRect(x : number, y : number, diameterX : number, diameterY : number, color? : string, lineWidth? : number)
+    {
+        if (diameterX === diameterY)
+        {
+            return this.drawCircleInSquare(x, y, diameterX, color, lineWidth);
+        }
+        
+        this.color = color;
+        this.lineWidth = lineWidth;
+
+        this.context.beginPath();
+        this.context.ellipse(x, y, diameterX / 2, diameterY / 2, 0, 0, Math.PI * 2);
+        this.context.stroke();
+    }
 
     drawRotatedImage(image : Canvas | HTMLImageElement | HTMLCanvasElement, rotate : number, x : number, y : number, w? : number, h? : number) {
         if (image instanceof Canvas)
@@ -601,7 +630,7 @@ export class Canvas
         this.context.rotate(rotate);
         this.context.drawImage(image, -w / 2, -h / 2, w, h);
         this.context.restore();
-    };
+    }
 
     static fileToImage(file, callback, autoRevoke = true) {
         let img = new Image();
@@ -612,7 +641,7 @@ export class Canvas
             {
                 window.URL.revokeObjectURL((<HTMLImageElement>this).src);
             }
-        };
+        }
     
         img.src = window.URL.createObjectURL(file);
     }

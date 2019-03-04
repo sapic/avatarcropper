@@ -154,7 +154,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                 height: this.cropView.cropArea.diameter,
                 pixelated: pixelated
             });
-            squareCrop.drawCroppedImage(rc, 0, 0, this.cropView.cropArea.x, this.cropView.cropArea.y, this.cropView.cropArea.diameter, this.cropView.cropArea.diameter);
+            squareCrop.drawCroppedImage(rc, 0, 0, this.cropView.cropArea.position.x, this.cropView.cropArea.position.y, this.cropView.cropArea.diameter, this.cropView.cropArea.diameter);
             squareCrop.createBlob(function (blob) {
                 check(URL.createObjectURL(blob), "Square", 0);
             });
@@ -164,7 +164,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                     height: this.cropView.cropArea.diameter,
                     pixelated: pixelated
                 });
-                circleCrop.drawCroppedImage(rc, 0, 0, this.cropView.cropArea.x, this.cropView.cropArea.y, this.cropView.cropArea.diameter, this.cropView.cropArea.diameter);
+                circleCrop.drawCroppedImage(rc, 0, 0, this.cropView.cropArea.position.x, this.cropView.cropArea.position.y, this.cropView.cropArea.diameter, this.cropView.cropArea.diameter);
                 circleCrop.blendMode = "destination-in";
                 circleCrop.fillCircleInSquare(0, 0, circleCrop.width, "white");
                 circleCrop.createBlob(function (blob) {

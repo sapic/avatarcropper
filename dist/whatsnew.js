@@ -79,7 +79,6 @@ define(["require", "exports", "./util", "./closabledialog"], function (require, 
             for (var month in _this.list) {
                 _loop_1(month);
             }
-            console.log(es);
             _this.appendChild.apply(_this, es);
             return _this;
         }

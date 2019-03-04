@@ -14,62 +14,43 @@ var __extends = (this && this.__extends) || (function () {
 define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], function (require, exports, widget_1, util_1, canvas_1, renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Circle = /** @class */ (function () {
+    var Circle = /** @class */ (function (_super) {
+        __extends(Circle, _super);
         function Circle(cropView) {
-            this.x = 0;
-            this.y = 0;
-            this.diameter = 1;
-            this.cropView = cropView;
-            this.saveOrigin();
+            var _this = _super.call(this, new util_1.Point(), new util_1.Point()) || this;
+            _this.cropView = cropView;
+            _this.saveOrigin();
+            return _this;
         }
+        Object.defineProperty(Circle.prototype, "diameter", {
+            get: function () {
+                return this.size;
+            },
+            set: function (diameter) {
+                this.size = diameter;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Circle.prototype, "radius", {
             get: function () {
-                return this.diameter / 2;
+                return this.diameter.times(1 / 2);
             },
             set: function (radius) {
-                this.diameter = radius * 2;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Circle.prototype, "cx", {
-            get: function () {
-                return this.x + this.radius;
-            },
-            set: function (cx) {
-                this.x = cx - this.radius;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Circle.prototype, "cy", {
-            get: function () {
-                return this.y + this.radius;
-            },
-            set: function (cy) {
-                this.y = cy - this.radius;
+                this.diameter = radius.times(2);
             },
             enumerable: true,
             configurable: true
         });
         Circle.prototype.reset = function () {
-            this.x = 0;
-            this.y = 0;
-            this.diameter = this.cropView.minDim / 2;
+            this.position = new util_1.Point(0);
+            this.diameter = new util_1.Point(this.cropView.minDim / 2);
         };
-        Object.defineProperty(Circle.prototype, "point", {
-            get: function () {
-                return { x: this.x, y: this.y };
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(Circle.prototype, "shallowCircle", {
             get: function () {
                 return {
-                    x: this.x,
-                    y: this.y,
-                    diameter: this.diameter
+                    position: this.position.copy(),
+                    diameter: this.diameter.copy()
                 };
             },
             enumerable: true,
@@ -86,17 +67,21 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             configurable: true
         });
         Circle.prototype.validate = function () {
+            if (this.diameter.x > this.cropView.outerWidth)
+                this.diameter.x = this.cropView.outerWidth;
+            if (this.diameter.y > this.cropView.outerHeight)
+                this.diameter.y = this.cropView.outerHeight;
             if (this.x < 0)
                 this.x = 0;
             if (this.y < 0)
                 this.y = 0;
-            if (this.x + this.diameter > this.cropView.outerWidth)
-                this.x = this.cropView.outerWidth - this.diameter;
-            if (this.y + this.diameter > this.cropView.outerHeight)
-                this.y = this.cropView.outerHeight - this.diameter;
+            if (this.x + this.diameter.x > this.cropView.outerWidth)
+                this.x = this.cropView.outerWidth - this.diameter.x;
+            if (this.y + this.diameter.y > this.cropView.outerHeight)
+                this.y = this.cropView.outerHeight - this.diameter.y;
         };
         return Circle;
-    }());
+    }(util_1.Rectangle));
     var CropView = /** @class */ (function (_super) {
         __extends(CropView, _super);
         function CropView(settingsObject) {
@@ -175,10 +160,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 this.overlay.fill("rgba(0,0,0," + this.settings.maskOpacity + ")");
                 this.overlay.blendMode = "destination-out";
                 if (this.settings.previewMode === "circle") {
-                    this.overlay.fillCircleInSquare(this.circle.x, this.circle.y, this.circle.diameter, "white");
+                    this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
                 }
                 else {
-                    this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.diameter, this.circle.diameter, "white");
+                    this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
                 }
             }
             this.overlay.blendMode = "source-over";
@@ -187,9 +172,9 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 var sharp = lineWidth % 3 === 0;
                 this.overlay.lineDash = [Math.min(this.overlay.width, this.overlay.height) / 100];
                 if (this.settings.previewMode === "circle") {
-                    this.overlay.drawCircleInSquare(this.circle.x, this.circle.y, this.circle.diameter, "white", lineWidth);
+                    this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
                 }
-                this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter, this.circle.diameter, "white", lineWidth, sharp);
+                this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth, sharp);
             }
             /*let theta = (90 - this.rotation) / 180 * Math.PI;
             let cot = (t) => 1 / Math.tan(t);
@@ -508,21 +493,20 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             configurable: true
         });
         CropView.prototype.getMouseAction = function (x, y) {
+            var mousePoint = new util_1.Point(x, y);
             if (!(x <= this.circle.x
-                || x >= this.circle.x + this.circle.diameter
+                || x >= this.circle.x + this.circle.diameter.x
                 || y <= this.circle.y
-                || y >= this.circle.y + this.circle.diameter)) {
-                // point is in rect=
-                var cx = this.circle.x + this.circle.radius;
-                var cy = this.circle.y + this.circle.radius;
-                //console.log(x, y, cx, cy, Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2)));
-                if (Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2)) < this.circle.radius) {
-                    // point is in circle
-                    return "move";
-                }
-                else {
-                    return "resize";
-                }
+                || y >= this.circle.y + this.circle.diameter.y)) {
+                var handleSize = this.circle.radius.min / 2;
+                var _rb_1 = function (p1, p2) { return util_1.Rectangle.between(p1, p2); };
+                var _con_1 = function (r) { return r.containsPoint(mousePoint); };
+                var grabbing = function (p1, toAdd) { return _con_1(_rb_1(p1, p1.plus(toAdd))); };
+                var grabbingHandle = (grabbing(this.circle.topLeft, handleSize) ||
+                    grabbing(this.circle.topRight, new util_1.Point(-handleSize, handleSize)) ||
+                    grabbing(this.circle.bottomLeft, new util_1.Point(handleSize, -handleSize)) ||
+                    grabbing(this.circle.bottomRight, -handleSize));
+                return grabbingHandle ? "resize" : "move";
             }
             else {
                 return "new";
@@ -531,8 +515,9 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         CropView.prototype.mouseDown = function (x, y) {
             var action = this.getMouseAction(x, y);
             this.currentAction = action;
-            this.mouseOrigin = { x: x, y: y };
+            this.mouseOrigin = new util_1.Point(x, y);
             this.circle.saveOrigin();
+            this.resizeOffset = this.circle.getPointFromAnchor(this.getCircleAnchor(this.mouseOrigin)).minus(this.mouseOrigin);
         };
         CropView.prototype.mouseMove = function (x, y) {
             // determine what cursor to show //
@@ -544,8 +529,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 this.overlay.canvas.style.cursor = "move";
             }
             else if (action === "resize") {
-                var xr = x < this.circle.x + this.circle.radius;
-                var yr = y < this.circle.y + this.circle.radius;
+                var xr = x < this.circle.cx;
+                var yr = y < this.circle.cy;
                 var thing = +xr ^ +yr; // nice
                 this.overlay.canvas.style.cursor = thing ? "nesw-resize" : "nwse-resize";
             }
@@ -557,79 +542,44 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 return;
             }
             else if (this.currentAction === "move") {
-                var dx = x - this.mouseOrigin.x;
-                var dy = y - this.mouseOrigin.y;
-                this.circle.x = this.circle.origin.x + dx;
-                this.circle.y = this.circle.origin.y + dy;
+                var d = new util_1.Point(x, y).minus(this.mouseOrigin);
+                this.circle.position = this.circle.origin.position.plus(d);
                 this.circle.validate();
+                this.mouseOrigin = new util_1.Point(x, y);
+                this.circle.saveOrigin();
             }
             else if (this.currentAction === "resize") {
                 this.performResize(x, y);
             }
-            this.circle.x = Math.round(this.circle.x);
-            this.circle.y = Math.round(this.circle.y);
-            this.circle.diameter = Math.round(this.circle.diameter);
-            if (this.circle.diameter !== this.circle.origin.diameter) {
-                this.mouseOrigin = { x: x, y: y };
-                this.circle.saveOrigin();
-            }
+            this.circle.round(); // u rite
             this.emitEvent("update");
         };
+        CropView.prototype.getCircleAnchor = function (p) {
+            var x = p.x;
+            var y = p.y;
+            if (x > this.circle.cx) {
+                if (y > this.circle.cy) {
+                    return "se";
+                }
+                else {
+                    return "ne";
+                }
+            }
+            else {
+                if (y > this.circle.cy) {
+                    return "sw";
+                }
+                else {
+                    return "nw";
+                }
+            }
+        };
         CropView.prototype.performResize = function (x, y) {
-            var xr = x < this.circle.x + this.circle.radius;
-            var yr = y < this.circle.y + this.circle.radius;
-            var dx = x - this.mouseOrigin.x;
-            var dy = y - this.mouseOrigin.y;
-            if (xr)
-                dx *= -1;
-            if (yr)
-                dy *= -1;
-            var dd = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-            if (this.circle.origin.diameter + dd < 1) {
-                dd = this.circle.diameter - 1;
-            }
-            if (xr) {
-                if (yr) {
-                    if (this.circle.origin.x - dd < 0 || this.circle.origin.y - dd < 0) {
-                        dd = Math.min(this.circle.origin.x, this.circle.origin.y);
-                    }
-                }
-                else {
-                    if (this.circle.origin.x - dd < 0 || this.circle.origin.y + this.circle.origin.diameter + dd > this.overlay.height) {
-                        dd = Math.min(this.circle.origin.x, this.overlay.height - this.circle.origin.y - this.circle.origin.diameter);
-                    }
-                }
-            }
-            else {
-                if (yr) {
-                    if (this.circle.origin.x + this.circle.origin.diameter + dd > this.overlay.width || this.circle.origin.y - dd < 0) {
-                        dd = Math.min(this.overlay.width - this.circle.origin.x - this.circle.origin.diameter, this.circle.origin.y);
-                    }
-                }
-                else {
-                    if (this.circle.origin.x + this.circle.origin.diameter + dd > this.overlay.width || this.circle.origin.y + this.circle.origin.diameter + dd > this.overlay.height) {
-                        dd = Math.min(this.overlay.width - this.circle.origin.x - this.circle.origin.diameter, this.overlay.height - this.circle.origin.y - this.circle.origin.diameter);
-                    }
-                }
-            }
-            if (this.circle.diameter > this.overlay.width) {
-                // panic
-                this.circle.x = 0;
-                this.circle.y = 0;
-                this.circle.diameter = this.overlay.width;
-                alert("fuck");
-            }
-            else if (this.circle.diameter > this.overlay.height) {
-                this.circle.x = 0;
-                this.circle.y = 0;
-                this.circle.diameter = this.overlay.height;
-                alert("fuck");
-            }
-            else {
-                this.circle.diameter = this.circle.origin.diameter + dd;
-                this.circle.x = xr ? this.circle.origin.x - dd : this.circle.origin.x;
-                this.circle.y = yr ? this.circle.origin.y - dd : this.circle.origin.y;
-            }
+            var anchor = util_1.Rectangle.anchorOpposite(this.getCircleAnchor(new util_1.Point(x, y)));
+            this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
+            var r = util_1.Rectangle.between(new util_1.Point(x, y), this.resizeAnchor);
+            r.round();
+            this.circle.fitInsideGreedy(r, anchor);
         };
         return CropView;
     }(widget_1.Widget));

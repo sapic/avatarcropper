@@ -239,8 +239,8 @@ export class Renderer extends ClosableDialog
             rc,
             0,
             0,
-            this.cropView.cropArea.x,
-            this.cropView.cropArea.y,
+            this.cropView.cropArea.position.x,
+            this.cropView.cropArea.position.y,
             this.cropView.cropArea.diameter,
             this.cropView.cropArea.diameter
         );
@@ -262,8 +262,8 @@ export class Renderer extends ClosableDialog
                 rc,
                 0,
                 0,
-                this.cropView.cropArea.x,
-                this.cropView.cropArea.y,
+                this.cropView.cropArea.position.x,
+                this.cropView.cropArea.position.y,
                 this.cropView.cropArea.diameter,
                 this.cropView.cropArea.diameter
             );

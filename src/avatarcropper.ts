@@ -1,7 +1,7 @@
 import { Widget } from "./widget";
 import { CropView } from "./cropview";
 import { Previews } from "./previews";
-import { createElement, hideElement, showElement, getIEVersion } from "./util";
+import { createElement, hideElement, showElement, getIEVersion, Point } from "./util";
 import { LabelSlider } from "./labeledslider";
 import Storage from "./storage";
 import { doFooterThings, showTutorial } from "./footer";
@@ -62,7 +62,7 @@ export class AvatarCropper extends Widget
         
         this.settings.previewSizes.forEach(size =>
         {
-            this.previews.addPreviewSize(size);
+            this.previews.addPreviewSize(new Point(size));
         });
 
         this.previews.on("sizeArrayChange", (sizeArray : number[]) =>
@@ -382,7 +382,7 @@ export class AvatarCropper extends Widget
         }
         else
         {
-            this.previews.addPreviewSize(size); // emits sizeArrayChange event which changes settings so dw
+            this.previews.addPreviewSize(new Point(size)); // emits sizeArrayChange event which changes settings so dw
         }
     }
 

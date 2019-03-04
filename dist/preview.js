@@ -29,12 +29,12 @@ define(["require", "exports", "./widget", "./util", "./canvas"], function (requi
                 _this.antialias = aa;
             });
             _this._size = size;
-            _this.container.style.width = size + "px";
-            _this.container.style.height = (size + 2) + "px";
+            _this.container.style.width = size.x + "px";
+            _this.container.style.height = (size.y + 2) + "px";
             _this.container.style["z-index"] = -size;
             _this.mask = new canvas_1.Canvas({
-                width: size,
-                height: size + 2
+                width: size.x,
+                height: size.y + 2
             });
             _this.mask.canvas.className = "mask";
             _this.mask.canvas.style["z-index"] = 1;
@@ -46,7 +46,7 @@ define(["require", "exports", "./widget", "./util", "./canvas"], function (requi
                 _this.image.src = cropView.src;
             }
             _this.image.style.position = "absolute";
-            if (size === 30) {
+            if (size.equals(new util_1.Point(30))) {
                 _this.onlineIndicator = new canvas_1.Canvas({ width: 14, height: 14 });
                 _this.onlineIndicator.fillCircleInSquare(0, 0, 14, "#2F3136");
                 _this.onlineIndicator.fillCircleInSquare(2, 2, 10, "rgb(67,181,129)");
@@ -92,27 +92,22 @@ define(["require", "exports", "./widget", "./util", "./canvas"], function (requi
                 else {
                     this.mask.fill("#2F3136");
                     this.mask.blendMode = "destination-out";
-                    this.mask.fillCircleInSquare(0, 0, this.size, "white");
+                    this.mask.fillCircleInRect(0, 0, this.size.x, this.size.y, "white");
                     this.mask.blendMode = "source-over";
                     if (this.onlineIndicator) {
                         util_1.showElement(this.onlineIndicator.canvas);
                     }
                 }
             }
-            var scale = this.size / this.cropView.cropArea.diameter;
-            this.image.style.transform = "scale(" + scale + ") rotate(" + this.cropView.rotation + "deg)";
-            var x = 0;
-            var y = 0;
-            x -= this.cropView.cropArea.x * scale;
-            y -= this.cropView.cropArea.y * scale;
-            var dx = parseFloat(this.cropView.image.style.left || "0px");
-            var dy = parseFloat(this.cropView.image.style.top || "0px");
-            dx *= (1 / this.cropView.zoomFactor);
-            dy *= (1 / this.cropView.zoomFactor);
-            x += dx * scale;
-            y += dy * scale;
-            this.image.style.left = x + "px";
-            this.image.style.top = y + "px";
+            var scale = this.size.dividedBy(this.cropView.cropArea.diameter);
+            this.image.style.transform = "scale(" + scale.x + "," + scale.y + ") rotate(" + this.cropView.rotation + "deg)";
+            var p = new util_1.Point(0);
+            p.subtract(this.cropView.cropArea.position.times(scale));
+            var dp = new util_1.Point(parseFloat(this.cropView.image.style.left || "0px"), parseFloat(this.cropView.image.style.top || "0px"));
+            dp.multiply(1 / this.cropView.zoomFactor);
+            p.add(dp.times(scale));
+            this.image.style.left = p.x + "px";
+            this.image.style.top = p.y + "px";
         };
         Object.defineProperty(Preview.prototype, "antialias", {
             get: function () {

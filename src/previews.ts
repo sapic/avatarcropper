@@ -1,6 +1,6 @@
 import { Widget } from "./widget";
 import { Preview } from "./preview";
-import { createElement, array_remove, array_insert } from "./util";
+import { createElement, array_remove, array_insert, Point } from "./util";
 import { CropView } from "./cropview";
 
 export class Previews extends Widget
@@ -32,7 +32,7 @@ export class Previews extends Widget
         return ret;
     }
 
-    public addPreviewSize(size : number)
+    public addPreviewSize(size : Point)
     {
         let p = new Preview(size, this.cropView);
         p.on("requestremove", this.removePreview.bind(this, p));
@@ -42,7 +42,7 @@ export class Previews extends Widget
         array_insert(
             this.previews,
             p,
-            (left, right) => left.size > right.size
+            (left, right) => left.size.y > right.size.y
         );
         this.render();
         p.update();
@@ -66,7 +66,7 @@ export class Previews extends Widget
 
     public get height() : number
     {
-        return this.previews[0] ? this.previews[0].size : 0;
+        return this.previews[0] ? this.previews[0].size.y : 0;
     }
 
     private render() : void
@@ -76,7 +76,7 @@ export class Previews extends Widget
         this.previews.forEach(preview =>
         {
             preview.container.style.right = runningX + "px";
-            runningX += preview.size + this.padding;
+            runningX += preview.size.x + this.padding;
         });
 
         this._size = runningX;

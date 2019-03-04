@@ -1,81 +1,60 @@
 import { Widget } from "./widget";
-import { createElement, makePixelated } from "./util";
+import { createElement, makePixelated, Point, Rectangle, RectAnchor } from "./util";
 import { Canvas } from "./canvas";
 import { Settings } from "./avatarcropper";
 import { Renderer } from "./renderer";
 
 type MouseAction = "move" | "resize" | "new" | "none";
-type Point = { x : number, y : number };
 
 export interface ShallowCircle
 {
-    x : number;
-    y : number;
-    diameter : number;
+    position: Point;
+    diameter : Point;
 }
 
-class Circle implements ShallowCircle
+class Circle extends Rectangle implements ShallowCircle
 {
-    public x : number = 0;
-    public y : number = 0;
-    public diameter : number = 1;
     private cropView : CropView;
     private _origin : ShallowCircle;
 
     constructor(cropView : CropView)
     {
+        super(new Point(), new Point());
         this.cropView = cropView;
         this.saveOrigin();
     }
 
-    public get radius() : number
+    public get diameter() : Point
     {
-        return this.diameter / 2;
+        return this.size;
     }
 
-    public set radius(radius : number)
+    public set diameter(diameter : Point)
     {
-        this.diameter = radius * 2;
+        this.size = diameter;
     }
 
-    public get cx() : number
+    public get radius() : Point
     {
-        return this.x + this.radius;
+        return this.diameter.times(1/2);
     }
 
-    public set cx(cx : number)
+    public set radius(radius : Point)
     {
-        this.x = cx - this.radius;
-    }
-
-    public get cy() : number
-    {
-        return this.y + this.radius;
-    }
-
-    public set cy(cy : number)
-    {
-        this.y = cy - this.radius;
+        this.diameter = radius.times(2);
     }
 
     public reset() : void
     {
-        this.x = 0;
-        this.y = 0;
-        this.diameter = this.cropView.minDim / 2;
-    }
-
-    public get point() : Point
-    {
-        return { x: this.x, y: this.y };
+        this.position = new Point(0);
+        this.diameter = new Point(this.cropView.minDim / 2);
     }
 
     public get shallowCircle() : ShallowCircle
     {
         return {
-            x: this.x,
-            y: this.y,
-            diameter: this.diameter
+            position: this.position.copy(),
+            diameter: this.diameter.copy()
         };
     }
 
@@ -91,10 +70,12 @@ class Circle implements ShallowCircle
 
     public validate() : void
     {
+        if (this.diameter.x > this.cropView.outerWidth) this.diameter.x = this.cropView.outerWidth;
+        if (this.diameter.y > this.cropView.outerHeight) this.diameter.y = this.cropView.outerHeight;
         if (this.x < 0) this.x = 0;
         if (this.y < 0) this.y = 0;
-        if (this.x + this.diameter > this.cropView.outerWidth) this.x = this.cropView.outerWidth - this.diameter;
-        if (this.y + this.diameter > this.cropView.outerHeight) this.y = this.cropView.outerHeight - this.diameter; 
+        if (this.x + this.diameter.x > this.cropView.outerWidth) this.x = this.cropView.outerWidth - this.diameter.x;
+        if (this.y + this.diameter.y > this.cropView.outerHeight) this.y = this.cropView.outerHeight - this.diameter.y; 
     }
 }
 
@@ -112,6 +93,8 @@ export class CropView extends Widget
     private _filename : string;
     private currentAction : MouseAction;
     private mouseOrigin : Point;
+    private resizeAnchor : Point;
+    private resizeOffset : Point;
     public readonly settings : Settings;
     private readonly renderer : Renderer;
     private loadingImage : boolean = false;
@@ -210,11 +193,11 @@ export class CropView extends Widget
             this.overlay.blendMode = "destination-out";
             if (this.settings.previewMode === "circle")
             {
-                this.overlay.fillCircleInSquare(this.circle.x, this.circle.y, this.circle.diameter, "white");
+                this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
             }
             else
             {
-                this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.diameter, this.circle.diameter, "white");
+                this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
             }
         }
 
@@ -229,9 +212,9 @@ export class CropView extends Widget
             
             if (this.settings.previewMode === "circle")
             {
-                this.overlay.drawCircleInSquare(this.circle.x, this.circle.y, this.circle.diameter, "white", lineWidth);
+                this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
             }
-            this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter, this.circle.diameter, "white", lineWidth, sharp);
+            this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth, sharp);
         }
 
         /*let theta = (90 - this.rotation) / 180 * Math.PI;
@@ -612,24 +595,25 @@ export class CropView extends Widget
 
     private getMouseAction(x : number, y : number) : MouseAction
     {
+        let mousePoint = new Point(x, y);
         if (!(x <= this.circle.x
-            || x >= this.circle.x + this.circle.diameter
+            || x >= this.circle.x + this.circle.diameter.x
             || y <= this.circle.y
-            || y >= this.circle.y + this.circle.diameter))
+            || y >= this.circle.y + this.circle.diameter.y))
         {
-            // point is in rect=
-            let cx = this.circle.x + this.circle.radius;
-            let cy = this.circle.y + this.circle.radius;
-            //console.log(x, y, cx, cy, Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2)));
-            if (Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2)) < this.circle.radius)
-            {
-                // point is in circle
-                return "move";
-            }
-            else
-            {
-                return "resize";
-            }
+            let handleSize = this.circle.radius.min / 2;
+            let _rb = (p1, p2) => Rectangle.between(p1, p2);
+            let _con = (r : Rectangle) => r.containsPoint(mousePoint);
+            let grabbing = (p1 : Point, toAdd : Point | number) => _con(_rb(p1, p1.plus(toAdd)));
+            
+            let grabbingHandle = (
+                grabbing(this.circle.topLeft, handleSize) ||
+                grabbing(this.circle.topRight, new Point(-handleSize, handleSize)) ||
+                grabbing(this.circle.bottomLeft, new Point(handleSize, -handleSize)) ||
+                grabbing(this.circle.bottomRight, -handleSize)
+            );
+
+            return grabbingHandle ? "resize" : "move";
         }
         else
         {
@@ -642,8 +626,10 @@ export class CropView extends Widget
         var action = this.getMouseAction(x, y);
         this.currentAction = action;
 
-        this.mouseOrigin = { x, y };
+        this.mouseOrigin = new Point(x, y);
         this.circle.saveOrigin();
+
+        this.resizeOffset = this.circle.getPointFromAnchor(this.getCircleAnchor(this.mouseOrigin)).minus(this.mouseOrigin);
     }
 
     private mouseMove(x : number, y : number) : void
@@ -661,8 +647,8 @@ export class CropView extends Widget
         }
         else if (action === "resize")
         {
-            let xr = x < this.circle.x + this.circle.radius;
-            let yr = y < this.circle.y + this.circle.radius;
+            let xr = x < this.circle.cx;
+            let yr = y < this.circle.cy;
             let thing = +xr ^ +yr; // nice
             this.overlay.canvas.style.cursor = thing ? "nesw-resize" : "nwse-resize";
         }
@@ -678,102 +664,58 @@ export class CropView extends Widget
         }
         else if (this.currentAction === "move")
         {
-            let dx = x - this.mouseOrigin.x;
-            let dy = y - this.mouseOrigin.y;
-            this.circle.x = this.circle.origin.x + dx;
-            this.circle.y = this.circle.origin.y + dy;
+            let d = new Point(x, y).minus(this.mouseOrigin);
+            this.circle.position = this.circle.origin.position.plus(d);
             this.circle.validate();
+            this.mouseOrigin = new Point(x, y);
+            this.circle.saveOrigin();
         }
         else if (this.currentAction === "resize")
         {
             this.performResize(x, y);
         }
-
-        this.circle.x = Math.round(this.circle.x);
-        this.circle.y = Math.round(this.circle.y);
-        this.circle.diameter = Math.round(this.circle.diameter);
-
-        if (this.circle.diameter !== this.circle.origin.diameter)
-        {
-            this.mouseOrigin = { x, y };
-            this.circle.saveOrigin();
-        }
+        
+        this.circle.round(); // u rite
 
         this.emitEvent("update");
     }
 
+    private getCircleAnchor(p : Point) : RectAnchor
+    {
+        let x = p.x;
+        let y = p.y;
+
+        if (x > this.circle.cx)
+        {
+            if (y > this.circle.cy)
+            {
+                return "se";
+            }
+            else
+            {
+                return "ne";
+            }
+        }
+        else
+        {
+            if (y > this.circle.cy)
+            {
+                return "sw";
+            }
+            else
+            {
+                return "nw";
+            }
+        }
+    }
+
     private performResize(x : number, y : number)
     {
-        let xr = x < this.circle.x + this.circle.radius;
-        let yr = y < this.circle.y + this.circle.radius;
-        let dx = x - this.mouseOrigin.x;
-        let dy = y - this.mouseOrigin.y;
+        let anchor = Rectangle.anchorOpposite(this.getCircleAnchor(new Point(x, y)));
+        this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
 
-        if (xr) dx *= -1;
-        if (yr) dy *= -1;
-
-        let dd = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-
-        if (this.circle.origin.diameter + dd < 1)
-        {
-            dd = this.circle.diameter - 1;
-        }
-
-        if (xr)
-        {
-            if (yr)
-            {
-                if (this.circle.origin.x - dd < 0 || this.circle.origin.y - dd < 0)
-                {
-                    dd = Math.min(this.circle.origin.x, this.circle.origin.y);
-                }
-            }
-            else
-            {
-                if (this.circle.origin.x - dd < 0 || this.circle.origin.y + this.circle.origin.diameter + dd > this.overlay.height)
-                {
-                    dd = Math.min(this.circle.origin.x, this.overlay.height - this.circle.origin.y - this.circle.origin.diameter);
-                }
-            }
-        }
-        else
-        {
-            if (yr)
-            {
-                if (this.circle.origin.x + this.circle.origin.diameter + dd > this.overlay.width || this.circle.origin.y - dd < 0)
-                {
-                    dd = Math.min(this.overlay.width - this.circle.origin.x - this.circle.origin.diameter, this.circle.origin.y);
-                }
-            }
-            else
-            {
-                if (this.circle.origin.x + this.circle.origin.diameter + dd > this.overlay.width || this.circle.origin.y + this.circle.origin.diameter + dd > this.overlay.height)
-                {
-                    dd = Math.min(this.overlay.width - this.circle.origin.x - this.circle.origin.diameter, this.overlay.height - this.circle.origin.y - this.circle.origin.diameter);
-                }
-            }
-        }
-        
-        if (this.circle.diameter > this.overlay.width)
-        {
-            // panic
-            this.circle.x = 0;
-            this.circle.y = 0;
-            this.circle.diameter = this.overlay.width;
-            alert("fuck");
-        }
-        else if (this.circle.diameter > this.overlay.height)
-        {
-            this.circle.x = 0;
-            this.circle.y = 0;
-            this.circle.diameter = this.overlay.height;
-            alert("fuck");
-        }
-        else
-        {
-            this.circle.diameter = this.circle.origin.diameter + dd;
-            this.circle.x = xr ? this.circle.origin.x - dd : this.circle.origin.x;
-            this.circle.y = yr ? this.circle.origin.y - dd : this.circle.origin.y;
-        }
+        let r = Rectangle.between(new Point(x, y), this.resizeAnchor);
+        r.round();
+        this.circle.fitInsideGreedy(r, anchor);
     }
 }

@@ -5,13 +5,16 @@
   "main": "index.js",
   "scripts": {
     "watchtsc": "tsc -w",
-    "watchsass": "sass --watch style/style.scss style/style.css"
+    "watchsass": "sass --watch style/style.scss style/style.css",
+    "build": "tsc && sass style/style.scss style/style.css",
+    "serve": "http-server -o"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "typescript": "^3.2.2",
-    "npm-run-all": "^4.1.5"
+    "sass": "^1.17.3",
+    "http-server": "^0.11.1"
   }
 }

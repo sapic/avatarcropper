@@ -189,6 +189,12 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                     this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
                 }
                 this.overlay.drawRect(this.circle.x - lineWidth, this.circle.y - lineWidth, this.circle.width + lineWidth, this.circle.height + lineWidth, "white", lineWidth, sharp);
+                /*this.overlay.drawLine(this.circle.cx, this.circle.y, this.circle.cx, this.circle.bottom, "black", 1);
+                this.overlay.drawLine(this.circle.x, this.circle.cy, this.circle.right, this.circle.cy, "black", 1);
+                this.overlay.context.lineDashOffset = this.overlay.context.getLineDash()[0];
+                this.overlay.drawLine(this.circle.cx, this.circle.y, this.circle.cx, this.circle.bottom, "blue", 1);
+                this.overlay.drawLine(this.circle.x, this.circle.cy, this.circle.right, this.circle.cy, "blue", 1);
+                this.overlay.context.lineDashOffset = 0;*/
             }
             /*let theta = (90 - this.rotation) / 180 * Math.PI;
             let cot = (t) => 1 / Math.tan(t);

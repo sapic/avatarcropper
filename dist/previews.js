@@ -30,7 +30,7 @@ define(["require", "exports", "./widget", "./preview", "./util"], function (requ
             get: function () {
                 var ret = [];
                 this.previews.forEach(function (preview) {
-                    ret.push(preview.size);
+                    ret.push(preview.size.x);
                 });
                 return ret;
             },

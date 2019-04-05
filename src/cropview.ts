@@ -68,14 +68,43 @@ class Circle extends Rectangle implements ShallowCircle
         return this._origin;
     }
 
-    public validate() : void
+    public validate() : number
     {
-        if (this.diameter.x > this.cropView.outerWidth) this.diameter.x = this.cropView.outerWidth;
-        if (this.diameter.y > this.cropView.outerHeight) this.diameter.y = this.cropView.outerHeight;
-        if (this.x < 0) this.x = 0;
-        if (this.y < 0) this.y = 0;
-        if (this.x + this.diameter.x > this.cropView.outerWidth) this.x = this.cropView.outerWidth - this.diameter.x;
-        if (this.y + this.diameter.y > this.cropView.outerHeight) this.y = this.cropView.outerHeight - this.diameter.y; 
+        let ret = 0;
+
+        if (this.width > this.cropView.outerWidth)
+        {
+            this.setWidthKeepAR(this.cropView.outerWidth);
+            ret = 1;
+        }
+        if (this.height > this.cropView.outerHeight)
+        {
+            this.setHeightKeepAR(this.cropView.outerHeight);
+            ret = 2;
+        }
+        if (this.x < 0) 
+        {
+            this.x = 0;
+            ret = 3;
+        }
+        if (this.y < 0)
+        {
+            this.y = 0;
+            ret = 4;
+        }
+        if (this.bottom > this.cropView.outerHeight)
+        {
+            this.bottom = this.cropView.outerHeight;
+            ret = 5;
+        }
+        if (this.right > this.cropView.outerWidth)
+        {
+            this.right = this.cropView.outerWidth;
+            ret = 6;
+        }
+
+        return ret;
+
     }
 }
 
@@ -214,7 +243,7 @@ export class CropView extends Widget
             {
                 this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
             }
-            this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth, sharp);
+            this.overlay.drawRect(this.circle.x - lineWidth, this.circle.y - lineWidth, this.circle.width + lineWidth, this.circle.height + lineWidth, "white", lineWidth, sharp);
         }
 
         /*let theta = (90 - this.rotation) / 180 * Math.PI;
@@ -272,6 +301,11 @@ export class CropView extends Widget
     public get outerHeight() : number
     {
         return this.overlay.height;
+    }
+
+    public get outerRect() : Rectangle
+    {
+        return new Rectangle(new Point(0, 0), new Point(this.outerWidth, this.outerHeight));
     }
 
     public get width() : number
@@ -598,7 +632,8 @@ export class CropView extends Widget
         let mousePoint = new Point(x, y);
         if (this.circle.containsPoint(new Point(x, y)))
         {
-            let handleSize = this.circle.radius.min / 2;
+            // this logic for non-square crop area (aspect ratio != 1:1)
+            /*let handleSize = this.circle.radius.min / 2;
             let _rb = (p1, p2) => Rectangle.between(p1, p2);
             let _con = (r : Rectangle) => r.containsPoint(mousePoint);
             let grabbing = (p1 : Point, toAdd : Point | number) => _con(_rb(p1, p1.plus(toAdd)));
@@ -608,7 +643,9 @@ export class CropView extends Widget
                 grabbing(this.circle.topRight, new Point(-handleSize, handleSize)) ||
                 grabbing(this.circle.bottomLeft, new Point(handleSize, -handleSize)) ||
                 grabbing(this.circle.bottomRight, -handleSize)
-            );
+            );*/
+
+            let grabbingHandle = this.circle.center.distanceTo(new Point(x, y)) >= this.circle.radius.x;
 
             return grabbingHandle ? "resize" : "move";
         }
@@ -710,9 +747,11 @@ export class CropView extends Widget
     {
         let anchor = Rectangle.anchorOpposite(this.getCircleAnchor(new Point(x, y)));
         this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
+        let size = this.circle.size.copy();
 
         let r = Rectangle.between(new Point(x, y), this.resizeAnchor);
-        r.round();
-        this.circle.fitInsideGreedy(r, anchor);
+        //r.round();
+        this.circle.fitInsideGreedy(r, anchor, this.outerRect);
+        this.circle.validate();
     }
 }

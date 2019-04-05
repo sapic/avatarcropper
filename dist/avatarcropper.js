@@ -87,7 +87,9 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             var s = storage_1.default.get("settings", {});
             for (var key in this.settings) {
                 if (s.hasOwnProperty(key)) {
-                    this.settings[key] = s[key];
+                    if (s[key] !== null) {
+                        this.settings[key] = s[key];
+                    }
                 }
             }
             this.saveSettings();

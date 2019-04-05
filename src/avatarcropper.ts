@@ -138,7 +138,10 @@ export class AvatarCropper extends Widget
         {
             if (s.hasOwnProperty(key))
             {
-                this.settings[key] = s[key];
+                if (s[key] !== null)
+                {
+                    this.settings[key] = s[key];
+                }
             }
         }
 

@@ -93,6 +93,20 @@ define(["require", "exports"], function (require, exports) {
                 this.y -= n;
             }
         };
+        Object.defineProperty(Point.prototype, "squared", {
+            get: function () {
+                return this.times(this);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Point.prototype, "sum", {
+            get: function () {
+                return this.x + this.y;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Point.prototype, "min", {
             get: function () {
                 return Math.min(this.x, this.y);
@@ -100,6 +114,9 @@ define(["require", "exports"], function (require, exports) {
             enumerable: true,
             configurable: true
         });
+        Point.prototype.distanceTo = function (p) {
+            return Math.sqrt(this.minus(p).squared.sum);
+        };
         Point.prototype.toString = function () {
             return "(" + this.x + ", " + this.y + ")";
         };
@@ -129,7 +146,17 @@ define(["require", "exports"], function (require, exports) {
             }
             this.setPointFromAnchor(anchor, startPoint);
         };
-        Rectangle.prototype.fitInsideGreedy = function (rect, anchor) {
+        Rectangle.prototype.setWidthKeepAR = function (width) {
+            var ar = this.width / width;
+            this.width = width;
+            this.height = this.height / ar;
+        };
+        Rectangle.prototype.setHeightKeepAR = function (height) {
+            var ar = this.height / height;
+            this.height = height;
+            this.width = this.width / ar;
+        };
+        Rectangle.prototype.fitInsideGreedy = function (rect, anchor, boundingRect) {
             var ar = rect.aspectRatio;
             var startPoint = this.getPointFromAnchor(anchor).copy();
             if (ar > 1) {
@@ -143,6 +170,28 @@ define(["require", "exports"], function (require, exports) {
                 this.height = rect.height;
             }
             this.setPointFromAnchor(anchor, startPoint);
+            if (!boundingRect.containsRect(this)) {
+                if (this.right > boundingRect.right) {
+                    this.setWidthKeepAR(boundingRect.right - this.left);
+                }
+                if (this.bottom > boundingRect.bottom) {
+                    this.setHeightKeepAR(boundingRect.bottom - this.top);
+                }
+                if (this.left < boundingRect.left) {
+                    this.setWidthKeepAR(this.right - boundingRect.left);
+                }
+                if (this.top < boundingRect.top) {
+                    this.setHeightKeepAR(this.top - boundingRect.top);
+                }
+                this.setPointFromAnchor(anchor, startPoint);
+            }
+        };
+        Rectangle.prototype.copy = function () {
+            return new Rectangle(this.position.copy(), this.size.copy());
+        };
+        Rectangle.prototype.mirror = function (r) {
+            this.position = r.position;
+            this.size = r.size;
         };
         Rectangle.prototype.getPointFromAnchor = function (anchor) {
             switch (anchor) {
@@ -347,6 +396,9 @@ define(["require", "exports"], function (require, exports) {
         Rectangle.prototype.containsPoint = function (p) {
             return (p.x >= this.x && p.x <= this.right &&
                 p.y >= this.y && p.y <= this.bottom);
+        };
+        Rectangle.prototype.containsRect = function (r) {
+            return this.containsPoint(r.topLeft) && this.containsPoint(r.bottomRight);
         };
         Rectangle.between = function (p1, p2) {
             var pos = new Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));

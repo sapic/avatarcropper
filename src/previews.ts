@@ -26,7 +26,7 @@ export class Previews extends Widget
 
         this.previews.forEach(preview =>
         {
-            ret.push(preview.size);
+            ret.push(preview.size.x);
         });
 
         return ret;

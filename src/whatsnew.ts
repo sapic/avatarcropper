@@ -5,6 +5,10 @@ export class WhatsNewDialog extends ClosableDialog
 {
     private list = 
     {
+        "April 2019":
+        [
+            "Changed mask to be pixel-accurate"
+        ],
         "February 2019":
         [
             "rewrote the whole dang thing so its not all in one file anymore lol",

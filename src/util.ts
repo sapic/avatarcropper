@@ -131,9 +131,24 @@ export class Point
         }
     }
 
+    public get squared() : Point
+    {
+        return this.times(this);
+    }
+
+    public get sum() : number
+    {
+        return this.x + this.y;
+    }
+
     public get min() : number
     {
         return Math.min(this.x, this.y);
+    }
+
+    public distanceTo(p : Point) : number
+    {
+        return Math.sqrt(this.minus(p).squared.sum);
     }
 
     public toString() : string
@@ -181,7 +196,21 @@ export class Rectangle
         this.setPointFromAnchor(anchor, startPoint);
     }
 
-    public fitInsideGreedy(rect : Rectangle, anchor : RectAnchor) : void
+    public setWidthKeepAR(width : number) : void
+    {
+        let ar = this.width / width;
+        this.width = width;
+        this.height = this.height / ar;
+    }
+
+    public setHeightKeepAR(height : number) : void
+    {
+        let ar = this.height / height;
+        this.height = height;
+        this.width = this.width / ar;
+    }
+
+    public fitInsideGreedy(rect : Rectangle, anchor : RectAnchor, boundingRect : Rectangle) : void
     {
         let ar = rect.aspectRatio;
         let startPoint = this.getPointFromAnchor(anchor).copy();
@@ -200,6 +229,39 @@ export class Rectangle
         }
 
         this.setPointFromAnchor(anchor, startPoint);
+
+        if (!boundingRect.containsRect(this))
+        {
+            if (this.right > boundingRect.right)
+            {
+                this.setWidthKeepAR(boundingRect.right - this.left);
+            }
+            if (this.bottom > boundingRect.bottom)
+            {
+                this.setHeightKeepAR(boundingRect.bottom - this.top);
+            }
+            if (this.left < boundingRect.left)
+            {
+                this.setWidthKeepAR(this.right - boundingRect.left);
+            }
+            if (this.top < boundingRect.top)
+            {
+                this.setHeightKeepAR(this.top - boundingRect.top);
+            }
+
+            this.setPointFromAnchor(anchor, startPoint);
+        }
+    }
+
+    public copy() : Rectangle
+    {
+        return new Rectangle(this.position.copy(), this.size.copy());
+    }
+
+    public mirror(r : Rectangle) : void
+    {
+        this.position = r.position;
+        this.size = r.size;
     }
 
     public getPointFromAnchor(anchor : RectAnchor)
@@ -407,6 +469,11 @@ export class Rectangle
             p.x >= this.x && p.x <= this.right &&
             p.y >= this.y && p.y <= this.bottom
         );
+    }
+
+    public containsRect(r : Rectangle) : boolean
+    {
+        return this.containsPoint(r.topLeft) && this.containsPoint(r.bottomRight);
     }
     
     public static between(p1 : Point, p2 : Point) : Rectangle

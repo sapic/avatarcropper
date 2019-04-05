@@ -67,18 +67,32 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             configurable: true
         });
         Circle.prototype.validate = function () {
-            if (this.diameter.x > this.cropView.outerWidth)
-                this.diameter.x = this.cropView.outerWidth;
-            if (this.diameter.y > this.cropView.outerHeight)
-                this.diameter.y = this.cropView.outerHeight;
-            if (this.x < 0)
+            var ret = 0;
+            if (this.width > this.cropView.outerWidth) {
+                this.setWidthKeepAR(this.cropView.outerWidth);
+                ret = 1;
+            }
+            if (this.height > this.cropView.outerHeight) {
+                this.setHeightKeepAR(this.cropView.outerHeight);
+                ret = 2;
+            }
+            if (this.x < 0) {
                 this.x = 0;
-            if (this.y < 0)
+                ret = 3;
+            }
+            if (this.y < 0) {
                 this.y = 0;
-            if (this.x + this.diameter.x > this.cropView.outerWidth)
-                this.x = this.cropView.outerWidth - this.diameter.x;
-            if (this.y + this.diameter.y > this.cropView.outerHeight)
-                this.y = this.cropView.outerHeight - this.diameter.y;
+                ret = 4;
+            }
+            if (this.bottom > this.cropView.outerHeight) {
+                this.bottom = this.cropView.outerHeight;
+                ret = 5;
+            }
+            if (this.right > this.cropView.outerWidth) {
+                this.right = this.cropView.outerWidth;
+                ret = 6;
+            }
+            return ret;
         };
         return Circle;
     }(util_1.Rectangle));
@@ -174,7 +188,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 if (this.settings.previewMode === "circle") {
                     this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
                 }
-                this.overlay.drawRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth, sharp);
+                this.overlay.drawRect(this.circle.x - lineWidth, this.circle.y - lineWidth, this.circle.width + lineWidth, this.circle.height + lineWidth, "white", lineWidth, sharp);
             }
             /*let theta = (90 - this.rotation) / 180 * Math.PI;
             let cot = (t) => 1 / Math.tan(t);
@@ -236,6 +250,13 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         Object.defineProperty(CropView.prototype, "outerHeight", {
             get: function () {
                 return this.overlay.height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CropView.prototype, "outerRect", {
+            get: function () {
+                return new util_1.Rectangle(new util_1.Point(0, 0), new util_1.Point(this.outerWidth, this.outerHeight));
             },
             enumerable: true,
             configurable: true
@@ -495,14 +516,19 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         CropView.prototype.getMouseAction = function (x, y) {
             var mousePoint = new util_1.Point(x, y);
             if (this.circle.containsPoint(new util_1.Point(x, y))) {
-                var handleSize = this.circle.radius.min / 2;
-                var _rb_1 = function (p1, p2) { return util_1.Rectangle.between(p1, p2); };
-                var _con_1 = function (r) { return r.containsPoint(mousePoint); };
-                var grabbing = function (p1, toAdd) { return _con_1(_rb_1(p1, p1.plus(toAdd))); };
-                var grabbingHandle = (grabbing(this.circle.topLeft, handleSize) ||
-                    grabbing(this.circle.topRight, new util_1.Point(-handleSize, handleSize)) ||
-                    grabbing(this.circle.bottomLeft, new util_1.Point(handleSize, -handleSize)) ||
-                    grabbing(this.circle.bottomRight, -handleSize));
+                // this logic for non-square crop area (aspect ratio != 1:1)
+                /*let handleSize = this.circle.radius.min / 2;
+                let _rb = (p1, p2) => Rectangle.between(p1, p2);
+                let _con = (r : Rectangle) => r.containsPoint(mousePoint);
+                let grabbing = (p1 : Point, toAdd : Point | number) => _con(_rb(p1, p1.plus(toAdd)));
+                
+                let grabbingHandle = (
+                    grabbing(this.circle.topLeft, handleSize) ||
+                    grabbing(this.circle.topRight, new Point(-handleSize, handleSize)) ||
+                    grabbing(this.circle.bottomLeft, new Point(handleSize, -handleSize)) ||
+                    grabbing(this.circle.bottomRight, -handleSize)
+                );*/
+                var grabbingHandle = this.circle.center.distanceTo(new util_1.Point(x, y)) >= this.circle.radius.x;
                 return grabbingHandle ? "resize" : "move";
             }
             else {
@@ -574,9 +600,11 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         CropView.prototype.performResize = function (x, y) {
             var anchor = util_1.Rectangle.anchorOpposite(this.getCircleAnchor(new util_1.Point(x, y)));
             this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
+            var size = this.circle.size.copy();
             var r = util_1.Rectangle.between(new util_1.Point(x, y), this.resizeAnchor);
-            r.round();
-            this.circle.fitInsideGreedy(r, anchor);
+            //r.round();
+            this.circle.fitInsideGreedy(r, anchor, this.outerRect);
+            this.circle.validate();
         };
         return CropView;
     }(widget_1.Widget));

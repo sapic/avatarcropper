@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "build.bat",
+    "buildc": "build.bat",
     "watchtsc": "tsc -w",
     "watchsass": "sass --watch style/style.scss style/style.css",
     "build": "tsc && sass style/style.scss style/style.css",

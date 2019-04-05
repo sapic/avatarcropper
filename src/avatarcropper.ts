@@ -1,13 +1,14 @@
 import { Widget } from "./widget";
 import { CropView } from "./cropview";
 import { Previews } from "./previews";
-import { createElement, hideElement, showElement, getIEVersion, Point } from "./util";
+import { createElement, hideElement, showElement, getIEVersion } from "./util";
 import { LabelSlider } from "./labeledslider";
 import Storage from "./storage";
 import { doFooterThings, showTutorial } from "./footer";
 import { GlobalEvents } from "./eventclass";
 import { TextDialog } from "./textdialog";
 import { DragDrop } from "./dragdrop";
+import { Point } from "./point";
 
 export interface Settings
 {

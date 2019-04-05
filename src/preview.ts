@@ -1,7 +1,8 @@
 import { Widget } from "./widget";
-import { createElement, showElement, hideElement, makePixelated, Point } from "./util";
+import { createElement, showElement, hideElement, makePixelated } from "./util";
 import { Canvas } from "./canvas";
 import { ShallowCircle, CropView } from "./cropview";
+import { Point } from "./point";
 
 export class Preview extends Widget
 {

@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1) {
+define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop", "./point"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1, point_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var AvatarCropper = /** @class */ (function (_super) {
@@ -36,7 +36,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             _this.previews = new previews_1.Previews(_this.cropView);
             _this.appendChild(_this.cropView, _this.previews);
             _this.settings.previewSizes.forEach(function (size) {
-                _this.previews.addPreviewSize(new util_1.Point(size));
+                _this.previews.addPreviewSize(new point_1.Point(size));
             });
             _this.previews.on("sizeArrayChange", function (sizeArray) {
                 _this.settings.previewSizes = sizeArray;
@@ -277,7 +277,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 alert("Bad size make sure it's a number over 0");
             }
             else {
-                this.previews.addPreviewSize(new util_1.Point(size)); // emits sizeArrayChange event which changes settings so dw
+                this.previews.addPreviewSize(new point_1.Point(size)); // emits sizeArrayChange event which changes settings so dw
             }
         };
         AvatarCropper.prototype.openFile = function (file) {

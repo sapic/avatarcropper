@@ -1,7 +1,8 @@
 import { Widget } from "./widget";
 import { Preview } from "./preview";
-import { createElement, array_remove, array_insert, Point } from "./util";
+import { createElement, array_remove, array_insert } from "./util";
 import { CropView } from "./cropview";
+import { Point } from "./point";
 
 export class Previews extends Widget
 {

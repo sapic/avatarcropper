@@ -1,8 +1,10 @@
 import { Widget } from "./widget";
-import { createElement, makePixelated, Point, Rectangle, RectAnchor } from "./util";
+import { createElement, makePixelated } from "./util";
 import { Canvas } from "./canvas";
 import { Settings } from "./avatarcropper";
 import { Renderer } from "./renderer";
+import { Point } from "./point";
+import { Rectangle, RectAnchor } from "./rectangle";
 
 type MouseAction = "move" | "resize" | "new" | "none";
 

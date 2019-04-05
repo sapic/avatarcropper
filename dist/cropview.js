@@ -11,13 +11,13 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], function (require, exports, widget_1, util_1, canvas_1, renderer_1) {
+define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", "./point", "./rectangle"], function (require, exports, widget_1, util_1, canvas_1, renderer_1, point_1, rectangle_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Circle = /** @class */ (function (_super) {
         __extends(Circle, _super);
         function Circle(cropView) {
-            var _this = _super.call(this, new util_1.Point(), new util_1.Point()) || this;
+            var _this = _super.call(this, new point_1.Point(), new point_1.Point()) || this;
             _this.cropView = cropView;
             _this.saveOrigin();
             return _this;
@@ -43,8 +43,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             configurable: true
         });
         Circle.prototype.reset = function () {
-            this.position = new util_1.Point(0);
-            this.diameter = new util_1.Point(this.cropView.minDim / 2);
+            this.position = new point_1.Point(0);
+            this.diameter = new point_1.Point(this.cropView.minDim / 2);
         };
         Object.defineProperty(Circle.prototype, "shallowCircle", {
             get: function () {
@@ -95,7 +95,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             return ret;
         };
         return Circle;
-    }(util_1.Rectangle));
+    }(rectangle_1.Rectangle));
     var CropView = /** @class */ (function (_super) {
         __extends(CropView, _super);
         function CropView(settingsObject) {
@@ -256,7 +256,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         });
         Object.defineProperty(CropView.prototype, "outerRect", {
             get: function () {
-                return new util_1.Rectangle(new util_1.Point(0, 0), new util_1.Point(this.outerWidth, this.outerHeight));
+                return new rectangle_1.Rectangle(new point_1.Point(0, 0), new point_1.Point(this.outerWidth, this.outerHeight));
             },
             enumerable: true,
             configurable: true
@@ -514,8 +514,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             configurable: true
         });
         CropView.prototype.getMouseAction = function (x, y) {
-            var mousePoint = new util_1.Point(x, y);
-            if (this.circle.containsPoint(new util_1.Point(x, y))) {
+            var mousePoint = new point_1.Point(x, y);
+            if (this.circle.containsPoint(new point_1.Point(x, y))) {
                 // this logic for non-square crop area (aspect ratio != 1:1)
                 /*let handleSize = this.circle.radius.min / 2;
                 let _rb = (p1, p2) => Rectangle.between(p1, p2);
@@ -528,7 +528,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                     grabbing(this.circle.bottomLeft, new Point(handleSize, -handleSize)) ||
                     grabbing(this.circle.bottomRight, -handleSize)
                 );*/
-                var grabbingHandle = this.circle.center.distanceTo(new util_1.Point(x, y)) >= this.circle.radius.x;
+                var grabbingHandle = this.circle.center.distanceTo(new point_1.Point(x, y)) >= this.circle.radius.x;
                 return grabbingHandle ? "resize" : "move";
             }
             else {
@@ -538,7 +538,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         CropView.prototype.mouseDown = function (x, y) {
             var action = this.getMouseAction(x, y);
             this.currentAction = action;
-            this.mouseOrigin = new util_1.Point(x, y);
+            this.mouseOrigin = new point_1.Point(x, y);
             this.circle.saveOrigin();
             this.resizeOffset = this.circle.getPointFromAnchor(this.getCircleAnchor(this.mouseOrigin)).minus(this.mouseOrigin);
         };
@@ -565,10 +565,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
                 return;
             }
             else if (this.currentAction === "move") {
-                var d = new util_1.Point(x, y).minus(this.mouseOrigin);
+                var d = new point_1.Point(x, y).minus(this.mouseOrigin);
                 this.circle.position = this.circle.origin.position.plus(d);
                 this.circle.validate();
-                this.mouseOrigin = new util_1.Point(x, y);
+                this.mouseOrigin = new point_1.Point(x, y);
                 this.circle.saveOrigin();
             }
             else if (this.currentAction === "resize") {
@@ -598,10 +598,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             }
         };
         CropView.prototype.performResize = function (x, y) {
-            var anchor = util_1.Rectangle.anchorOpposite(this.getCircleAnchor(new util_1.Point(x, y)));
+            var anchor = rectangle_1.Rectangle.anchorOpposite(this.getCircleAnchor(new point_1.Point(x, y)));
             this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
             var size = this.circle.size.copy();
-            var r = util_1.Rectangle.between(new util_1.Point(x, y), this.resizeAnchor);
+            var r = rectangle_1.Rectangle.between(new point_1.Point(x, y), this.resizeAnchor);
             //r.round();
             this.circle.fitInsideGreedy(r, anchor, this.outerRect);
             this.circle.validate();

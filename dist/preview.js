@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./util", "./canvas"], function (require, exports, widget_1, util_1, canvas_1) {
+define(["require", "exports", "./widget", "./util", "./canvas", "./point"], function (require, exports, widget_1, util_1, canvas_1, point_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Preview = /** @class */ (function (_super) {
@@ -46,7 +46,7 @@ define(["require", "exports", "./widget", "./util", "./canvas"], function (requi
                 _this.image.src = cropView.src;
             }
             _this.image.style.position = "absolute";
-            if (size.equals(new util_1.Point(30))) {
+            if (size.equals(new point_1.Point(30))) {
                 _this.onlineIndicator = new canvas_1.Canvas({ width: 14, height: 14 });
                 _this.onlineIndicator.fillCircleInSquare(0, 0, 14, "#2F3136");
                 _this.onlineIndicator.fillCircleInSquare(2, 2, 10, "rgb(67,181,129)");
@@ -101,9 +101,9 @@ define(["require", "exports", "./widget", "./util", "./canvas"], function (requi
             }
             var scale = this.size.dividedBy(this.cropView.cropArea.diameter);
             this.image.style.transform = "scale(" + scale.x + "," + scale.y + ") rotate(" + this.cropView.rotation + "deg)";
-            var p = new util_1.Point(0);
+            var p = new point_1.Point(0);
             p.subtract(this.cropView.cropArea.position.times(scale));
-            var dp = new util_1.Point(parseFloat(this.cropView.image.style.left || "0px"), parseFloat(this.cropView.image.style.top || "0px"));
+            var dp = new point_1.Point(parseFloat(this.cropView.image.style.left || "0px"), parseFloat(this.cropView.image.style.top || "0px"));
             dp.multiply(1 / this.cropView.zoomFactor);
             p.add(dp.times(scale));
             this.image.style.left = p.x + "px";

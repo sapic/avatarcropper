@@ -36,7 +36,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             _this.previews = new previews_1.Previews(_this.cropView);
             _this.appendChild(_this.cropView, _this.previews);
             _this.settings.previewSizes.forEach(function (size) {
-                _this.previews.addPreviewSize(size);
+                _this.previews.addPreviewSize(new util_1.Point(size));
             });
             _this.previews.on("sizeArrayChange", function (sizeArray) {
                 _this.settings.previewSizes = sizeArray;
@@ -275,7 +275,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 alert("Bad size make sure it's a number over 0");
             }
             else {
-                this.previews.addPreviewSize(size); // emits sizeArrayChange event which changes settings so dw
+                this.previews.addPreviewSize(new util_1.Point(size)); // emits sizeArrayChange event which changes settings so dw
             }
         };
         AvatarCropper.prototype.openFile = function (file) {

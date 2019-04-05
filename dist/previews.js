@@ -42,7 +42,7 @@ define(["require", "exports", "./widget", "./preview", "./util"], function (requ
             p.on("requestremove", this.removePreview.bind(this, p));
             p.container.style.position = "absolute";
             this.appendChild(p);
-            util_1.array_insert(this.previews, p, function (left, right) { return left.size > right.size; });
+            util_1.array_insert(this.previews, p, function (left, right) { return left.size.y > right.size.y; });
             this.render();
             p.update();
             this.emitEvent("sizeArrayChange", this.sizeArray);
@@ -62,7 +62,7 @@ define(["require", "exports", "./widget", "./preview", "./util"], function (requ
         });
         Object.defineProperty(Previews.prototype, "height", {
             get: function () {
-                return this.previews[0] ? this.previews[0].size : 0;
+                return this.previews[0] ? this.previews[0].size.y : 0;
             },
             enumerable: true,
             configurable: true
@@ -72,7 +72,7 @@ define(["require", "exports", "./widget", "./preview", "./util"], function (requ
             var runningX = this.padding;
             this.previews.forEach(function (preview) {
                 preview.container.style.right = runningX + "px";
-                runningX += preview.size + _this.padding;
+                runningX += preview.size.x + _this.padding;
             });
             this._size = runningX;
             this.emitEvent("sizechange", runningX);

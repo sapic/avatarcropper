@@ -82,8 +82,6 @@ export class WhatsNewDialog extends ClosableDialog
             es.push(h2);
             es.push(ul);
         }
-
-        console.log(es);
         
         this.appendChild(...es);
     }

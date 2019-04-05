@@ -335,7 +335,6 @@ define(["require", "exports"], function (require, exports) {
             ctx.drawImage(image, cx, cy, cw, ch, -anchorX, -anchorY, w, h);
             ctx.restore();
         };
-        ;
         // use closures to make function factory function for onclick etc
         Canvas.prototype.fillImage = function (image, resizeToFit) {
             if (resizeToFit) {
@@ -450,7 +449,6 @@ define(["require", "exports"], function (require, exports) {
             this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
             this.context.fill();
         };
-        ;
         Canvas.prototype.drawCircleInSquare = function (x, y, diameter, color, lineWidth) {
             this.color = color;
             this.lineWidth = lineWidth;
@@ -458,7 +456,25 @@ define(["require", "exports"], function (require, exports) {
             this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
             this.context.stroke();
         };
-        ;
+        Canvas.prototype.fillCircleInRect = function (x, y, diameterX, diameterY, color) {
+            if (diameterX === diameterY) {
+                return this.fillCircleInSquare(x, y, diameterX, color);
+            }
+            this.color = color;
+            this.context.beginPath();
+            this.context.ellipse(x, y, diameterX / 2, diameterY / 2, 0, 0, Math.PI * 2);
+            this.context.fill();
+        };
+        Canvas.prototype.drawCircleInRect = function (x, y, diameterX, diameterY, color, lineWidth) {
+            if (diameterX === diameterY) {
+                return this.drawCircleInSquare(x, y, diameterX, color, lineWidth);
+            }
+            this.color = color;
+            this.lineWidth = lineWidth;
+            this.context.beginPath();
+            this.context.ellipse(x, y, diameterX / 2, diameterY / 2, 0, 0, Math.PI * 2);
+            this.context.stroke();
+        };
         Canvas.prototype.drawRotatedImage = function (image, rotate, x, y, w, h) {
             if (image instanceof Canvas) {
                 image = image.canvas;
@@ -477,7 +493,6 @@ define(["require", "exports"], function (require, exports) {
             this.context.drawImage(image, -w / 2, -h / 2, w, h);
             this.context.restore();
         };
-        ;
         Canvas.fileToImage = function (file, callback, autoRevoke) {
             if (autoRevoke === void 0) { autoRevoke = true; }
             var img = new Image();

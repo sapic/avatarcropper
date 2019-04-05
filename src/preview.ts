@@ -1,5 +1,5 @@
 import { Widget } from "./widget";
-import { createElement, showElement, hideElement, makePixelated } from "./util";
+import { createElement, showElement, hideElement, makePixelated, Point } from "./util";
 import { Canvas } from "./canvas";
 import { ShallowCircle, CropView } from "./cropview";
 
@@ -11,12 +11,12 @@ export class Preview extends Widget
     private bottomBar : HTMLElement;
     private sizeDisplay : HTMLElement;
     private removeButton : HTMLElement;
-    private _size : number;
+    private _size : Point;
     private cropView : CropView;
     private lastMode : "square" | "circle" | "none" = "none";
     private antialiased : boolean;
 
-    constructor(size : number, cropView : CropView)
+    constructor(size : Point, cropView : CropView)
     {
         super(createElement("div", "preview"));
 
@@ -35,13 +35,13 @@ export class Preview extends Widget
 
         this._size = size;
 
-        this.container.style.width = size + "px";
-        this.container.style.height = (size + 2) + "px";
+        this.container.style.width = size.x + "px";
+        this.container.style.height = (size.y + 2) + "px";
         (<any>this.container.style)["z-index"] = -size;
 
         this.mask = new Canvas({
-            width: size,
-            height: size + 2
+            width: size.x,
+            height: size.y + 2
         });
         this.mask.canvas.className = "mask";
         (<any>this.mask.canvas.style)["z-index"] = 1;
@@ -56,7 +56,7 @@ export class Preview extends Widget
         }
         this.image.style.position = "absolute";
 
-        if (size === 30)
+        if (size.equals(new Point(30)))
         {
             this.onlineIndicator = new Canvas({ width: 14, height: 14 });
             this.onlineIndicator.fillCircleInSquare(0, 0, 14, "#2F3136");
@@ -96,7 +96,7 @@ export class Preview extends Widget
         this.antialias = true;
     }
 
-    public get size() : number
+    public get size() : Point
     {
         return this._size;
     }
@@ -119,7 +119,7 @@ export class Preview extends Widget
             {
                 this.mask.fill("#2F3136");
                 this.mask.blendMode = "destination-out";
-                this.mask.fillCircleInSquare(0, 0, this.size, "white");
+                this.mask.fillCircleInRect(0, 0, this.size.x, this.size.y, "white");
                 this.mask.blendMode = "source-over";
                 if (this.onlineIndicator)
                 {
@@ -128,26 +128,24 @@ export class Preview extends Widget
             }
         }
 
-        let scale = this.size / this.cropView.cropArea.diameter
-        this.image.style.transform = "scale(" + scale + ") rotate(" + this.cropView.rotation + "deg)";
+        let scale = this.size.dividedBy(this.cropView.cropArea.diameter);
+        this.image.style.transform = "scale(" + scale.x + "," + scale.y + ") rotate(" + this.cropView.rotation + "deg)";
 
-        let x = 0;
-        let y = 0;
 
-        x -= this.cropView.cropArea.x * scale;
-        y -= this.cropView.cropArea.y * scale;
+        let p = new Point(0);
+        p.subtract(this.cropView.cropArea.position.times(scale));
 
-        let dx = parseFloat(this.cropView.image.style.left || "0px");
-        let dy = parseFloat(this.cropView.image.style.top || "0px");
+        let dp = new Point(
+            parseFloat(this.cropView.image.style.left || "0px"),
+            parseFloat(this.cropView.image.style.top || "0px")
+        );
 
-        dx *= (1 / this.cropView.zoomFactor);
-        dy *= (1 / this.cropView.zoomFactor);
+        dp.multiply(1 / this.cropView.zoomFactor);
 
-        x += dx * scale;
-        y += dy * scale;
+        p.add(dp.times(scale));
 
-        this.image.style.left = x + "px";
-        this.image.style.top = y + "px";
+        this.image.style.left = p.x + "px";
+        this.image.style.top = p.y + "px";
     }
 
     public set antialias(antialias : boolean)

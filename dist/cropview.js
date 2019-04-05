@@ -169,7 +169,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
             this.overlay.blendMode = "source-over";
             if (this.settings.outlinesEnabled) {
                 var lineWidth = ~~(1 / this.zoomFactor) + 1;
-                var sharp = lineWidth % 3 === 0;
+                var sharp = lineWidth % 2 === 1;
                 this.overlay.lineDash = [Math.min(this.overlay.width, this.overlay.height) / 100];
                 if (this.settings.previewMode === "circle") {
                     this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
@@ -494,10 +494,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer"], f
         });
         CropView.prototype.getMouseAction = function (x, y) {
             var mousePoint = new util_1.Point(x, y);
-            if (!(x <= this.circle.x
-                || x >= this.circle.x + this.circle.diameter.x
-                || y <= this.circle.y
-                || y >= this.circle.y + this.circle.diameter.y)) {
+            if (this.circle.containsPoint(new util_1.Point(x, y))) {
                 var handleSize = this.circle.radius.min / 2;
                 var _rb_1 = function (p1, p2) { return util_1.Rectangle.between(p1, p2); };
                 var _con_1 = function (r) { return r.containsPoint(mousePoint); };

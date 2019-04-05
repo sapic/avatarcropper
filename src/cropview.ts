@@ -206,7 +206,7 @@ export class CropView extends Widget
         if (this.settings.outlinesEnabled)
         {
             let lineWidth = ~~(1 / this.zoomFactor) + 1;
-            let sharp = lineWidth % 3 === 0;
+            let sharp = lineWidth % 2 === 1;
 
             this.overlay.lineDash = [ Math.min(this.overlay.width, this.overlay.height) / 100 ];
             
@@ -596,10 +596,7 @@ export class CropView extends Widget
     private getMouseAction(x : number, y : number) : MouseAction
     {
         let mousePoint = new Point(x, y);
-        if (!(x <= this.circle.x
-            || x >= this.circle.x + this.circle.diameter.x
-            || y <= this.circle.y
-            || y >= this.circle.y + this.circle.diameter.y))
+        if (this.circle.containsPoint(new Point(x, y)))
         {
             let handleSize = this.circle.radius.min / 2;
             let _rb = (p1, p2) => Rectangle.between(p1, p2);

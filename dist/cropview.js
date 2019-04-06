@@ -95,6 +95,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             _this.createEvent("imagechange");
             _this.createEvent("antialiaschange");
             _this.on("update", _this.renderOverlay.bind(_this));
+            _this.once("update", function () { return console.log("sup"); });
             _this.settings = settingsObject;
             _this.circle = new Circle(_this);
             _this.renderer = new renderer_1.Renderer(_this);

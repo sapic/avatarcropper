@@ -123,6 +123,7 @@ export class CropView extends Widget
         this.createEvent("antialiaschange");
 
         this.on("update", this.renderOverlay.bind(this));
+        this.once("update", () => console.log("sup"));
 
         this.settings = settingsObject;
         this.circle = new Circle(this);

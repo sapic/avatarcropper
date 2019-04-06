@@ -2,7 +2,7 @@ import { array_remove } from "./util";
 
 export class EventClass
 {
-    private events : Map<string, Function[]> = new Map<string, Function[]>();
+    private events : Map<string, { fn : Function, id : string }[]> = new Map<string, { fn : Function, id : string }[]>();
 
     constructor()
     {
@@ -25,10 +25,10 @@ export class EventClass
             this.events.set(event, []);
         }
 
-        this.events.get(event).forEach(fn => fn(...args));
+        this.events.get(event).forEach(o => o.fn(...args));
     }
 
-    public on(event : string, fn : Function)
+    public on(event : string, fn : Function, id : string = "[unidentified]")
     {
         if (!this.events.has(event))
         {
@@ -36,18 +36,40 @@ export class EventClass
             this.events.set(event, []);
         }
 
-        this.events.get(event).push(fn);
+        this.events.get(event).push({ fn, id });
     }
 
-    public once(event : string, fn : Function)
+    public once(event : string, fn : Function, id : string = "[unidentified oneshot]")
     {
-        let wrapperFn = () =>
+        if (!this.events.has(event))
         {
-            fn();
-            array_remove(this.events.get(event), wrapperFn);
-        };
+            console.warn("event not yet created: " + event);
+            this.events.set(event, []);
+        }
 
-        this.on(event, wrapperFn);
+        let wrapper = 
+        {
+            fn: () =>
+            {
+                fn();
+                array_remove(this.events.get(event), wrapper);
+            },
+            id
+        };
+        
+        this.events.get(event).push(wrapper);
+    }
+
+    public debugEvent(event : string)
+    {
+        if (!this.events.has(event))
+        {
+            console.warn("event not yet created: " + event);
+            this.events.set(event, []);
+        }
+
+        console.log("ids registered to event `" + event + "`:");
+        this.events.get(event).forEach(o => console.log(o.id));
     }
 }
 

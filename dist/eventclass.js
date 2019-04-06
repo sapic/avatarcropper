@@ -20,22 +20,39 @@ define(["require", "exports", "./util"], function (require, exports, util_1) {
                 console.warn("event not yet created: " + event);
                 this.events.set(event, []);
             }
-            this.events.get(event).forEach(function (fn) { return fn.apply(void 0, args); });
+            this.events.get(event).forEach(function (o) { return o.fn.apply(o, args); });
         };
-        EventClass.prototype.on = function (event, fn) {
+        EventClass.prototype.on = function (event, fn, id) {
+            if (id === void 0) { id = "[unidentified]"; }
             if (!this.events.has(event)) {
                 console.warn("event not yet created: " + event);
                 this.events.set(event, []);
             }
-            this.events.get(event).push(fn);
+            this.events.get(event).push({ fn: fn, id: id });
         };
-        EventClass.prototype.once = function (event, fn) {
+        EventClass.prototype.once = function (event, fn, id) {
             var _this = this;
-            var wrapperFn = function () {
-                fn();
-                util_1.array_remove(_this.events.get(event), wrapperFn);
+            if (id === void 0) { id = "[unidentified oneshot]"; }
+            if (!this.events.has(event)) {
+                console.warn("event not yet created: " + event);
+                this.events.set(event, []);
+            }
+            var wrapper = {
+                fn: function () {
+                    fn();
+                    util_1.array_remove(_this.events.get(event), wrapper);
+                },
+                id: id
             };
-            this.on(event, wrapperFn);
+            this.events.get(event).push(wrapper);
+        };
+        EventClass.prototype.debugEvent = function (event) {
+            if (!this.events.has(event)) {
+                console.warn("event not yet created: " + event);
+                this.events.set(event, []);
+            }
+            console.log("ids registered to event `" + event + "`:");
+            this.events.get(event).forEach(function (o) { return console.log(o.id); });
         };
         return EventClass;
     }());

@@ -22,42 +22,29 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             _this.saveOrigin();
             return _this;
         }
-        Object.defineProperty(Circle.prototype, "diameter", {
-            get: function () {
-                return this.size;
-            },
-            set: function (diameter) {
-                this.size = diameter;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(Circle.prototype, "radius", {
             get: function () {
-                return this.diameter.times(1 / 2);
+                return this.size.dividedBy(2);
             },
             set: function (radius) {
-                this.diameter = radius.times(2);
+                this.size = radius.times(2);
             },
             enumerable: true,
             configurable: true
         });
         Circle.prototype.reset = function () {
             this.position = new point_1.Point(0);
-            this.diameter = new point_1.Point(this.cropView.minDim / 2);
+            this.size = new point_1.Point(this.cropView.outerRect.size.min / 2);
         };
-        Object.defineProperty(Circle.prototype, "shallowCircle", {
+        Object.defineProperty(Circle.prototype, "rectangle", {
             get: function () {
-                return {
-                    position: this.position.copy(),
-                    diameter: this.diameter.copy()
-                };
+                return this.copy();
             },
             enumerable: true,
             configurable: true
         });
         Circle.prototype.saveOrigin = function () {
-            this._origin = this.shallowCircle;
+            this._origin = this.copy();
         };
         Object.defineProperty(Circle.prototype, "origin", {
             get: function () {
@@ -70,27 +57,27 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             var ret = 0;
             if (this.width > this.cropView.outerWidth) {
                 this.setWidthKeepAR(this.cropView.outerWidth);
-                ret = 1;
+                ret |= 1;
             }
             if (this.height > this.cropView.outerHeight) {
                 this.setHeightKeepAR(this.cropView.outerHeight);
-                ret = 2;
+                ret |= 2;
             }
             if (this.x < 0) {
                 this.x = 0;
-                ret = 3;
+                ret |= 4;
             }
             if (this.y < 0) {
                 this.y = 0;
-                ret = 4;
+                ret |= 8;
             }
             if (this.bottom > this.cropView.outerHeight) {
                 this.bottom = this.cropView.outerHeight;
-                ret = 5;
+                ret |= 16;
             }
             if (this.right > this.cropView.outerWidth) {
                 this.right = this.cropView.outerWidth;
-                ret = 6;
+                ret |= 32;
             }
             return ret;
         };
@@ -112,7 +99,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             _this.circle = new Circle(_this);
             _this.renderer = new renderer_1.Renderer(_this);
             _this.image = util_1.createElement("img", "image");
-            _this.image.style["transform-origin"] = "top left";
+            _this.image.style.transformOrigin = "top left";
             _this.overlay = new canvas_1.Canvas({
                 deepCalc: true
             });
@@ -146,7 +133,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         });
         Object.defineProperty(CropView.prototype, "cropArea", {
             get: function () {
-                return this.circle.shallowCircle;
+                return this.circle.rectangle;
             },
             enumerable: true,
             configurable: true
@@ -159,8 +146,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             configurable: true
         });
         CropView.prototype.refresh = function () {
-            this.renderOverlay();
-            this.emitEvent("update");
+            this.emitEvent("update"); // renders overlay
         };
         CropView.prototype.reactTMToRefresh = function () {
             this.isZoomFitted && this.zoomFit();
@@ -174,10 +160,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 this.overlay.fill("rgba(0,0,0," + this.settings.maskOpacity + ")");
                 this.overlay.blendMode = "destination-out";
                 if (this.settings.previewMode === "circle") {
-                    this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
+                    this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
                 }
                 else {
-                    this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
+                    this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
                 }
             }
             this.overlay.blendMode = "source-over";
@@ -186,7 +172,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 var sharp = lineWidth % 2 === 1;
                 this.overlay.lineDash = [Math.min(this.overlay.width, this.overlay.height) / 100];
                 if (this.settings.previewMode === "circle") {
-                    this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
+                    this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white", lineWidth);
                 }
                 this.overlay.drawRect(this.circle.x - lineWidth, this.circle.y - lineWidth, this.circle.width + lineWidth, this.circle.height + lineWidth, "white", lineWidth, sharp);
                 /*this.overlay.drawLine(this.circle.cx, this.circle.y, this.circle.cx, this.circle.bottom, "black", 1);
@@ -230,23 +216,37 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.overlay.drawLine(circleX, circleY, circleX, circleY + yy, "green", 2);
             this.overlay.drawLine(circleX, circleY, cx + ix, cy - iy, "blue", 2);*/
         };
-        Object.defineProperty(CropView.prototype, "innerWidth", {
+        Object.defineProperty(CropView.prototype, "innerRect", {
             // returns size of image (internal res of image) //
             get: function () {
-                return this._width;
+                return new rectangle_1.Rectangle(point_1.Point.Zero, new point_1.Point(this.image.width, this.image.height));
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CropView.prototype, "innerWidth", {
+            get: function () {
+                return this.image.width;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(CropView.prototype, "innerHeight", {
             get: function () {
-                return this._height;
+                return this.image.height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CropView.prototype, "outerRect", {
+            // returns sizes taking rotation into consideration (internal res of overlay) //
+            get: function () {
+                return new rectangle_1.Rectangle(point_1.Point.Zero, new point_1.Point(this.overlay.width, this.overlay.height));
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(CropView.prototype, "outerWidth", {
-            // returns sizes taking rotation into consideration (internal res of overlay) //
             get: function () {
                 return this.overlay.width;
             },
@@ -260,30 +260,16 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(CropView.prototype, "outerRect", {
-            get: function () {
-                return new rectangle_1.Rectangle(new point_1.Point(0, 0), new point_1.Point(this.outerWidth, this.outerHeight));
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(CropView.prototype, "width", {
+        Object.defineProperty(CropView.prototype, "apparentWidth", {
             get: function () {
                 return this.container.getBoundingClientRect().width;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(CropView.prototype, "height", {
+        Object.defineProperty(CropView.prototype, "apparentHeight", {
             get: function () {
                 return this.container.getBoundingClientRect().height;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(CropView.prototype, "minDim", {
-            get: function () {
-                return Math.min(this._width, this._height);
             },
             enumerable: true,
             configurable: true
@@ -456,8 +442,6 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.image.width = image.width;
             this.image.height = image.height;
             this.image.src = image.src;
-            this._width = this.image.width;
-            this._height = this.image.height;
             this.circle.reset();
             this.zoomFit();
             this.rotate(0);

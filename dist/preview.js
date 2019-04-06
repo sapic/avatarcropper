@@ -99,7 +99,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point"], func
                     }
                 }
             }
-            var scale = this.size.dividedBy(this.cropView.cropArea.diameter);
+            var scale = this.size.dividedBy(this.cropView.cropArea.size);
             this.image.style.transform = "scale(" + scale.x + "," + scale.y + ") rotate(" + this.cropView.rotation + "deg)";
             var p = new point_1.Point(0);
             p.subtract(this.cropView.cropArea.position.times(scale));

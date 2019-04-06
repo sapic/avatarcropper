@@ -8,16 +8,10 @@ import { Rectangle, RectAnchor } from "./rectangle";
 
 type MouseAction = "move" | "resize" | "new" | "none";
 
-export interface ShallowCircle
-{
-    position: Point;
-    diameter : Point;
-}
-
-class Circle extends Rectangle implements ShallowCircle
+class Circle extends Rectangle
 {
     private cropView : CropView;
-    private _origin : ShallowCircle;
+    private _origin : Rectangle;
 
     constructor(cropView : CropView)
     {
@@ -26,87 +20,78 @@ class Circle extends Rectangle implements ShallowCircle
         this.saveOrigin();
     }
 
-    public get diameter() : Point
-    {
-        return this.size;
-    }
-
-    public set diameter(diameter : Point)
-    {
-        this.size = diameter;
-    }
-
     public get radius() : Point
     {
-        return this.diameter.times(1/2);
+        return this.size.dividedBy(2);
     }
 
     public set radius(radius : Point)
     {
-        this.diameter = radius.times(2);
+        this.size = radius.times(2);
     }
 
     public reset() : void
     {
         this.position = new Point(0);
-        this.diameter = new Point(this.cropView.minDim / 2);
+        this.size = new Point(this.cropView.outerRect.size.min / 2);
     }
 
-    public get shallowCircle() : ShallowCircle
+    public get rectangle() : Rectangle
     {
-        return {
-            position: this.position.copy(),
-            diameter: this.diameter.copy()
-        };
+        return this.copy();
     }
 
     public saveOrigin() : void
     {
-        this._origin = this.shallowCircle;
+        this._origin = this.copy();
     }
     
-    public get origin() : ShallowCircle
+    public get origin() : Rectangle
     {
         return this._origin;
     }
 
     public validate() : number
     {
-        let ret = 0;
+        let ret = 0b00000000;
 
         if (this.width > this.cropView.outerWidth)
         {
             this.setWidthKeepAR(this.cropView.outerWidth);
-            ret = 1;
+            ret |= 1;
         }
+
         if (this.height > this.cropView.outerHeight)
         {
             this.setHeightKeepAR(this.cropView.outerHeight);
-            ret = 2;
+            ret |= 2;
         }
+
         if (this.x < 0) 
         {
             this.x = 0;
-            ret = 3;
+            ret |= 4;
         }
+
         if (this.y < 0)
         {
             this.y = 0;
-            ret = 4;
+            ret |= 8;
         }
+
         if (this.bottom > this.cropView.outerHeight)
         {
             this.bottom = this.cropView.outerHeight;
-            ret = 5;
+            ret |= 16;
         }
+
         if (this.right > this.cropView.outerWidth)
         {
             this.right = this.cropView.outerWidth;
-            ret = 6;
+            ret |= 32;
         }
 
         return ret;
-
     }
 }
 
@@ -119,8 +104,6 @@ export class CropView extends Widget
     private currentRotation = 0;
     public currentFileType : string;
     private circle : Circle;
-    private _width : number;
-    private _height : number;
     private _filename : string;
     private currentAction : MouseAction;
     private mouseOrigin : Point;
@@ -146,7 +129,7 @@ export class CropView extends Widget
         this.renderer = new Renderer(this);
 
         this.image = <HTMLImageElement>createElement("img", "image");
-        (<any>this.image.style)["transform-origin"] = "top left";
+        this.image.style.transformOrigin = "top left";
 
         this.overlay = new Canvas({
             deepCalc: true
@@ -188,9 +171,9 @@ export class CropView extends Widget
         return this.currentRotation;
     }
 
-    public get cropArea() : ShallowCircle
+    public get cropArea() : Rectangle
     {
-        return this.circle.shallowCircle;
+        return this.circle.rectangle;
     }
 
     public get zoomFactor() : number
@@ -200,8 +183,7 @@ export class CropView extends Widget
 
     public refresh() : void
     {
-        this.renderOverlay();
-        this.emitEvent("update");
+        this.emitEvent("update"); // renders overlay
     }
 
     public reactTMToRefresh()
@@ -224,11 +206,11 @@ export class CropView extends Widget
             this.overlay.blendMode = "destination-out";
             if (this.settings.previewMode === "circle")
             {
-                this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
+                this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
             }
             else
             {
-                this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white");
+                this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
             }
         }
 
@@ -243,7 +225,7 @@ export class CropView extends Widget
             
             if (this.settings.previewMode === "circle")
             {
-                this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.diameter.x, this.circle.diameter.y, "white", lineWidth);
+                this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white", lineWidth);
             }
 
             this.overlay.drawRect(
@@ -300,17 +282,27 @@ export class CropView extends Widget
     }
 
     // returns size of image (internal res of image) //
+    public get innerRect() : Rectangle
+    {
+        return new Rectangle(Point.Zero, new Point(this.image.width, this.image.height));
+    }
+
     public get innerWidth() : number
     {
-        return this._width;
+        return this.image.width;
     }
 
     public get innerHeight() : number
     {
-        return this._height;
+        return this.image.height;
     }
 
     // returns sizes taking rotation into consideration (internal res of overlay) //
+    public get outerRect() : Rectangle
+    {
+        return new Rectangle(Point.Zero, new Point(this.overlay.width, this.overlay.height));
+    }
+
     public get outerWidth() : number
     {
         return this.overlay.width;
@@ -321,24 +313,14 @@ export class CropView extends Widget
         return this.overlay.height;
     }
 
-    public get outerRect() : Rectangle
-    {
-        return new Rectangle(new Point(0, 0), new Point(this.outerWidth, this.outerHeight));
-    }
-
-    public get width() : number
+    public get apparentWidth() : number
     {
         return this.container.getBoundingClientRect().width;
     }
 
-    public get height() : number
+    public get apparentHeight() : number
     {
         return this.container.getBoundingClientRect().height;
-    }
-
-    public get minDim() : number
-    {
-        return Math.min(this._width, this._height);
     }
 
     private get isZoomFitted() : boolean
@@ -569,9 +551,6 @@ export class CropView extends Widget
         this.image.width = image.width;
         this.image.height = image.height;
         this.image.src = image.src;
-
-        this._width = this.image.width;
-        this._height = this.image.height;
 
         this.circle.reset();
         this.zoomFit();

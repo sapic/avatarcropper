@@ -1,5 +1,7 @@
 export class Point
 {
+    public static readonly Zero = new Point(0);
+    
     public x : number;
     public y : number;
 

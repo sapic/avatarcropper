@@ -115,8 +115,8 @@ export class Renderer extends ClosableDialog
                 workers: 3,
                 quality: 1,
                 dither: false,
-                width: this.cropView.cropArea.diameter,
-                height: this.cropView.cropArea.diameter,
+                width: this.cropView.cropArea.width,
+                height: this.cropView.cropArea.height,
                 debug: false,
                 copy: true
             });
@@ -230,8 +230,8 @@ export class Renderer extends ClosableDialog
         );
 
         let squareCrop = new Canvas({
-            width: this.cropView.cropArea.diameter,
-            height: this.cropView.cropArea.diameter,
+            width: this.cropView.cropArea.width,
+            height: this.cropView.cropArea.height,
             pixelated: pixelated
         });
 
@@ -239,10 +239,10 @@ export class Renderer extends ClosableDialog
             rc,
             0,
             0,
-            this.cropView.cropArea.position.x,
-            this.cropView.cropArea.position.y,
-            this.cropView.cropArea.diameter,
-            this.cropView.cropArea.diameter
+            this.cropView.cropArea.x,
+            this.cropView.cropArea.y,
+            this.cropView.cropArea.width,
+            this.cropView.cropArea.height
         );
 
         squareCrop.createBlob((blob : Blob) =>
@@ -253,8 +253,8 @@ export class Renderer extends ClosableDialog
         if (getCircle)
         {
             let circleCrop = new Canvas({
-                width: this.cropView.cropArea.diameter,
-                height: this.cropView.cropArea.diameter,
+                width: this.cropView.cropArea.width,
+                height: this.cropView.cropArea.height,
                 pixelated: pixelated
             });
     
@@ -262,10 +262,10 @@ export class Renderer extends ClosableDialog
                 rc,
                 0,
                 0,
-                this.cropView.cropArea.position.x,
-                this.cropView.cropArea.position.y,
-                this.cropView.cropArea.diameter,
-                this.cropView.cropArea.diameter
+                this.cropView.cropArea.x,
+                this.cropView.cropArea.y,
+                this.cropView.cropArea.width,
+                this.cropView.cropArea.height
             );
 
             circleCrop.blendMode = "destination-in";

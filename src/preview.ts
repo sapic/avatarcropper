@@ -1,7 +1,7 @@
 import { Widget } from "./widget";
 import { createElement, showElement, hideElement, makePixelated } from "./util";
 import { Canvas } from "./canvas";
-import { ShallowCircle, CropView } from "./cropview";
+import { CropView } from "./cropview";
 import { Point } from "./point";
 
 export class Preview extends Widget
@@ -129,7 +129,7 @@ export class Preview extends Widget
             }
         }
 
-        let scale = this.size.dividedBy(this.cropView.cropArea.diameter);
+        let scale = this.size.dividedBy(this.cropView.cropArea.size);
         this.image.style.transform = "scale(" + scale.x + "," + scale.y + ") rotate(" + this.cropView.rotation + "deg)";
 
 

@@ -113,6 +113,7 @@ define(["require", "exports"], function (require, exports) {
         Point.prototype.toString = function () {
             return "(" + this.x + ", " + this.y + ")";
         };
+        Point.Zero = new Point(0);
         return Point;
     }());
     exports.Point = Point;

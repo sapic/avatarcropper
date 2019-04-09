@@ -90,7 +90,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                                 return;
                             }
                             saveGif.addFrame(img, {
-                                delay: gif.get_frames()[i].delay * 10
+                                delay: gif.get_frames()[i].delay * 10 || 10
                             });
                             _this.progressBar.step();
                             i++;

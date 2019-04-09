@@ -141,7 +141,7 @@ export class Renderer extends ClosableDialog
                         }
 
                         saveGif.addFrame(img, {
-                            delay: gif.get_frames()[i].delay * 10
+                            delay: gif.get_frames()[i].delay * 10 || 10
                         });
 
                         this.progressBar.step();

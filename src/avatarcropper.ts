@@ -20,6 +20,7 @@ export interface Settings
     dismissedTutorial : boolean;
     dismissedIE : boolean;
     dismissedCookie : boolean;
+    guidesEnabled : boolean;
 }
 
 export class AvatarCropper extends Widget
@@ -30,6 +31,7 @@ export class AvatarCropper extends Widget
     private menu : HTMLElement;
     private openFileLabel : HTMLElement;
     private maskOutlineButton : HTMLElement;
+    private guidesButton : HTMLElement;
     private toggleMenuButton : HTMLElement;
     private flipHButton : HTMLElement;
     private flipVButton : HTMLElement;
@@ -47,7 +49,8 @@ export class AvatarCropper extends Widget
         antialias: true,
         dismissedTutorial: false,
         dismissedIE: false,
-        dismissedCookie: false
+        dismissedCookie: false,
+        guidesEnabled: true
     };
 
     constructor(container : HTMLElement)
@@ -280,10 +283,16 @@ export class AvatarCropper extends Widget
         this.toggleMaskOutline(false);
         this.menu.appendChild(this.maskOutlineButton);
 
-        let addPreview = createElement("button", "item");
+        let addPreview = createElement("button", "half item");
         addPreview.innerText = "Add Preview Size";
         addPreview.addEventListener("click", this.promptAddPreview.bind(this));
         this.menu.appendChild(addPreview);
+
+        this.guidesButton = createElement("button", "half item");
+        this.guidesButton.innerText = "Guidelines";
+        this.guidesButton.addEventListener("click", this.toggleGuides.bind(this, true));
+        this.toggleGuides(false);
+        this.menu.appendChild(this.guidesButton);
 
         let render = createElement("button", "item render show");
         render.innerText = "Render/Save";
@@ -352,6 +361,26 @@ export class AvatarCropper extends Widget
         else
         {
             this.maskOutlineButton.classList.remove("toggled");
+        }
+
+        this.cropView && this.cropView.refresh();
+        this.saveSettings();
+    }
+
+    private toggleGuides(actuallyToggle : boolean = true) : void
+    {
+        if (actuallyToggle)
+        {
+            this.settings.guidesEnabled = !this.settings.guidesEnabled;
+        }
+
+        if (this.settings.guidesEnabled)
+        {
+            this.guidesButton.classList.add("toggled");
+        }
+        else
+        {
+            this.guidesButton.classList.remove("toggled");
         }
 
         this.cropView && this.cropView.refresh();

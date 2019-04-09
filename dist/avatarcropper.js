@@ -28,7 +28,8 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 antialias: true,
                 dismissedTutorial: false,
                 dismissedIE: false,
-                dismissedCookie: false
+                dismissedCookie: false,
+                guidesEnabled: true
             };
             _this.loadSettings();
             _this.constructMenu();
@@ -206,10 +207,15 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             this.maskOutlineButton.addEventListener("click", this.toggleMaskOutline.bind(this, true));
             this.toggleMaskOutline(false);
             this.menu.appendChild(this.maskOutlineButton);
-            var addPreview = util_1.createElement("button", "item");
+            var addPreview = util_1.createElement("button", "half item");
             addPreview.innerText = "Add Preview Size";
             addPreview.addEventListener("click", this.promptAddPreview.bind(this));
             this.menu.appendChild(addPreview);
+            this.guidesButton = util_1.createElement("button", "half item");
+            this.guidesButton.innerText = "Guidelines";
+            this.guidesButton.addEventListener("click", this.toggleGuides.bind(this, true));
+            this.toggleGuides(false);
+            this.menu.appendChild(this.guidesButton);
             var render = util_1.createElement("button", "item render show");
             render.innerText = "Render/Save";
             render.addEventListener("click", this.renderCroppedImage.bind(this));
@@ -255,6 +261,20 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             }
             else {
                 this.maskOutlineButton.classList.remove("toggled");
+            }
+            this.cropView && this.cropView.refresh();
+            this.saveSettings();
+        };
+        AvatarCropper.prototype.toggleGuides = function (actuallyToggle) {
+            if (actuallyToggle === void 0) { actuallyToggle = true; }
+            if (actuallyToggle) {
+                this.settings.guidesEnabled = !this.settings.guidesEnabled;
+            }
+            if (this.settings.guidesEnabled) {
+                this.guidesButton.classList.add("toggled");
+            }
+            else {
+                this.guidesButton.classList.remove("toggled");
             }
             this.cropView && this.cropView.refresh();
             this.saveSettings();

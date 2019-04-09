@@ -216,10 +216,10 @@ export class CropView extends Widget
         }
 
         this.overlay.blendMode = "source-over";
+        let lineWidth = ~~(1 / this.zoomFactor) + 1;
 
         if (this.settings.outlinesEnabled)
         {
-            let lineWidth = ~~(1 / this.zoomFactor) + 1;
             let sharp = lineWidth % 2 === 1;
 
             this.overlay.lineDash = [ Math.min(this.overlay.width, this.overlay.height) / 100 ];
@@ -238,13 +238,22 @@ export class CropView extends Widget
                 lineWidth,
                 sharp
             );
+        }
 
-            /*this.overlay.drawLine(this.circle.cx, this.circle.y, this.circle.cx, this.circle.bottom, "black", 1);
-            this.overlay.drawLine(this.circle.x, this.circle.cy, this.circle.right, this.circle.cy, "black", 1);
+        if (this.settings.guidesEnabled)
+        {
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.bottom, "white", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.top, "white", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.right, this.circle.cy, "white", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.left, this.circle.cy, "white", lineWidth);
             this.overlay.context.lineDashOffset = this.overlay.context.getLineDash()[0];
-            this.overlay.drawLine(this.circle.cx, this.circle.y, this.circle.cx, this.circle.bottom, "blue", 1);
-            this.overlay.drawLine(this.circle.x, this.circle.cy, this.circle.right, this.circle.cy, "blue", 1);
-            this.overlay.context.lineDashOffset = 0;*/
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.bottom, "cyan", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.top, "cyan", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.right, this.circle.cy, "cyan", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.left, this.circle.cy, "cyan", lineWidth);
+            this.overlay.context.lineDashOffset = 0;
+            this.overlay.drawLine(this.circle.cx - lineWidth * 2, this.circle.cy, this.circle.cx + lineWidth * 2, this.circle.cy, "cyan", lineWidth);
+            this.overlay.drawLine(this.circle.cx, this.circle.cy - lineWidth * 2, this.circle.cx, this.circle.cy + lineWidth * 2, "cyan", lineWidth);
         }
 
         /*let theta = (90 - this.rotation) / 180 * Math.PI;

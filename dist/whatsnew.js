@@ -20,7 +20,8 @@ define(["require", "exports", "./util", "./closabledialog"], function (require, 
             var _this = _super.call(this) || this;
             _this.list = {
                 "April 2019": [
-                    "Changed mask to be pixel-accurate"
+                    "Changed mask to be pixel-accurate",
+                    "Added option to show guidelines"
                 ],
                 "February 2019": [
                     "rewrote the whole dang thing so its not all in one file anymore lol",

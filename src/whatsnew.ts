@@ -7,7 +7,8 @@ export class WhatsNewDialog extends ClosableDialog
     {
         "April 2019":
         [
-            "Changed mask to be pixel-accurate"
+            "Changed mask to be pixel-accurate",
+            "Added option to show guidelines"
         ],
         "February 2019":
         [

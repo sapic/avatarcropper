@@ -89,7 +89,7 @@ export class Rectangle
             }
             if (this.top < boundingRect.top)
             {
-                this.setHeightKeepAR(this.top - boundingRect.top);
+                this.setHeightKeepAR(this.bottom - boundingRect.top);
             }
 
             this.setPointFromAnchor(anchor, startPoint);

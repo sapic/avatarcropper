@@ -59,7 +59,7 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
                     this.setWidthKeepAR(this.right - boundingRect.left);
                 }
                 if (this.top < boundingRect.top) {
-                    this.setHeightKeepAR(this.top - boundingRect.top);
+                    this.setHeightKeepAR(this.bottom - boundingRect.top);
                 }
                 this.setPointFromAnchor(anchor, startPoint);
             }

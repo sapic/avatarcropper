@@ -378,11 +378,10 @@ body, .bigOverlay
     top: 0;
     color:#eee;
     width: 256px;
-    height: 100%;
+    max-height: 100%;
     z-index: 2;
     overflow-y: auto;
     overflow-x: hidden;
-    pointer-events: none;
 
     .item, .item > button
     {

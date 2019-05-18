@@ -354,6 +354,9 @@ export class CropView extends Widget
 
     public zoom(factor? : number) : void
     {
+        let ogScrollTopP = this.container.scrollTop / this.container.scrollHeight;
+        let ogScrollLeftP = this.container.scrollLeft / this.container.scrollWidth;
+
         this.container.scrollTop = 0;
         this.container.scrollLeft = 0;
         let rotatePart = "";
@@ -390,6 +393,9 @@ export class CropView extends Widget
         }
 
         this.refresh();
+
+        this.container.scrollTop = ogScrollTopP * this.container.scrollHeight;
+        this.container.scrollLeft = ogScrollTopP * this.contentContainer.scrollWidth;
     }
 
     public zoomIn() : void

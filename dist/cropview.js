@@ -300,6 +300,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             configurable: true
         });
         CropView.prototype.zoom = function (factor) {
+            var ogScrollTopP = this.container.scrollTop / this.container.scrollHeight;
+            var ogScrollLeftP = this.container.scrollLeft / this.container.scrollWidth;
             this.container.scrollTop = 0;
             this.container.scrollLeft = 0;
             var rotatePart = "";
@@ -323,6 +325,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 this.image.style.top = current + "px";
             }
             this.refresh();
+            this.container.scrollTop = ogScrollTopP * this.container.scrollHeight;
+            this.container.scrollLeft = ogScrollTopP * this.contentContainer.scrollWidth;
         };
         CropView.prototype.zoomIn = function () {
             this.isZoomFitted = false;

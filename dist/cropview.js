@@ -114,12 +114,18 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 }
             });
             document.body.addEventListener("mouseup", function () {
+                var ca = _this.currentAction;
                 _this.currentAction = "none";
-                _this.emitEvent("update");
+                if (ca !== "none") {
+                    _this.refresh();
+                }
             });
             document.body.addEventListener("touchend", function () {
+                var ca = _this.currentAction;
                 _this.currentAction = "none";
-                _this.emitEvent("update");
+                if (ca !== "none") {
+                    _this.refresh();
+                }
             });
             //this.overlay.mouse.addEventListener("leave", this.overlay.mouse.events.up[0]);
             _this.antialias = _this.settings.antialias;
@@ -153,6 +159,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.isZoomFitted && this.zoomFit();
         };
         CropView.prototype.renderOverlay = function () {
+            console.log("rendering overlay");
             // draw mask //
             if (this.settings.maskOpacity !== 1) {
                 this.overlay.clear();
@@ -299,7 +306,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             enumerable: true,
             configurable: true
         });
-        CropView.prototype.zoom = function (factor) {
+        CropView.prototype.zoom = function (factor, shouldUpdate) {
+            if (shouldUpdate === void 0) { shouldUpdate = true; }
             var ogScrollTopP = this.container.scrollTop / this.container.scrollHeight;
             var ogScrollLeftP = this.container.scrollLeft / this.container.scrollWidth;
             this.container.scrollTop = 0;
@@ -324,7 +332,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 current -= r.top;
                 this.image.style.top = current + "px";
             }
-            this.refresh();
+            shouldUpdate && this.refresh();
             this.container.scrollTop = ogScrollTopP * this.container.scrollHeight;
             this.container.scrollLeft = ogScrollTopP * this.contentContainer.scrollWidth;
         };
@@ -336,8 +344,9 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.isZoomFitted = false;
             this.zoom(this.zoomFactor / 1.1);
         };
-        CropView.prototype.zoomFit = function (force) {
+        CropView.prototype.zoomFit = function (force, shouldUpdate) {
             if (force === void 0) { force = true; }
+            if (shouldUpdate === void 0) { shouldUpdate = true; }
             if (!this.image) {
                 return;
             }
@@ -355,7 +364,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             var fh = cr.height / ir.height;
             var f = Math.min(fw, fh);
             //document.getElementById("container-canvas").style["width"] = cr.width + "px";
-            this.zoom(f);
+            this.zoom(f, shouldUpdate);
             //console.log("---");
             //console.log("zoom1: ", nr.height / ir.height);
             /*window.requestAnimationFrame(function() {
@@ -383,7 +392,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         
             });*/
         };
-        CropView.prototype.rotate = function (deg) {
+        CropView.prototype.rotate = function (deg, shouldUpdate) {
+            if (shouldUpdate === void 0) { shouldUpdate = true; }
             var odeg = this.currentRotation;
             if (deg === undefined)
                 deg = this.currentRotation;
@@ -398,8 +408,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             var or = this.image.getBoundingClientRect();
             this.image.style.transform = b4 + " rotate(" + deg + "deg)";
             var r = this.image.getBoundingClientRect();
-            var dx = -r.left;
-            var dy = -r.top;
+            var dx = -r.left - this.container.scrollLeft;
+            var dy = -r.top - this.container.scrollTop;
             this.image.style.left = dx + "px";
             this.image.style.top = dy + "px";
             this.overlay.width *= (r.width / or.width);
@@ -419,9 +429,9 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         
             circle.x += cdx;
             circle.y += cdy;*/
-            this.isZoomFitted && this.zoomFit();
+            this.zoomFit(false, shouldUpdate);
             this.circle.validate();
-            this.emitEvent("update");
+            shouldUpdate && this.emitEvent("update");
         };
         Object.defineProperty(CropView.prototype, "antialias", {
             get: function () {
@@ -471,9 +481,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             c.context.setTransform(1, 0, 0, 1, 0, 0);
             this.loadingImage = true;
             c.createImage(function (img) {
-                _this.rotate(_this.rotation * -1);
-                _this.circle.cx = _this.outerWidth - _this.circle.cx;
-                _this.flipHelper(img);
+                _this.flipHelper(img, true);
             }, undefined, false);
         };
         CropView.prototype.flipVertical = function () {
@@ -484,20 +492,27 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             c.context.setTransform(1, 0, 0, 1, 0, 0);
             this.loadingImage = true;
             c.createImage(function (img) {
-                _this.rotate(-_this.rotation);
-                _this.circle.cy = _this.outerHeight - _this.circle.cy;
-                _this.flipHelper(img);
+                _this.flipHelper(img, false);
             }, undefined, false);
         };
-        CropView.prototype.flipHelper = function (image) {
+        CropView.prototype.flipHelper = function (image, horizontal) {
+            var _this = this;
             if (this.image.src) {
                 URL.revokeObjectURL(this.image.src);
             }
+            this.image.onload = function () {
+                _this.rotate(-_this.rotation, false);
+                if (horizontal) {
+                    _this.circle.cx = _this.outerWidth - _this.circle.cx;
+                }
+                else {
+                    _this.circle.cy = _this.outerHeight - _this.circle.cy;
+                }
+                _this.emitEvent("imagechange", _this.image.src);
+                _this.refresh();
+                _this.loadingImage = false;
+            };
             this.image.src = image.src;
-            this.emitEvent("imagechange", this.image.src);
-            this.emitEvent("update");
-            this.renderOverlay();
-            this.loadingImage = false;
         };
         CropView.prototype.renderCroppedImage = function () {
             this.renderer.render();

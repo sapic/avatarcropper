@@ -153,14 +153,22 @@ export class CropView extends Widget
 
         document.body.addEventListener("mouseup", () =>
         {
+            let ca = this.currentAction;
             this.currentAction = "none";
-            this.emitEvent("update");
+            if (ca !== "none")
+            {
+                this.refresh();
+            }
         });
 
         document.body.addEventListener("touchend", () =>
         {
+            let ca = this.currentAction;
             this.currentAction = "none";
-            this.emitEvent("update");
+            if (ca !== "none")
+            {
+                this.refresh();
+            }
         });
     
         //this.overlay.mouse.addEventListener("leave", this.overlay.mouse.events.up[0]);
@@ -194,6 +202,7 @@ export class CropView extends Widget
 
     private renderOverlay() : void
     {
+        console.log("rendering overlay");
         // draw mask //
         if (this.settings.maskOpacity !== 1)
         {
@@ -352,7 +361,7 @@ export class CropView extends Widget
         }
     }
 
-    public zoom(factor? : number) : void
+    public zoom(factor? : number, shouldUpdate : boolean = true) : void
     {
         let ogScrollTopP = this.container.scrollTop / this.container.scrollHeight;
         let ogScrollLeftP = this.container.scrollLeft / this.container.scrollWidth;
@@ -392,7 +401,7 @@ export class CropView extends Widget
             this.image.style.top = current + "px";
         }
 
-        this.refresh();
+        shouldUpdate && this.refresh();
 
         this.container.scrollTop = ogScrollTopP * this.container.scrollHeight;
         this.container.scrollLeft = ogScrollTopP * this.contentContainer.scrollWidth;
@@ -410,7 +419,7 @@ export class CropView extends Widget
         this.zoom(this.zoomFactor / 1.1);
     }
 
-    public zoomFit(force : boolean = true) : void
+    public zoomFit(force : boolean = true, shouldUpdate : boolean = true) : void
     {    
         if (!this.image)
         {
@@ -438,7 +447,7 @@ export class CropView extends Widget
     
         //document.getElementById("container-canvas").style["width"] = cr.width + "px";
     
-        this.zoom(f);
+        this.zoom(f, shouldUpdate);
         //console.log("---");
         //console.log("zoom1: ", nr.height / ir.height);
     
@@ -468,7 +477,7 @@ export class CropView extends Widget
         });*/
     }
 
-    public rotate(deg? : number) : void
+    public rotate(deg? : number, shouldUpdate : boolean = true) : void
     {
         let odeg = this.currentRotation;
         if (deg === undefined) deg = this.currentRotation;
@@ -495,8 +504,8 @@ export class CropView extends Widget
         this.image.style.transform = b4 + " rotate(" + deg + "deg)";
     
         let r = this.image.getBoundingClientRect();
-        let dx = -r.left;
-        let dy = -r.top;
+        let dx = -r.left - this.container.scrollLeft;
+        let dy = -r.top - this.container.scrollTop;
         
         this.image.style.left = dx + "px";
         this.image.style.top = dy + "px";
@@ -520,9 +529,9 @@ export class CropView extends Widget
         circle.x += cdx;
         circle.y += cdy;*/
     
-        this.isZoomFitted && this.zoomFit();
+        this.zoomFit(false, shouldUpdate);
         this.circle.validate();
-        this.emitEvent("update");
+        shouldUpdate && this.emitEvent("update");
     }
 
     public set antialias(antialias : boolean)
@@ -588,9 +597,7 @@ export class CropView extends Widget
         this.loadingImage = true;
         c.createImage((img) =>
         {
-            this.rotate(this.rotation * -1);
-            this.circle.cx = this.outerWidth - this.circle.cx;
-            this.flipHelper(img);
+            this.flipHelper(img, true);
         }, undefined, false);
     }
 
@@ -604,25 +611,34 @@ export class CropView extends Widget
         this.loadingImage = true;
         c.createImage((img : HTMLImageElement) =>
         {
-            this.rotate(-this.rotation);
-            this.circle.cy = this.outerHeight - this.circle.cy;
-            this.flipHelper(img);
+            this.flipHelper(img, false);
         }, undefined, false);
     }
 
-    private flipHelper(image : HTMLImageElement) : void
+    private flipHelper(image : HTMLImageElement, horizontal : boolean) : void
     {
         if (this.image.src)
         {
             URL.revokeObjectURL(this.image.src);
         }
 
-        this.image.src = image.src;
+        this.image.onload = () =>
+        {
+            this.rotate(-this.rotation, false);
+            if (horizontal)
+            {
+                this.circle.cx = this.outerWidth - this.circle.cx;
+            }
+            else
+            {
+                this.circle.cy = this.outerHeight - this.circle.cy;
+            }
+            this.emitEvent("imagechange", this.image.src);
+            this.refresh();
+            this.loadingImage = false;
+        };
 
-        this.emitEvent("imagechange", this.image.src);
-        this.emitEvent("update");
-        this.renderOverlay();
-        this.loadingImage = false;
+        this.image.src = image.src;
     }
 
     public renderCroppedImage() : void

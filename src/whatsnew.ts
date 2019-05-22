@@ -5,6 +5,11 @@ export class WhatsNewDialog extends ClosableDialog
 {
     private list = 
     {
+        "May 2019":
+        [
+            "Made it so you can move the crop area pixel-by-pixel using arrow keys",
+            "Also I can't make it so you can just put a url of a pic without having a dedicated server which i don't got the munz for sorry"
+        ],
         "April 2019":
         [
             "Changed mask to be pixel-accurate",

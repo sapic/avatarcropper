@@ -25,6 +25,7 @@ define(["require", "exports", "./closabledialog"], function (require, exports, c
                 "MetalSonicDash",
                 "Almxg Levi",
                 "Tenkay",
+                "PanPan",
                 "and 2 anons:)"
             ];
             _this.dialog.classList.add("dialog-supporters");

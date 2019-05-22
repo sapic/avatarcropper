@@ -10,6 +10,7 @@ export class SupportersDialog extends ClosableDialog
         "MetalSonicDash",
         "Almxg Levi",
         "Tenkay",
+        "PanPan",
         "and 2 anons:)"
     ];
 

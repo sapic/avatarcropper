@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop", "./point"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1, point_1) {
+define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop", "./point", "./keymanager"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1, point_1, keymanager_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var AvatarCropper = /** @class */ (function (_super) {
@@ -338,5 +338,6 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
     exports.AvatarCropper = AvatarCropper;
     footer_1.doFooterThings();
     window.a = new AvatarCropper(document.getElementById("container"));
+    keymanager_1.KeyManager.initialize();
 });
 //# sourceMappingURL=avatarcropper.js.map

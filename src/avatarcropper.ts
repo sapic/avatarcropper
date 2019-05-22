@@ -9,6 +9,7 @@ import { GlobalEvents } from "./eventclass";
 import { TextDialog } from "./textdialog";
 import { DragDrop } from "./dragdrop";
 import { Point } from "./point";
+import { KeyManager } from "./keymanager";
 
 export interface Settings
 {
@@ -468,3 +469,4 @@ export class AvatarCropper extends Widget
 
 doFooterThings();
 (<any>window).a = new AvatarCropper(document.getElementById("container"));
+KeyManager.initialize();

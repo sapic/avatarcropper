@@ -5,6 +5,7 @@ import { Settings } from "./avatarcropper";
 import { Renderer } from "./renderer";
 import { Point } from "./point";
 import { Rectangle, RectAnchor } from "./rectangle";
+import { KeyManager, Keys } from "./keymanager";
 
 type MouseAction = "move" | "resize" | "new" | "none";
 
@@ -170,9 +171,23 @@ export class CropView extends Widget
                 this.refresh();
             }
         });
+
+        // move circle around with arrow keys //
+        window.addEventListener("keydown", e => this.handleKeypress(e.keyCode));
     
         //this.overlay.mouse.addEventListener("leave", this.overlay.mouse.events.up[0]);
         this.antialias = this.settings.antialias;
+    }
+
+    private handleKeypress(key : number)
+    {
+        if (KeyManager.isArrowKey(key))
+        {
+            console.log( KeyManager.axis(Keys.right, Keys.left))
+            this.circle.x += KeyManager.axis(Keys.right, Keys.left);
+            this.circle.y += KeyManager.axis(Keys.down, Keys.up);
+            this.refresh();
+        }
     }
 
     public get rotation() : number

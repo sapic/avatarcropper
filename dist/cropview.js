@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", "./point", "./rectangle"], function (require, exports, widget_1, util_1, canvas_1, renderer_1, point_1, rectangle_1) {
+define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", "./point", "./rectangle", "./keymanager"], function (require, exports, widget_1, util_1, canvas_1, renderer_1, point_1, rectangle_1, keymanager_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Circle = /** @class */ (function (_super) {
@@ -127,10 +127,20 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                     _this.refresh();
                 }
             });
+            // move circle around with arrow keys //
+            window.addEventListener("keydown", function (e) { return _this.handleKeypress(e.keyCode); });
             //this.overlay.mouse.addEventListener("leave", this.overlay.mouse.events.up[0]);
             _this.antialias = _this.settings.antialias;
             return _this;
         }
+        CropView.prototype.handleKeypress = function (key) {
+            if (keymanager_1.KeyManager.isArrowKey(key)) {
+                console.log(keymanager_1.KeyManager.axis(keymanager_1.Keys.right, keymanager_1.Keys.left));
+                this.circle.x += keymanager_1.KeyManager.axis(keymanager_1.Keys.right, keymanager_1.Keys.left);
+                this.circle.y += keymanager_1.KeyManager.axis(keymanager_1.Keys.down, keymanager_1.Keys.up);
+                this.refresh();
+            }
+        };
         Object.defineProperty(CropView.prototype, "rotation", {
             get: function () {
                 return this.currentRotation;

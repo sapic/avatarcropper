@@ -476,11 +476,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.image.height = image.height;
             this.image.src = image.src;
             this.circle.reset();
-            this.zoomFit();
-            this.rotate(0);
+            this.zoomFit(true, false);
+            this.rotate(0, false);
             this.emitEvent("imagechange", this.image.src);
-            this.emitEvent("update");
-            this.renderOverlay();
+            this.refresh();
             this.loadingImage = false;
         };
         CropView.prototype.flipHorizontal = function () {

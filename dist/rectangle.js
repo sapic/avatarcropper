@@ -34,6 +34,61 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
             this.height = height;
             this.width = this.width / ar;
         };
+        Rectangle.prototype.expandToward = function (anchor, factor) {
+            switch (anchor) {
+                case "ne":
+                    var bl = this.bottomLeft;
+                    this.size.multiply(factor);
+                    this.bottomLeft = bl;
+                    break;
+                case "nw":
+                    var br = this.bottomRight;
+                    this.size.multiply(factor);
+                    this.bottomRight = br;
+                    break;
+                case "se":
+                    var tl = this.topLeft;
+                    this.size.multiply(factor);
+                    this.topLeft = tl;
+                    break;
+                case "sw":
+                    var tr = this.topRight;
+                    this.size.multiply(factor);
+                    this.topRight = tr;
+                    break;
+            }
+        };
+        Rectangle.prototype.fitInsideGreedyCenter = function (rect, boundingRect) {
+            var ar = rect.aspectRatio;
+            var center = this.center.copy(); // just being careful
+            var size = this.size.copy();
+            if (ar > 1) {
+                // wider //
+                this.height *= rect.width / this.width;
+                this.width = rect.width;
+            }
+            else {
+                // taller //
+                this.width *= rect.height / this.height;
+                this.height = rect.height;
+            }
+            this.center = center;
+            if (!boundingRect.containsRect(this)) {
+                if (this.right > boundingRect.right) {
+                    this.setHeightKeepAR(size.x);
+                }
+                if (this.bottom > boundingRect.bottom) {
+                    this.setHeightKeepAR(size.y);
+                }
+                if (this.left < boundingRect.left) {
+                    this.setHeightKeepAR(size.x);
+                }
+                if (this.top < boundingRect.top) {
+                    this.setHeightKeepAR(size.y);
+                }
+                this.center = center;
+            }
+        };
         Rectangle.prototype.fitInsideGreedy = function (rect, anchor, boundingRect) {
             var ar = rect.aspectRatio;
             var startPoint = this.getPointFromAnchor(anchor).copy();
@@ -110,9 +165,17 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
             enumerable: true,
             configurable: true
         });
-        Rectangle.prototype.round = function () {
-            this.position.round();
-            this.size.round();
+        Rectangle.prototype.round = function (aboutCenter) {
+            if (aboutCenter === void 0) { aboutCenter = false; }
+            if (aboutCenter) {
+                var c = this.center;
+                this.size.round();
+                this.center = c.rounded;
+            }
+            else {
+                this.position.round();
+                this.size.round();
+            }
         };
         Object.defineProperty(Rectangle.prototype, "local", {
             get: function () {

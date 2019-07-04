@@ -611,7 +611,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             else if (this.currentAction === "resize") {
                 this.performResize(x, y);
             }
-            this.circle.round(); // u rite
+            this.circle.round(this.settings.resizeLock); // u rite
             this.emitEvent("update");
         };
         CropView.prototype.getCircleAnchor = function (p) {
@@ -636,12 +636,21 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         };
         CropView.prototype.performResize = function (x, y) {
             var anchor = rectangle_1.Rectangle.anchorOpposite(this.getCircleAnchor(new point_1.Point(x, y)));
-            this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
-            var size = this.circle.size.copy();
-            var r = rectangle_1.Rectangle.between(new point_1.Point(x, y), this.resizeAnchor);
-            //r.round();
-            this.circle.fitInsideGreedy(r, anchor, this.outerRect);
-            this.circle.validate();
+            if (!this.settings.resizeLock) {
+                this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
+                var size = this.circle.size.copy();
+                var r = rectangle_1.Rectangle.between(new point_1.Point(x, y), this.resizeAnchor);
+                //r.round();
+                this.circle.fitInsideGreedy(r, anchor, this.outerRect);
+                this.circle.validate();
+            }
+            else {
+                var r = rectangle_1.Rectangle.between(new point_1.Point(x, y).plus(this.resizeOffset), this.circle.center);
+                r.expandToward(anchor, 2);
+                //r.round();
+                this.circle.fitInsideGreedyCenter(r, this.outerRect);
+                this.circle.validate();
+            }
         };
         return CropView;
     }(widget_1.Widget));

@@ -40,6 +40,11 @@ export class Point
         this.y = Math.round(this.y);
     }
 
+    public get rounded() : Point
+    {
+        return new Point(Math.round(this.x), Math.round(this.y));
+    }
+
     public times(n : number | Point) : Point
     {
         let ret = this.copy();

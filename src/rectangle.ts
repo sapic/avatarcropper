@@ -53,6 +53,77 @@ export class Rectangle
         this.width = this.width / ar;
     }
 
+    public expandToward(anchor : RectAnchor, factor : number) : void
+    {
+        switch (anchor)
+        {
+            case "ne":
+                let bl = this.bottomLeft;
+                this.size.multiply(factor);
+                this.bottomLeft = bl;
+                break;
+            case "nw":
+                let br = this.bottomRight;
+                this.size.multiply(factor);
+                this.bottomRight = br;
+                break;
+            case "se":
+                let tl = this.topLeft;
+                this.size.multiply(factor);
+                this.topLeft = tl;
+                break;
+            case "sw":
+                let tr = this.topRight;
+                this.size.multiply(factor);
+                this.topRight = tr;
+                break;
+        }
+    }
+
+    public fitInsideGreedyCenter(rect : Rectangle, boundingRect : Rectangle)
+    {
+        let ar = rect.aspectRatio;
+        let center = this.center.copy(); // just being careful
+        let size = this.size.copy();
+
+        if (ar > 1)
+        {
+            // wider //
+            this.height *= rect.width / this.width;
+            this.width = rect.width;
+        }
+        else
+        {
+            // taller //
+            this.width *= rect.height / this.height;
+            this.height = rect.height;
+        }
+
+        this.center = center;
+
+        if (!boundingRect.containsRect(this))
+        {
+            if (this.right > boundingRect.right)
+            {
+                this.setHeightKeepAR(size.x);
+            }
+            if (this.bottom > boundingRect.bottom)
+            {
+                this.setHeightKeepAR(size.y);
+            }
+            if (this.left < boundingRect.left)
+            {
+                this.setHeightKeepAR(size.x);
+            }
+            if (this.top < boundingRect.top)
+            {
+                this.setHeightKeepAR(size.y);
+            }
+
+            this.center = center;
+        }
+    }
+
     public fitInsideGreedy(rect : Rectangle, anchor : RectAnchor, boundingRect : Rectangle) : void
     {
         let ar = rect.aspectRatio;
@@ -145,10 +216,19 @@ export class Rectangle
         return this.width / this.height;
     }
 
-    public round() : void
+    public round(aboutCenter : boolean = false) : void
     {
-        this.position.round();
-        this.size.round();
+        if (aboutCenter)
+        {
+            let c = this.center;
+            this.size.round();
+            this.center = c.rounded;
+        }
+        else
+        {
+            this.position.round();
+            this.size.round();
+        }
     }
 
     public get local() : Rectangle

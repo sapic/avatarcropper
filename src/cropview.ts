@@ -766,7 +766,7 @@ export class CropView extends Widget
             this.performResize(x, y);
         }
         
-        this.circle.round(); // u rite
+        this.circle.round(this.settings.resizeLock); // u rite
 
         this.emitEvent("update");
     }
@@ -803,12 +803,24 @@ export class CropView extends Widget
     private performResize(x : number, y : number)
     {
         let anchor = Rectangle.anchorOpposite(this.getCircleAnchor(new Point(x, y)));
-        this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
-        let size = this.circle.size.copy();
 
-        let r = Rectangle.between(new Point(x, y), this.resizeAnchor);
-        //r.round();
-        this.circle.fitInsideGreedy(r, anchor, this.outerRect);
-        this.circle.validate();
+        if (!this.settings.resizeLock)
+        {
+            this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
+            let size = this.circle.size.copy();
+    
+            let r = Rectangle.between(new Point(x, y), this.resizeAnchor);
+            //r.round();
+            this.circle.fitInsideGreedy(r, anchor, this.outerRect);
+            this.circle.validate();
+        }
+        else
+        {
+            let r = Rectangle.between(new Point(x, y).plus(this.resizeOffset), this.circle.center);
+            r.expandToward(anchor, 2);
+            //r.round();
+            this.circle.fitInsideGreedyCenter(r, this.outerRect);
+            this.circle.validate();
+        }
     }
 }

@@ -22,6 +22,7 @@ export interface Settings
     dismissedIE : boolean;
     dismissedCookie : boolean;
     guidesEnabled : boolean;
+    resizeLock : boolean;
 }
 
 export class AvatarCropper extends Widget
@@ -51,7 +52,8 @@ export class AvatarCropper extends Widget
         dismissedTutorial: false,
         dismissedIE: false,
         dismissedCookie: false,
-        guidesEnabled: true
+        guidesEnabled: true,
+        resizeLock: false
     };
 
     constructor(container : HTMLElement)
@@ -296,7 +298,7 @@ export class AvatarCropper extends Widget
         this.menu.appendChild(this.guidesButton);
 
         let centerCropArea = createElement("button", "half item");
-        centerCropArea.innerText = "Center Crop";
+        centerCropArea.innerText = "Center";
         centerCropArea.addEventListener("click", this.centerCropArea.bind(this));
         this.menu.appendChild(centerCropArea);
 
@@ -304,6 +306,23 @@ export class AvatarCropper extends Widget
         setCropSize.innerText = "Set Size";
         setCropSize.addEventListener("click", this.setCropSize.bind(this));
         this.menu.appendChild(setCropSize);
+
+        let lock = createElement("button", "item");
+        lock.innerText = "Lock Center During Resize";
+        lock.addEventListener("click", this.toggleResizeLock.bind(this));
+        this.menu.appendChild(lock);
+        GlobalEvents.on("resizelockchange", () =>
+        {
+            if (this.settings.resizeLock)
+            {
+                lock.classList.add("toggled");
+            }
+            else
+            {
+                lock.classList.remove("toggled");
+            }
+        });
+        GlobalEvents.emitEvent("resizelockchange");
 
         let render = createElement("button", "item render show");
         render.innerText = "Render/Save";
@@ -352,6 +371,13 @@ export class AvatarCropper extends Widget
         }
 
         this.cropView.setCropSize(size);
+    }
+
+    private toggleResizeLock() : void
+    {
+        this.settings.resizeLock = !this.settings.resizeLock;
+        this.saveSettings();
+        GlobalEvents.emitEvent("resizelockchange");
     }
 
     private toggleMenu() : void

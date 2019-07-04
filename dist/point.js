@@ -26,6 +26,13 @@ define(["require", "exports"], function (require, exports) {
             this.x = Math.round(this.x);
             this.y = Math.round(this.y);
         };
+        Object.defineProperty(Point.prototype, "rounded", {
+            get: function () {
+                return new Point(Math.round(this.x), Math.round(this.y));
+            },
+            enumerable: true,
+            configurable: true
+        });
         Point.prototype.times = function (n) {
             var ret = this.copy();
             ret.multiply(n);

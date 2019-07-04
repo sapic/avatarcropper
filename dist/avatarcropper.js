@@ -29,7 +29,8 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 dismissedTutorial: false,
                 dismissedIE: false,
                 dismissedCookie: false,
-                guidesEnabled: true
+                guidesEnabled: true,
+                resizeLock: false
             };
             _this.loadSettings();
             _this.constructMenu();
@@ -217,13 +218,26 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             this.toggleGuides(false);
             this.menu.appendChild(this.guidesButton);
             var centerCropArea = util_1.createElement("button", "half item");
-            centerCropArea.innerText = "Center Crop";
+            centerCropArea.innerText = "Center";
             centerCropArea.addEventListener("click", this.centerCropArea.bind(this));
             this.menu.appendChild(centerCropArea);
             var setCropSize = util_1.createElement("button", "half item");
             setCropSize.innerText = "Set Size";
             setCropSize.addEventListener("click", this.setCropSize.bind(this));
             this.menu.appendChild(setCropSize);
+            var lock = util_1.createElement("button", "item");
+            lock.innerText = "Lock Center During Resize";
+            lock.addEventListener("click", this.toggleResizeLock.bind(this));
+            this.menu.appendChild(lock);
+            eventclass_1.GlobalEvents.on("resizelockchange", function () {
+                if (_this.settings.resizeLock) {
+                    lock.classList.add("toggled");
+                }
+                else {
+                    lock.classList.remove("toggled");
+                }
+            });
+            eventclass_1.GlobalEvents.emitEvent("resizelockchange");
             var render = util_1.createElement("button", "item render show");
             render.innerText = "Render/Save";
             render.addEventListener("click", this.renderCroppedImage.bind(this));
@@ -255,6 +269,11 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 size = this.cropView.innerHeight * (size / 100);
             }
             this.cropView.setCropSize(size);
+        };
+        AvatarCropper.prototype.toggleResizeLock = function () {
+            this.settings.resizeLock = !this.settings.resizeLock;
+            this.saveSettings();
+            eventclass_1.GlobalEvents.emitEvent("resizelockchange");
         };
         AvatarCropper.prototype.toggleMenu = function () {
             if (this.menuToggle) {

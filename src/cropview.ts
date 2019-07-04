@@ -183,9 +183,10 @@ export class CropView extends Widget
     {
         if (KeyManager.isArrowKey(key))
         {
-            console.log( KeyManager.axis(Keys.right, Keys.left))
+            //console.log( KeyManager.axis(Keys.right, Keys.left))
             this.circle.x += KeyManager.axis(Keys.right, Keys.left);
             this.circle.y += KeyManager.axis(Keys.down, Keys.up);
+            this.circle.validate();
             this.refresh();
         }
     }
@@ -217,7 +218,7 @@ export class CropView extends Widget
 
     private renderOverlay() : void
     {
-        console.log("rendering overlay");
+        //console.log("rendering overlay");
         // draw mask //
         if (this.settings.maskOpacity !== 1)
         {

@@ -135,9 +135,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         }
         CropView.prototype.handleKeypress = function (key) {
             if (keymanager_1.KeyManager.isArrowKey(key)) {
-                console.log(keymanager_1.KeyManager.axis(keymanager_1.Keys.right, keymanager_1.Keys.left));
+                //console.log( KeyManager.axis(Keys.right, Keys.left))
                 this.circle.x += keymanager_1.KeyManager.axis(keymanager_1.Keys.right, keymanager_1.Keys.left);
                 this.circle.y += keymanager_1.KeyManager.axis(keymanager_1.Keys.down, keymanager_1.Keys.up);
+                this.circle.validate();
                 this.refresh();
             }
         };
@@ -169,7 +170,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.isZoomFitted && this.zoomFit();
         };
         CropView.prototype.renderOverlay = function () {
-            console.log("rendering overlay");
+            //console.log("rendering overlay");
             // draw mask //
             if (this.settings.maskOpacity !== 1) {
                 this.overlay.clear();

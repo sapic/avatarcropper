@@ -19,6 +19,10 @@ define(["require", "exports", "./util", "./closabledialog"], function (require, 
         function WhatsNewDialog() {
             var _this = _super.call(this) || this;
             _this.list = {
+                "July 2019": [
+                    "Added functionality for centering, setting size manually, and resize locking",
+                    "Bug fixes and performance improvements"
+                ],
                 "May 2019": [
                     "Made it so you can move the crop area pixel-by-pixel using arrow keys",
                     "Also I can't make it so you can just put a url of a pic without having a dedicated server which i don't got the munz for sorry"

@@ -5,6 +5,11 @@ export class WhatsNewDialog extends ClosableDialog
 {
     private list = 
     {
+        "July 2019":
+        [
+            "Added functionality for centering, setting size manually, and resize locking",
+            "Bug fixes and performance improvements"
+        ],
         "May 2019":
         [
             "Made it so you can move the crop area pixel-by-pixel using arrow keys",

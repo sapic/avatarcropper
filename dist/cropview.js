@@ -541,6 +541,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             enumerable: true,
             configurable: true
         });
+        CropView.prototype.centerCropArea = function () {
+            this.circle.center = this.outerRect.center;
+            this.refresh();
+        };
         CropView.prototype.getMouseAction = function (x, y) {
             var mousePoint = new point_1.Point(x, y);
             if (this.circle.containsPoint(new point_1.Point(x, y))) {

@@ -216,6 +216,10 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             this.guidesButton.addEventListener("click", this.toggleGuides.bind(this, true));
             this.toggleGuides(false);
             this.menu.appendChild(this.guidesButton);
+            var centerCropArea = util_1.createElement("button", "half item");
+            centerCropArea.innerText = "Center Crop";
+            centerCropArea.addEventListener("click", this.centerCropArea.bind(this));
+            this.menu.appendChild(centerCropArea);
             var render = util_1.createElement("button", "item render show");
             render.innerText = "Render/Save";
             render.addEventListener("click", this.renderCroppedImage.bind(this));
@@ -227,6 +231,9 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
         };
         AvatarCropper.prototype.flipVertical = function () {
             this.cropView.flipVertical();
+        };
+        AvatarCropper.prototype.centerCropArea = function () {
+            this.cropView.centerCropArea();
         };
         AvatarCropper.prototype.toggleMenu = function () {
             if (this.menuToggle) {

@@ -295,6 +295,11 @@ export class AvatarCropper extends Widget
         this.toggleGuides(false);
         this.menu.appendChild(this.guidesButton);
 
+        let centerCropArea = createElement("button", "half item");
+        centerCropArea.innerText = "Center Crop";
+        centerCropArea.addEventListener("click", this.centerCropArea.bind(this));
+        this.menu.appendChild(centerCropArea);
+
         let render = createElement("button", "item render show");
         render.innerText = "Render/Save";
         render.addEventListener("click", this.renderCroppedImage.bind(this));
@@ -311,6 +316,11 @@ export class AvatarCropper extends Widget
     private flipVertical() : void
     {
         this.cropView.flipVertical();
+    }
+
+    private centerCropArea() : void
+    {
+        this.cropView.centerCropArea();
     }
 
     private toggleMenu() : void

@@ -671,6 +671,12 @@ export class CropView extends Widget
         return this.image.src || null;
     }
 
+    public centerCropArea() : void
+    {
+        this.circle.center = this.outerRect.center;
+        this.refresh();
+    }
+
     private getMouseAction(x : number, y : number) : MouseAction
     {
         let mousePoint = new Point(x, y);

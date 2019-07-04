@@ -543,6 +543,12 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         });
         CropView.prototype.centerCropArea = function () {
             this.circle.center = this.outerRect.center;
+            this.circle.validate();
+            this.refresh();
+        };
+        CropView.prototype.setCropSize = function (size) {
+            this.circle.size = new point_1.Point(size);
+            this.circle.validate();
             this.refresh();
         };
         CropView.prototype.getMouseAction = function (x, y) {

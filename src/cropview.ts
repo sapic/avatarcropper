@@ -674,6 +674,14 @@ export class CropView extends Widget
     public centerCropArea() : void
     {
         this.circle.center = this.outerRect.center;
+        this.circle.validate();
+        this.refresh();
+    }
+
+    public setCropSize(size : number) : void
+    {
+        this.circle.size = new Point(size);
+        this.circle.validate();
         this.refresh();
     }
 

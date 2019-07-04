@@ -300,6 +300,11 @@ export class AvatarCropper extends Widget
         centerCropArea.addEventListener("click", this.centerCropArea.bind(this));
         this.menu.appendChild(centerCropArea);
 
+        let setCropSize = createElement("button", "half item");
+        setCropSize.innerText = "Set Size";
+        setCropSize.addEventListener("click", this.setCropSize.bind(this));
+        this.menu.appendChild(setCropSize);
+
         let render = createElement("button", "item render show");
         render.innerText = "Render/Save";
         render.addEventListener("click", this.renderCroppedImage.bind(this));
@@ -321,6 +326,32 @@ export class AvatarCropper extends Widget
     private centerCropArea() : void
     {
         this.cropView.centerCropArea();
+    }
+
+    private setCropSize() : void
+    {
+        let promptStr = "The current picture is " + this.cropView.innerWidth.toString() + "x" + this.cropView.innerHeight.toString() + "\n" +
+            "The current croparea is " + this.cropView.cropArea.width + "x" + this.cropView.cropArea.height + "\n" +
+            "Enter in a size either by specifying a number (like 64) or a percentage of width (50%w) or height (50%h)";
+
+        let sizeStr = window.prompt(promptStr);
+        if (sizeStr === null || isNaN(parseInt(sizeStr)))
+        {
+            return;
+        }
+
+        let size = parseInt(sizeStr);
+
+        if (sizeStr.endsWith("%w"))
+        {
+            size = this.cropView.innerWidth * (size / 100);
+        }
+        else if (sizeStr.endsWith("%h"))
+        {
+            size = this.cropView.innerHeight * (size / 100);
+        }
+
+        this.cropView.setCropSize(size);
     }
 
     private toggleMenu() : void

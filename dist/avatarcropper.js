@@ -220,6 +220,10 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             centerCropArea.innerText = "Center Crop";
             centerCropArea.addEventListener("click", this.centerCropArea.bind(this));
             this.menu.appendChild(centerCropArea);
+            var setCropSize = util_1.createElement("button", "half item");
+            setCropSize.innerText = "Set Size";
+            setCropSize.addEventListener("click", this.setCropSize.bind(this));
+            this.menu.appendChild(setCropSize);
             var render = util_1.createElement("button", "item render show");
             render.innerText = "Render/Save";
             render.addEventListener("click", this.renderCroppedImage.bind(this));
@@ -234,6 +238,23 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
         };
         AvatarCropper.prototype.centerCropArea = function () {
             this.cropView.centerCropArea();
+        };
+        AvatarCropper.prototype.setCropSize = function () {
+            var promptStr = "The current picture is " + this.cropView.innerWidth.toString() + "x" + this.cropView.innerHeight.toString() + "\n" +
+                "The current croparea is " + this.cropView.cropArea.width + "x" + this.cropView.cropArea.height + "\n" +
+                "Enter in a size either by specifying a number (like 64) or a percentage of width (50%w) or height (50%h)";
+            var sizeStr = window.prompt(promptStr);
+            if (sizeStr === null || isNaN(parseInt(sizeStr))) {
+                return;
+            }
+            var size = parseInt(sizeStr);
+            if (sizeStr.endsWith("%w")) {
+                size = this.cropView.innerWidth * (size / 100);
+            }
+            else if (sizeStr.endsWith("%h")) {
+                size = this.cropView.innerHeight * (size / 100);
+            }
+            this.cropView.setCropSize(size);
         };
         AvatarCropper.prototype.toggleMenu = function () {
             if (this.menuToggle) {

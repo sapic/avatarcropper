@@ -149,21 +149,23 @@ export class Rectangle
             if (this.right > boundingRect.right)
             {
                 this.setWidthKeepAR(boundingRect.right - this.left);
+                this.setPointFromAnchor(anchor, startPoint);
             }
             if (this.bottom > boundingRect.bottom)
             {
                 this.setHeightKeepAR(boundingRect.bottom - this.top);
+                this.setPointFromAnchor(anchor, startPoint);
             }
             if (this.left < boundingRect.left)
             {
                 this.setWidthKeepAR(this.right - boundingRect.left);
+                this.setPointFromAnchor(anchor, startPoint);
             }
             if (this.top < boundingRect.top)
             {
                 this.setHeightKeepAR(this.bottom - boundingRect.top);
+                this.setPointFromAnchor(anchor, startPoint);
             }
-
-            this.setPointFromAnchor(anchor, startPoint);
         }
     }
 

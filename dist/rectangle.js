@@ -75,18 +75,21 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
             this.center = center;
             if (!boundingRect.containsRect(this)) {
                 if (this.right > boundingRect.right) {
-                    this.setHeightKeepAR(size.x);
+                    this.setWidthKeepAR((boundingRect.right - center.x) * 2);
+                    this.center = center;
                 }
                 if (this.bottom > boundingRect.bottom) {
-                    this.setHeightKeepAR(size.y);
+                    this.setHeightKeepAR((boundingRect.bottom - center.y) * 2);
+                    this.center = center;
                 }
                 if (this.left < boundingRect.left) {
-                    this.setHeightKeepAR(size.x);
+                    this.setWidthKeepAR((center.x - boundingRect.left) * 2);
+                    this.center = center;
                 }
                 if (this.top < boundingRect.top) {
-                    this.setHeightKeepAR(size.y);
+                    this.setHeightKeepAR((center.y - boundingRect.top) * 2);
+                    this.center = center;
                 }
-                this.center = center;
             }
         };
         Rectangle.prototype.fitInsideGreedy = function (rect, anchor, boundingRect) {

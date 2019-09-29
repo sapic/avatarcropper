@@ -1,21 +1,24 @@
 {
-  "name": "avatarcropper",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "buildc": "build.bat",
-    "watchtsc": "tsc -w",
-    "watchsass": "sass --watch style/style.scss style/style.css",
-    "build": "tsc && sass style/style.scss style/style.css",
-    "serve": "http-server -o"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "typescript": "^3.2.2",
-    "sass": "^1.17.3",
-    "http-server": "^0.11.1"
-  }
+    "name": "avatarcropper",
+    "version": "1.0.0",
+    "description": "Crops avatars!",
+    "author": "http://github.com/SongSing",
+    "license": "GPL-3.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/SongSing/avatarcropper.git"
+    },
+    "main": "index.js",
+    "scripts": {
+        "buildc": "build.bat",
+        "watchtsc": "tsc -w",
+        "watchsass": "sass --watch style/style.scss style/style.css",
+        "build": "tsc && sass style/style.scss style/style.css",
+        "serve": "http-server -o"
+    },
+    "devDependencies": {
+        "http-server": "^0.11.1",
+        "sass": "^1.22.12",
+        "typescript": "^3.6.3"
+    }
 }

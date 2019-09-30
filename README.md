@@ -1,17 +1,19 @@
-# avatar croper
+# Avatar Cropper
 
-how do u get it to run...?
+## Installation Instructions:
 
-first make sure u got npm
+Requires NodeJS and NPM.
 
-then clone the repo and u can run `npm install` inside there and then u can do the following:
+Clone the repo and run `npm install`.
 
-`npm run build` to build everything
+Run `npm run build` to build everything.
 
-`npm run serve` to locally serve, will open it up in ur browser even
+Run `npm run serve` to locally serve, it will open a browser window to localhost.
 
-`npm run watchtsc` runs typescript compiler in watch mode so u dont gotta run build every time
+That's it! You can now do development on the site!
 
-`npm run watchsass` does the same for sass
+### Advanced Options:
 
-ok thats it have fun
+Run `npm run watchtsc` and `npm run watchsass` to run the compilers in watch mode so you dont have to run build every time you update something.
+
+Have fun!

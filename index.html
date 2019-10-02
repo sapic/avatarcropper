@@ -9,7 +9,7 @@
     <title>Avatar Cropper</title>
     <meta property="og:description" content="A small webpage that allows you to quickly crop avatars for many sites.">
     <meta property="og:title" content="Quick Avatar Cropper">
-    <meta property="og:url" content="https://songsing.github.io/avatarcropper">
+    <meta property="og:url" content="https://avatarcropper.com">
     <link rel="stylesheet" href="style/style.css">
     <script src="gif.js"></script>
     <script src="dist/supergif.js"></script>
@@ -28,6 +28,13 @@
         })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
         ga('create', 'UA-104924541-1', 'auto');
         ga('send', 'pageview');
+    </script>
+    <script>
+        (function() {
+            if (window.location.hostname == "sapic.github.io" || "songsing.github.io") {
+                window.location = 'https://avatarcropper.com'
+            }
+        });
     </script>
 </head>
 

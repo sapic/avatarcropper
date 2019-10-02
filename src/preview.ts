@@ -4,33 +4,29 @@ import { Canvas } from "./canvas";
 import { CropView } from "./cropview";
 import { Point } from "./point";
 
-export class Preview extends Widget
-{
-    private mask : Canvas;
-    private image : HTMLImageElement;
-    private onlineIndicator : Canvas;
-    private bottomBar : HTMLElement;
-    private sizeDisplay : HTMLElement;
-    private removeButton : HTMLElement;
-    private _size : Point;
-    private cropView : CropView;
-    private lastMode : "square" | "circle" | "none" = "none";
-    private antialiased : boolean;
+export class Preview extends Widget {
+    private mask: Canvas;
+    private image: HTMLImageElement;
+    private onlineIndicator: Canvas;
+    private bottomBar: HTMLElement;
+    private sizeDisplay: HTMLElement;
+    private removeButton: HTMLElement;
+    private _size: Point;
+    private cropView: CropView;
+    private lastMode: "square" | "circle" | "none" = "none";
+    private antialiased: boolean;
 
-    constructor(size : Point, cropView : CropView)
-    {
+    constructor(size: Point, cropView: CropView) {
         super(createElement("div", "preview"));
 
         this.createEvent("requestremove");
 
         this.cropView = cropView;
         this.cropView.on("update", this.update.bind(this));
-        this.cropView.on("imagechange", (src : string) =>
-        {
+        this.cropView.on("imagechange", (src: string) => {
             this.image.src = src;
         });
-        this.cropView.on("antialiaschange", (aa : boolean) =>
-        {
+        this.cropView.on("antialiaschange", (aa: boolean) => {
             this.antialias = aa;
         });
 
@@ -51,14 +47,12 @@ export class Preview extends Widget
         this.image = <HTMLImageElement>createElement("img", "image");
         this.image.style.position = "absolute";
         (<any>this.image.style)["transform-origin"] = "top left";
-        if (cropView.src)
-        {
+        if (cropView.src) {
             this.image.src = cropView.src;
         }
         this.image.style.position = "absolute";
 
-        if (size.equals(new Point(30)))
-        {
+        if (size.equals(new Point(30))) {
             this.onlineIndicator = new Canvas({ width: 14, height: 14 });
             this.onlineIndicator.fillCircleInSquare(0, 0, 14, "#2F3136");
             this.onlineIndicator.fillCircleInSquare(2, 2, 10, "rgb(67,181,129)");
@@ -66,14 +60,13 @@ export class Preview extends Widget
         }
 
         this.bottomBar = createElement("div", "bottomBar");
-        
+
         this.sizeDisplay = createElement("div", "size");
         this.sizeDisplay.innerText = size + "x" + size;
-        
+
         this.removeButton = createElement("button", "remove");
         this.removeButton.innerText = "✖";
-        this.removeButton.addEventListener("click", () =>
-        {
+        this.removeButton.addEventListener("click", () => {
             this.emitEvent("requestremove");
         });
 
@@ -82,13 +75,11 @@ export class Preview extends Widget
 
         this.appendChild(this.image, this.mask.canvas, (this.onlineIndicator && this.onlineIndicator.canvas) || null, this.bottomBar);
 
-        this.container.addEventListener("mouseenter", () =>
-        {
+        this.container.addEventListener("mouseenter", () => {
             showElement(this.bottomBar);
         });
 
-        this.container.addEventListener("mouseleave", () =>
-        {
+        this.container.addEventListener("mouseleave", () => {
             hideElement(this.bottomBar);
         });
 
@@ -97,33 +88,26 @@ export class Preview extends Widget
         this.antialias = true;
     }
 
-    public get size() : Point
-    {
+    public get size(): Point {
         return this._size;
     }
 
-    public update()
-    {
-        if (this.cropView.settings.previewMode !== this.lastMode)
-        {
+    public update() {
+        if (this.cropView.settings.previewMode !== this.lastMode) {
             this.lastMode = this.cropView.settings.previewMode;
 
-            if (this.lastMode === "square")
-            {
+            if (this.lastMode === "square") {
                 this.mask.clear();
-                if (this.onlineIndicator)
-                {
+                if (this.onlineIndicator) {
                     hideElement(this.onlineIndicator.canvas);
                 }
             }
-            else
-            {
+            else {
                 this.mask.fill("#2F3136");
                 this.mask.blendMode = "destination-out";
                 this.mask.fillCircleInRect(0, 0, this.size.x, this.size.y, "white");
                 this.mask.blendMode = "source-over";
-                if (this.onlineIndicator)
-                {
+                if (this.onlineIndicator) {
                     showElement(this.onlineIndicator.canvas);
                 }
             }
@@ -149,14 +133,12 @@ export class Preview extends Widget
         this.image.style.top = p.y + "px";
     }
 
-    public set antialias(antialias : boolean)
-    {
+    public set antialias(antialias: boolean) {
         makePixelated(this.image, !antialias);
         this.antialiased = antialias;
     }
 
-    public get antialias() : boolean
-    {
+    public get antialias(): boolean {
         return this.antialiased;
     }
 }

@@ -1,73 +1,65 @@
-export class Canvas
-{
-    canvas : HTMLCanvasElement;
-    translation : any;
-    align : any;
-    usingDeepCalc : boolean;
-    mouse : any;
-    offset : any;
+export class Canvas {
+    canvas: HTMLCanvasElement;
+    translation: any;
+    align: any;
+    usingDeepCalc: boolean;
+    mouse: any;
+    offset: any;
 
-    constructor(options)
-    {
+    constructor(options) {
         options = options || {}
 
-        if (!options.canvasElement)
-        {
+        if (!options.canvasElement) {
             options.canvasElement = document.createElement("canvas");
         }
 
-        if (typeof(options.canvasElement) === "string")
-        {
+        if (typeof (options.canvasElement) === "string") {
             options.canvasElement = document.querySelector(options.canvasElement);
         }
 
         this.canvas = options.canvasElement;
-        
+
         this.resize(options.width, options.height);
 
         this.translation = { x: 0, y: 0 }
 
         this.align =
-        {
-            horizontal: (options.align && options.align.horizontal) || false,
-            vertical: (options.align && options.align.vertical) || false
-        }
+            {
+                horizontal: (options.align && options.align.horizontal) || false,
+                vertical: (options.align && options.align.vertical) || false
+            }
 
-        if (this.align.horizontal || this.align.vertical)
-        {
+        if (this.align.horizontal || this.align.vertical) {
             this.canvas.style["transform-origin"] = "center";
         }
-        else
-        {
+        else {
             this.canvas.style["transform-origin"] = "top left";
         }
 
         this.usingDeepCalc = options.deepCalc || false;
         this.pixelated = options.pixelated || false;
 
-        if (this.usingDeepCalc)
-        {
+        if (this.usingDeepCalc) {
             this.deepCalcPosition();
             window.addEventListener("resize", this.deepCalcPosition);
         }
 
         this.mouse =
-        {
-            isDown: false,
-            lastPos: null,
-            originalPos: { x: -1, y: -1 },
-            events:
             {
-                move: [],
-                down: [],
-                up: [],
-                leave: []
-            },
-            addEventListener: function(eventName, fn)
-            {
-                this.events[eventName].push(fn);
+                isDown: false,
+                lastPos: null,
+                originalPos: { x: -1, y: -1 },
+                events:
+                {
+                    move: [],
+                    down: [],
+                    up: [],
+                    leave: []
+                },
+                addEventListener: function (eventName, fn) {
+                    this.events[eventName].push(fn);
+                }
             }
-        }
 
         this.canvas.addEventListener("mousemove", this.mouseMove.bind(this));
         this.canvas.addEventListener("touchmove", this.mouseMove.bind(this));
@@ -79,8 +71,7 @@ export class Canvas
         this.canvas.addEventListener("touchcancel", this.mouseLeave.bind(this));
     }
 
-    static round(x)
-    {
+    static round(x) {
         let negative = x < 0;
         x = Math.abs(x);
         x = (x + 0.5) | 0;
@@ -88,10 +79,8 @@ export class Canvas
         return x;
     }
 
-    resize(w?, h?, redraw?)
-    {
-        if (w === undefined && h === undefined)
-        {
+    resize(w?, h?, redraw?) {
+        if (w === undefined && h === undefined) {
             return;
         }
 
@@ -100,66 +89,57 @@ export class Canvas
 
         let c;
 
-        if (redraw)
-        {
+        if (redraw) {
             c = this.canvas.cloneNode();
         }
 
         this.canvas.width = w;
         this.canvas.height = h;
 
-        if (redraw)
-        {
+        if (redraw) {
             this.drawImage(c);
         }
     }
 
-    zoom(x?, y?)
-    {
+    zoom(x?, y?) {
         x = x || 1;
         y = y || x;
 
         this.canvas.style["transform"] = "scale(" + x + ", " + y + ")";
     }
 
-    scale(x?, y?)
-    {
+    scale(x?, y?) {
         return this.zoom(x, y);
     }
 
-    clear()
-    {
-        this.context.clearRect(-this.translation.x, -this.translation.y, this.canvas.width, this.canvas.height);  
+    clear() {
+        this.context.clearRect(-this.translation.x, -this.translation.y, this.canvas.width, this.canvas.height);
     }
 
-    deepCalcPosition()
-    {
-        let z = <HTMLElement>this.canvas, x = 0, y = 0, c; 
+    deepCalcPosition() {
+        let z = <HTMLElement>this.canvas, x = 0, y = 0, c;
 
-        while(z && !isNaN(z.offsetLeft) && !isNaN(z.offsetTop)) {        
-            c =  window.getComputedStyle(z, null); 
-            x += z.offsetLeft - z.scrollLeft + (c ? parseInt(c.getPropertyValue('border-left-width') , 10) : 0);
-            y += z.offsetTop - z.scrollTop + (c ? parseInt(c.getPropertyValue('border-top-width') , 10) : 0);
+        while (z && !isNaN(z.offsetLeft) && !isNaN(z.offsetTop)) {
+            c = window.getComputedStyle(z, null);
+            x += z.offsetLeft - z.scrollLeft + (c ? parseInt(c.getPropertyValue('border-left-width'), 10) : 0);
+            y += z.offsetTop - z.scrollTop + (c ? parseInt(c.getPropertyValue('border-top-width'), 10) : 0);
             z = <HTMLElement>z.offsetParent;
         }
 
         this.offset = { x: x, y: y }
     }
 
-    posFromEvent(e)
-    {
+    posFromEvent(e) {
         let x = e.pageX;
         let y = e.pageY;
 
 
-        if (e.changedTouches)
-        {
+        if (e.changedTouches) {
             x = e.changedTouches[0].pageX;
             y = e.changedTouches[0].pageY;
         }
 
-        if (this.usingDeepCalc)
-        {
+        if (this.usingDeepCalc) {
             this.deepCalcPosition();
         }
 
@@ -168,13 +148,11 @@ export class Canvas
         let ox = this.usingDeepCalc ? this.offset.x : bounds.left;
         let oy = this.usingDeepCalc ? this.offset.y : bounds.top;
 
-        if (this.align.horizontal && ox > 0)
-        {
+        if (this.align.horizontal && ox > 0) {
             ox = (2 * ox - bounds.width) / 2;
         }
 
-        if (this.align.vertical && oy > 0)
-        {
+        if (this.align.vertical && oy > 0) {
             oy = (2 * oy - bounds.height) / 2;
         }
 
@@ -187,14 +165,12 @@ export class Canvas
         return { x, y }
     }
 
-    mouseMove(e)
-    {
+    mouseMove(e) {
         let pos = this.posFromEvent(e);
         if (!this.mouse.lastPos) this.mouse.lastPos = pos;
         if (!this.mouse.isDown) this.mouse.originalPos = pos;
 
-        this.mouse.events.move.forEach(fn =>
-        {
+        this.mouse.events.move.forEach(fn => {
             let event = fn.call(
                 this,
                 pos.x,
@@ -207,56 +183,47 @@ export class Canvas
                 e
             );
 
-            if (event !== false)
-            {
+            if (event !== false) {
                 this.mouse.lastPos = pos;
             }
         });
     }
 
-    mouseDown(e)
-    {
+    mouseDown(e) {
         let pos = this.posFromEvent(e);
         this.mouse.isDown = true;
         this.mouse.lastPos = pos;
         this.mouse.originalPos = pos;
 
-        this.mouse.events.down.forEach(fn =>
-        {
+        this.mouse.events.down.forEach(fn => {
             fn.call(this, pos.x, pos.y, e);
         });
     }
 
-    mouseUp(e)
-    {
+    mouseUp(e) {
         let pos = this.posFromEvent(e);
         this.mouse.isDown = false;
 
-        this.mouse.events.up.forEach(fn =>
-        {
+        this.mouse.events.up.forEach(fn => {
             fn.call(this, pos.x, pos.y, this.mouse.originalPos.x, this.mouse.originalPos.y, e);
         });
 
         this.mouse.lastPos = pos;
     }
 
-    mouseLeave(e)
-    {
+    mouseLeave(e) {
         let pos = this.posFromEvent(e);
 
-        this.mouse.events.leave.forEach(fn =>
-        {
+        this.mouse.events.leave.forEach(fn => {
             fn.call(this, pos.x, pos.y, e);
         });
     }
 
-    get context()
-    {
+    get context() {
         return this.canvas.getContext("2d");
     }
 
-    set pixelated(bool)
-    {
+    set pixelated(bool) {
         bool = !bool;
 
         let ctx = this.context;
@@ -265,14 +232,12 @@ export class Canvas
         //(<any>ctx).msImageSmoothingEnabled = bool;
         (<any>ctx).imageSmoothingEnabled = bool;
 
-        if (!bool)
-        {
-            let types = [ "optimizeSpeed", "crisp-edges", "-moz-crisp-edges", "-webkit-optimize-contrast", "optimize-contrast", "pixelated" ];
-            
+        if (!bool) {
+            let types = ["optimizeSpeed", "crisp-edges", "-moz-crisp-edges", "-webkit-optimize-contrast", "optimize-contrast", "pixelated"];
+
             types.forEach(type => this.canvas.style["image-rendering"] = type);
         }
-        else
-        {
+        else {
             this.canvas.style["image-rendering"] = "";
         }
         //this.canvas.style.msInterpolationMode = "nearest-neighbor";
@@ -287,8 +252,7 @@ export class Canvas
     set opacity(opacity) { this.context.globalAlpha = opacity; }
 
     get color() { return this.context.fillStyle; }
-    set color(val)
-    {
+    set color(val) {
         if (val === undefined) return;
 
         this.context.fillStyle = val;
@@ -296,18 +260,16 @@ export class Canvas
     }
 
     get font() { return this.context.font; }
-    set font(val)
-    {
+    set font(val) {
         if (val === undefined) return;
 
         this.context.font = val;
     }
 
     get lineWidth() { return this.context.lineWidth; }
-    set lineWidth(val)
-    {
+    set lineWidth(val) {
         if (val === undefined) return;
-        
+
         this.context.lineWidth = val;
     }
 
@@ -317,35 +279,29 @@ export class Canvas
     get lineDash() { return this.context.getLineDash(); }
     set lineDash(dash) { this.context.setLineDash(dash); }
 
-    createBlob(callback, mimeType?)
-    {
-        this.canvas.toBlob(function(blob)
-        {
+    createBlob(callback, mimeType?) {
+        this.canvas.toBlob(function (blob) {
             callback(blob);
         }, mimeType);
     }
 
-    createImage(callback, mimeType?, autoRevoke = true)
-    {
-        this.canvas.toBlob(function(blob) {
+    createImage(callback, mimeType?, autoRevoke = true) {
+        this.canvas.toBlob(function (blob) {
             let ret = new Image();
-    
-            ret.onload = function()
-            {
+
+            ret.onload = function () {
                 callback(this);
                 this.onload = null;
                 autoRevoke && URL.revokeObjectURL((<HTMLImageElement>this).src);
             }
-        
+
             let url = URL.createObjectURL(blob);
             ret.src = url;
         }, mimeType);
     }
 
-    drawImage(image, x?, y?, w?, h?)
-    {
-        if (image instanceof Canvas)
-        {
+    drawImage(image, x?, y?, w?, h?) {
+        if (image instanceof Canvas) {
             image = image.canvas;
         }
 
@@ -358,28 +314,25 @@ export class Canvas
         y = Canvas.round(y);
         w = Canvas.round(w);
         h = Canvas.round(h);
-        
+
         this.context.drawImage(image, x, y, w, h);
     }
 
-    drawScaledImage(image, x, y, sw, sh)
-    {
+    drawScaledImage(image, x, y, sw, sh) {
         let w = image.width * sw;
         let h = image.height * sh;
 
         this.drawImage(image, x, y, w, h);
     }
 
-    drawCroppedImage(image, x, y, cx, cy, cw, ch, w?, h?)
-    {
-        if (image instanceof Canvas)
-        {
+    drawCroppedImage(image, x, y, cx, cy, cw, ch, w?, h?) {
+        if (image instanceof Canvas) {
             image = image.canvas;
         }
 
         if (w === undefined) w = cw;
         if (h === undefined) h = ch;
-        
+
         x = Canvas.round(x);
         y = Canvas.round(y);
         cx = Canvas.round(cx);
@@ -391,17 +344,15 @@ export class Canvas
 
         this.context.drawImage(image, cx, cy, cw, ch, x, y, w, h);
     }
-    
-    drawRotatedCroppedImage(image, rotate, anchorX, anchorY, x, y, cx, cy, cw, ch, w, h)
-    {
-        if (image instanceof Canvas)
-        {
+
+    drawRotatedCroppedImage(image, rotate, anchorX, anchorY, x, y, cx, cy, cw, ch, w, h) {
+        if (image instanceof Canvas) {
             image = image.canvas;
         }
 
         if (w === undefined) w = cw;
         if (h === undefined) h = ch;
-        
+
         x = Canvas.round(x);
         y = Canvas.round(y);
         cx = Canvas.round(cx);
@@ -410,9 +361,9 @@ export class Canvas
         ch = Canvas.round(ch);
         w = Canvas.round(w);
         h = Canvas.round(h);
-    
+
         var ctx = this.context;
-    
+
         ctx.save();
         ctx.translate(x + anchorX, y + anchorY);
         ctx.rotate(rotate);
@@ -422,10 +373,8 @@ export class Canvas
 
     // use closures to make function factory function for onclick etc
 
-    fillImage(image, resizeToFit)
-    {
-        if (resizeToFit)
-        {
+    fillImage(image, resizeToFit) {
+        if (resizeToFit) {
             this.resize(image.width, image.height);
         }
 
@@ -435,15 +384,14 @@ export class Canvas
     drawLine(x1, y1, x2, y2, color?, lineWidth?) {
         this.color = color;
         this.lineWidth = lineWidth;
-    
+
         this.context.beginPath();
         this.context.moveTo(x1, y1);
         this.context.lineTo(x2, y2);
         this.context.stroke();
     }
 
-    drawRect(x : number, y : number, w : number, h : number, color, lineWidth, sharp)
-    {
+    drawRect(x: number, y: number, w: number, h: number, color, lineWidth, sharp) {
         this.color = color;
         this.lineWidth = lineWidth;
 
@@ -454,8 +402,7 @@ export class Canvas
         w = Canvas.round(w);
         h = Canvas.round(h);
 
-        if (sharp)
-        {
+        if (sharp) {
             x += 0.5;
             y += 0.5;
         }
@@ -463,8 +410,7 @@ export class Canvas
         this.context.strokeRect(x, y, w, h);
     }
 
-    fillRect(x : number, y : number, w : number, h : number, color)
-    {
+    fillRect(x: number, y: number, w: number, h: number, color) {
         this.color = color;
 
         x = Canvas.round(x);
@@ -476,8 +422,7 @@ export class Canvas
     }
 
     // https://stackoverflow.com/a/7838871
-    drawRoundedRect(x : number, y : number, w : number, h : number, r : number, color, lineWidth, sharp)
-    {
+    drawRoundedRect(x: number, y: number, w: number, h: number, r: number, color, lineWidth, sharp) {
         this.color = color;
         this.lineWidth = lineWidth;
 
@@ -489,8 +434,7 @@ export class Canvas
         h = Canvas.round(h);
         r = Canvas.round(r);
 
-        if (sharp)
-        {
+        if (sharp) {
             x += 0.5;
             y += 0.5;
         }
@@ -499,17 +443,16 @@ export class Canvas
         if (h < 2 * r) r = h / 2;
 
         this.context.beginPath();
-        this.context.moveTo(x+r, y);
-        this.context.arcTo(x+w, y,   x+w, y+h, r);
-        this.context.arcTo(x+w, y+h, x,   y+h, r);
-        this.context.arcTo(x,   y+h, x,   y,   r);
-        this.context.arcTo(x,   y,   x+w, y,   r);
+        this.context.moveTo(x + r, y);
+        this.context.arcTo(x + w, y, x + w, y + h, r);
+        this.context.arcTo(x + w, y + h, x, y + h, r);
+        this.context.arcTo(x, y + h, x, y, r);
+        this.context.arcTo(x, y, x + w, y, r);
         this.context.closePath();
         this.context.stroke();
     }
 
-    fillRoundedRect(x : number, y : number, w : number, h : number, r : number, color, sharp?)
-    {
+    fillRoundedRect(x: number, y: number, w: number, h: number, r: number, color, sharp?) {
         this.color = color;
 
         if (sharp === undefined) sharp = true;
@@ -520,8 +463,7 @@ export class Canvas
         h = Canvas.round(h);
         r = Canvas.round(r);
 
-        if (sharp)
-        {
+        if (sharp) {
             x += 0.5;
             y += 0.5;
         }
@@ -530,22 +472,20 @@ export class Canvas
         if (h < 2 * r) r = h / 2;
 
         this.context.beginPath();
-        this.context.moveTo(x+r, y);
-        this.context.arcTo(x+w, y,   x+w, y+h, r);
-        this.context.arcTo(x+w, y+h, x,   y+h, r);
-        this.context.arcTo(x,   y+h, x,   y,   r);
-        this.context.arcTo(x,   y,   x+w, y,   r);
+        this.context.moveTo(x + r, y);
+        this.context.arcTo(x + w, y, x + w, y + h, r);
+        this.context.arcTo(x + w, y + h, x, y + h, r);
+        this.context.arcTo(x, y + h, x, y, r);
+        this.context.arcTo(x, y, x + w, y, r);
         this.context.closePath();
         this.context.fill();
     }
 
-    fill(color)
-    {
+    fill(color) {
         this.fillRect(0, 0, this.width, this.height, color);
     }
 
-    fillText(text, x, y, color, baseline, align, font)
-    {
+    fillText(text, x, y, color, baseline, align, font) {
         this.color = color;
         this.font = font;
 
@@ -554,8 +494,7 @@ export class Canvas
         this.context.fillText(text, x, y);
     }
 
-    fillCircle(x : number, y : number, radius : number, color)
-    {
+    fillCircle(x: number, y: number, radius: number, color) {
         this.color = color;
 
         this.context.beginPath();
@@ -563,17 +502,15 @@ export class Canvas
         this.context.fill();
     }
 
-    fillCircleInSquare(x : number, y : number, diameter : number, color)
-    {    
+    fillCircleInSquare(x: number, y: number, diameter: number, color) {
         this.color = color;
-    
+
         this.context.beginPath();
         this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
         this.context.fill();
     }
 
-    drawCircleInSquare(x : number, y : number, diameter : number, color, lineWidth)
-    {
+    drawCircleInSquare(x: number, y: number, diameter: number, color, lineWidth) {
         this.color = color;
         this.lineWidth = lineWidth;
 
@@ -582,13 +519,11 @@ export class Canvas
         this.context.stroke();
     }
 
-    fillCircleInRect(x : number, y : number, diameterX : number, diameterY : number, color : string)
-    {
-        if (diameterX === diameterY)
-        {
+    fillCircleInRect(x: number, y: number, diameterX: number, diameterY: number, color: string) {
+        if (diameterX === diameterY) {
             return this.fillCircleInSquare(x, y, diameterX, color);
         }
-        
+
         this.color = color;
 
         this.context.beginPath();
@@ -596,13 +531,11 @@ export class Canvas
         this.context.fill();
     }
 
-    drawCircleInRect(x : number, y : number, diameterX : number, diameterY : number, color? : string, lineWidth? : number)
-    {
-        if (diameterX === diameterY)
-        {
+    drawCircleInRect(x: number, y: number, diameterX: number, diameterY: number, color?: string, lineWidth?: number) {
+        if (diameterX === diameterY) {
             return this.drawCircleInSquare(x, y, diameterX, color, lineWidth);
         }
-        
+
         this.color = color;
         this.lineWidth = lineWidth;
 
@@ -611,20 +544,19 @@ export class Canvas
         this.context.stroke();
     }
 
-    drawRotatedImage(image : Canvas | HTMLImageElement | HTMLCanvasElement, rotate : number, x : number, y : number, w? : number, h? : number) {
-        if (image instanceof Canvas)
-        {
+    drawRotatedImage(image: Canvas | HTMLImageElement | HTMLCanvasElement, rotate: number, x: number, y: number, w?: number, h?: number) {
+        if (image instanceof Canvas) {
             image = image.canvas;
         }
 
         if (w === undefined) w = image.width;
         if (h === undefined) h = image.height;
-        
+
         x = Canvas.round(x);
         y = Canvas.round(y);
         w = Canvas.round(w);
         h = Canvas.round(h);
-    
+
         this.context.save();
         this.context.translate(x + w / 2, y + h / 2);
         this.context.rotate(rotate);
@@ -634,15 +566,14 @@ export class Canvas
 
     static fileToImage(file, callback, autoRevoke = true) {
         let img = new Image();
-    
-        img.onload = function() {
+
+        img.onload = function () {
             callback(this);
-            if (autoRevoke)
-            {
+            if (autoRevoke) {
                 window.URL.revokeObjectURL((<HTMLImageElement>this).src);
             }
         }
-    
+
         img.src = window.URL.createObjectURL(file);
     }
 }
@@ -652,13 +583,13 @@ if (!HTMLCanvasElement.prototype.toBlob) {
     Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
         value: function (callback, type, quality) {
             var canvas = this;
-            setTimeout(function() {
-                var binStr = atob( canvas.toDataURL(type, quality).split(',')[1] ),
+            setTimeout(function () {
+                var binStr = atob(canvas.toDataURL(type, quality).split(',')[1]),
                     len = binStr.length,
                     arr = new Uint8Array(len);
 
-                for (var i = 0; i < len; i++ ) {
-                arr[i] = binStr.charCodeAt(i);
+                for (var i = 0; i < len; i++) {
+                    arr[i] = binStr.charCodeAt(i);
                 }
 
                 callback(new Blob([arr], { type: type || 'image/png' }));

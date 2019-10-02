@@ -1,122 +1,96 @@
 import { createElement } from "./util";
 import { EventClass } from "./eventclass";
 
-export class Widget extends EventClass
-{
-    public container : HTMLElement;
-    protected contentContainer : HTMLElement;
+export class Widget extends EventClass {
+    public container: HTMLElement;
+    protected contentContainer: HTMLElement;
 
-    constructor(className_or_container? : string | HTMLElement)
-    {
+    constructor(className_or_container?: string | HTMLElement) {
         super();
-        
-        if (className_or_container)
-        {
-            if (typeof(className_or_container) === "string")
-            {
+
+        if (className_or_container) {
+            if (typeof (className_or_container) === "string") {
                 this.container = createElement("div", className_or_container);
             }
-            else
-            {
+            else {
                 this.container = className_or_container;
             }
         }
-        else
-        {
+        else {
             this.container = createElement("div");
         }
 
         this.contentContainer = this.container;
     }
 
-    public show() : void
-    {
+    public show(): void {
         this.container.style.display = "";
     }
 
-    public hide() : void
-    {
+    public hide(): void {
         this.container.style.display = "none";
     }
 
-    public set innerHTML(innerHTML : string)
-    {
+    public set innerHTML(innerHTML: string) {
         this.contentContainer.innerHTML = innerHTML;
     }
 
-    public get innerHTML() : string
-    {
+    public get innerHTML(): string {
         return this.contentContainer.innerHTML;
     }
 
-    public set innerText(innerText : string)
-    {
+    public set innerText(innerText: string) {
         this.contentContainer.innerText = innerText;
     }
 
-    public get innerText() : string
-    {
+    public get innerText(): string {
         return this.contentContainer.innerText;
     }
 
-    public appendChild(...children : (HTMLElement | Widget | null)[]) : void
-    {
-        if (children.length === 1)
-        {
+    public appendChild(...children: (HTMLElement | Widget | null)[]): void {
+        if (children.length === 1) {
             this.appendHelper(this.contentContainer, children[0]);
         }
-        else
-        {
+        else {
             let frag = document.createDocumentFragment();
-    
-            children.forEach(child =>
-            {
+
+            children.forEach(child => {
                 this.appendHelper(frag, child);
             });
-    
+
             this.contentContainer.appendChild(frag);
         }
     }
 
-    private appendHelper(parent : Node, child : (HTMLElement | Widget)) : void
-    {
-        if (child instanceof HTMLElement)
-        {
+    private appendHelper(parent: Node, child: (HTMLElement | Widget)): void {
+        if (child instanceof HTMLElement) {
             parent.appendChild(child);
         }
-        else if (child)
-        {
+        else if (child) {
             parent.appendChild(child.container);
         }
     }
 
-    public removeChild(child : HTMLElement | Widget) : boolean
-    {
-        if (!this.hasChild(child))
-        {
+    public removeChild(child: HTMLElement | Widget): boolean {
+        if (!this.hasChild(child)) {
             return false;
         }
 
-        if (child instanceof HTMLElement)
-        {
+        if (child instanceof HTMLElement) {
             this.contentContainer.removeChild(child);
         }
-        else
-        {
+        else {
             this.contentContainer.removeChild(child.container);
         }
 
         return true;
     }
 
-    public hasChild(child : HTMLElement | Widget)
-    {
-        if (child instanceof HTMLElement)
-        {
+    public hasChild(child: HTMLElement | Widget) {
+        if (child instanceof HTMLElement) {
             return this.contentContainer.contains(child);
         }
-        else
-        {
+        else {
             return this.contentContainer.contains(child.container);
         }
     }

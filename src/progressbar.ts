@@ -1,13 +1,11 @@
 import { Widget } from "./widget";
 import { createElement } from "./util";
 
-export class ProgressBar extends Widget
-{
-    private progressElement : HTMLElement;
-    private _progress : number;
+export class ProgressBar extends Widget {
+    private progressElement: HTMLElement;
+    private _progress: number;
 
-    constructor()
-    {
+    constructor() {
         super(createElement("div", "progressBar"));
 
         this.progressElement = createElement("div", "progress");
@@ -19,14 +17,12 @@ export class ProgressBar extends Widget
     }
 
     // 0 to 1 //
-    public set progress(progress : number)
-    {
+    public set progress(progress: number) {
         this._progress = progress;
         this.progressElement.style.width = (progress * 100) + "%";
     }
 
-    public get progress() : number
-    {
+    public get progress(): number {
         return this._progress;
     }
 }

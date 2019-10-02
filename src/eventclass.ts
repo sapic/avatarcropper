@@ -1,26 +1,20 @@
 import { array_remove } from "./util";
 
-export class EventClass
-{
-    private events : Map<string, { fn : Function, id : string }[]> = new Map<string, { fn : Function, id : string }[]>();
+export class EventClass {
+    private events: Map<string, { fn: Function, id: string }[]> = new Map<string, { fn: Function, id: string }[]>();
 
-    constructor()
-    {
+    constructor() {
         // poopie
     }
 
-    protected createEvent(event : string)
-    {
-        if (!this.events.has(event))
-        {
+    protected createEvent(event: string) {
+        if (!this.events.has(event)) {
             this.events.set(event, []);
         }
     }
 
-    public emitEvent(event : string, ...args : any[]) : void
-    {
-        if (!this.events.has(event))
-        {
+    public emitEvent(event: string, ...args: any[]): void {
+        if (!this.events.has(event)) {
             console.warn("event not yet created: " + event);
             this.events.set(event, []);
         }
@@ -28,10 +22,8 @@ export class EventClass
         this.events.get(event).forEach(o => o.fn(...args));
     }
 
-    public on(event : string, fn : Function, id : string = "[unidentified]")
-    {
-        if (!this.events.has(event))
-        {
+    public on(event: string, fn: Function, id: string = "[unidentified]") {
+        if (!this.events.has(event)) {
             console.warn("event not yet created: " + event);
             this.events.set(event, []);
         }
@@ -39,31 +31,26 @@ export class EventClass
         this.events.get(event).push({ fn, id });
     }
 
-    public once(event : string, fn : Function, id : string = "[unidentified oneshot]")
-    {
-        if (!this.events.has(event))
-        {
+    public once(event: string, fn: Function, id: string = "[unidentified oneshot]") {
+        if (!this.events.has(event)) {
             console.warn("event not yet created: " + event);
             this.events.set(event, []);
         }
 
-        let wrapper = 
+        let wrapper =
         {
-            fn: () =>
-            {
+            fn: () => {
                 fn();
                 array_remove(this.events.get(event), wrapper);
             },
             id
         };
-        
+
         this.events.get(event).push(wrapper);
     }
 
-    public debugEvent(event : string)
-    {
-        if (!this.events.has(event))
-        {
+    public debugEvent(event: string) {
+        if (!this.events.has(event)) {
             console.warn("event not yet created: " + event);
             this.events.set(event, []);
         }

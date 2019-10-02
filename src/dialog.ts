@@ -1,12 +1,10 @@
 import { Widget } from "./widget";
 import { createElement, stopProp } from "./util";
 
-export class Dialog extends Widget
-{
-    protected dialog : HTMLElement;
+export class Dialog extends Widget {
+    protected dialog: HTMLElement;
 
-    constructor()
-    {
+    constructor() {
         super("dialog-backdrop");
 
         this.dialog = createElement("div", "dialog");
@@ -14,16 +12,14 @@ export class Dialog extends Widget
         this.container.appendChild(this.dialog);
         this.contentContainer = this.dialog;
 
-        this.container.addEventListener("click", () =>
-        {
+        this.container.addEventListener("click", () => {
             this.hide();
         });
 
         this.hide();
     }
 
-    show()
-    {
+    show() {
         super.show();
         this.contentContainer.scrollTop = 0;
     }

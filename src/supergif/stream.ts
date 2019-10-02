@@ -2,7 +2,7 @@ export class SuperGifStream {
 
     private position = 0;
 
-    constructor(private data : any) {
+    constructor(private data: any) {
     }
 
     readByte() {
@@ -17,7 +17,7 @@ export class SuperGifStream {
         }
     };
 
-    readBytes(n : any) {
+    readBytes(n: any) {
         let bytes = [];
         for (let i = 0; i < n; i++) {
             bytes.push(this.readByte());

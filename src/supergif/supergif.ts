@@ -1,52 +1,52 @@
-import {SuperGifParser} from './parser';
-import {SuperGifStream} from './stream';
+import { SuperGifParser } from './parser';
+import { SuperGifStream } from './stream';
 import { EventClass } from '../eventclass';
 
 export class SuperGif extends EventClass {
-    private shouldStopParsing : boolean = false;
+    private shouldStopParsing: boolean = false;
 
     private options: any = {
         autoPlay: true
     };
 
-    private hdr : any;
+    private hdr: any;
 
     private loadErrorCause: string;
     private loading = false;
     private ready = false;
 
-    private transparency : number = null;
-    private delay : number = null;
-    private disposalMethod : any = null;
-    private disposalRestoreFromIdx : any = null;
-    private lastDisposalMethod : any = null;
-    private frame : any = null;
-    private lastImg : any = null;
+    private transparency: number = null;
+    private delay: number = null;
+    private disposalMethod: any = null;
+    private disposalRestoreFromIdx: any = null;
+    private lastDisposalMethod: any = null;
+    private frame: any = null;
+    private lastImg: any = null;
 
-    private playing : any = true;
-    private forward : any = true;
+    private playing: any = true;
+    private forward: any = true;
 
-    private ctxScaled : any = false;
+    private ctxScaled: any = false;
 
-    private frames : any = [];
-    private frameOffsets : any = []; // Elements have .x and .y properties
+    private frames: any = [];
+    private frameOffsets: any = []; // Elements have .x and .y properties
 
-    private onEndListener : any;
-    private loopDelay : any;
-    private overrideLoopMode : any;
-    private drawWhileLoading : any;
+    private onEndListener: any;
+    private loopDelay: any;
+    private overrideLoopMode: any;
+    private drawWhileLoading: any;
 
     private canvas: HTMLCanvasElement;
     private canvasContext: CanvasRenderingContext2D;
     private tmpCanvas: HTMLCanvasElement;
     private initialized = false;
-    private loadCallback : any;
+    private loadCallback: any;
 
     private currentFrameIndex = -1;
     private iterationCount = 0;
     private stepping = false;
 
-    private parser : SuperGifParser;
+    private parser: SuperGifParser;
 
     private handler = {
         hdr: this.withProgress(this.doHdr.bind(this)),
@@ -90,12 +90,10 @@ export class SuperGif extends EventClass {
         this.drawWhileLoading = opts.drawWhileLoading || true;
     }
 
-    public abort()
-    {
+    public abort() {
         this.shouldStopParsing = true;
 
-        if (this.parser)
-        {
+        if (this.parser) {
             this.parser.abort();
         }
     }
@@ -119,7 +117,7 @@ export class SuperGif extends EventClass {
         this.initialized = true;
     }
 
-    private loadSetup(callback : any) {
+    private loadSetup(callback: any) {
         if (this.loading) {
             return false;
         }
@@ -229,8 +227,7 @@ export class SuperGif extends EventClass {
         try {
             this.parser = new SuperGifParser(stream, this.handler);
             this.parser.parse();
-            this.parser.on("abort", () =>
-            {
+            this.parser.on("abort", () => {
                 this.emitEvent("abort");
             });
         } catch (err) {
@@ -238,7 +235,7 @@ export class SuperGif extends EventClass {
         }
     }
 
-    private setSizes(width : number, height : number) {
+    private setSizes(width: number, height: number) {
         this.canvas.width = width * this.getCanvasScale();
         this.canvas.height = height * this.getCanvasScale();
 
@@ -272,12 +269,12 @@ export class SuperGif extends EventClass {
         this.drawError();
     }
 
-    private doHdr(_hdr : { width: number, height : number }) {
+    private doHdr(_hdr: { width: number, height: number }) {
         this.hdr = _hdr;
         this.setSizes(this.hdr.width, this.hdr.height);
     }
 
-    private doGCE(gce : any) {
+    private doGCE(gce: any) {
         this.pushFrame();
         this.clear();
         this.transparency = gce.transparencyGiven ? gce.transparencyIndex : null;
@@ -296,10 +293,10 @@ export class SuperGif extends EventClass {
             delay: this.delay
         });
 
-        this.frameOffsets.push({x: 0, y: 0});
+        this.frameOffsets.push({ x: 0, y: 0 });
     }
 
-    private doImg(img : any) {
+    private doImg(img: any) {
         if (!this.frame) {
             this.frame = this.tmpCanvas.getContext('2d');
         }
@@ -337,7 +334,7 @@ export class SuperGif extends EventClass {
         let imgData = this.frame.getImageData(img.leftPos, img.topPos, img.width, img.height);
 
         //apply color table colors
-        img.pixels.forEach((pixel : any, i : any) => {
+        img.pixels.forEach((pixel: any, i: any) => {
             // imgData.data === [R,G,B,A,R,G,B,A,...]
             if (pixel !== this.transparency) {
                 imgData.data[i * 4 + 0] = ct[pixel][0];
@@ -367,8 +364,8 @@ export class SuperGif extends EventClass {
     private doNothing() {
     }
 
-    private withProgress(fn : any) {
-        return function (block : any) {
+    private withProgress(fn: any) {
+        return function (block: any) {
             fn(block);
         };
     }
@@ -382,7 +379,7 @@ export class SuperGif extends EventClass {
         return (this.currentFrameIndex + delta + this.frames.length) % this.frames.length;
     }
 
-    stepFrame(amount : any) { // XXX: Name is confusing.
+    stepFrame(amount: any) { // XXX: Name is confusing.
         this.currentFrameIndex = this.currentFrameIndex + amount;
         this.putFrame();
     }
@@ -436,23 +433,21 @@ export class SuperGif extends EventClass {
         return this.currentFrameIndex;
     }
 
-    getFrames()
-    {
+    getFrames() {
         return this.frames;
     }
 
-    moveTo(idx : any) {
+    moveTo(idx: any) {
         this.currentFrameIndex = idx;
         this.putFrame();
     }
 
-    loadURL(src: string, callback : any) {
+    loadURL(src: string, callback: any) {
         if (!this.loadSetup(callback)) {
             return;
         }
 
-        if (this.parser)
-        {
+        if (this.parser) {
             this.parser.abort(true);
             this.parser = null;
         }
@@ -493,19 +488,16 @@ export class SuperGif extends EventClass {
 
             const stream = new SuperGifStream(data);
             setTimeout(() => {
-                if (!this.shouldStopParsing)
-                {
+                if (!this.shouldStopParsing) {
                     this.parseStream(stream);
                 }
-                else
-                {
+                else {
                     this.emitEvent("abort");
                 }
             }, 0);
         };
 
-        request.onprogress = (e) =>
-        {
+        request.onprogress = (e) => {
             this.emitEvent("progress", e);
         };
 
@@ -516,7 +508,7 @@ export class SuperGif extends EventClass {
         request.send();
     }
 
-    load(callback : any): void {
+    load(callback: any): void {
         this.loadURL(this.gifImgElement.src, callback);
     }
 }

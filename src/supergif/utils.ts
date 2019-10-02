@@ -1,12 +1,12 @@
 export class SuperGifUtils {
 
-    static bitsToNum(ba : any) {
-        return ba.reduce(function (s : any, n : any) {
+    static bitsToNum(ba: any) {
+        return ba.reduce(function (s: any, n: any) {
             return s * 2 + n;
         }, 0);
     };
 
-    static byteToBitArr(bite : any) {
+    static byteToBitArr(bite: any) {
         let a = [];
         for (let i = 7; i >= 0; i--) {
             a.push(!!(bite & (1 << i)));
@@ -14,10 +14,10 @@ export class SuperGifUtils {
         return a;
     };
 
-    static lzwDecode(minCodeSize : any, data : any) {
+    static lzwDecode(minCodeSize: any, data: any) {
         // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
         let pos = 0; // Maybe this streaming thing should be merged with the Stream?
-        let readCode = function (size : any) {
+        let readCode = function (size: any) {
             let code = 0;
             for (let i = 0; i < size; i++) {
                 if (data.charCodeAt(pos >> 3) & (1 << (pos & 7))) {
@@ -28,14 +28,14 @@ export class SuperGifUtils {
             return code;
         };
 
-        let output : any = [];
+        let output: any = [];
 
         let clearCode = 1 << minCodeSize;
         let eoiCode = clearCode + 1;
 
         let codeSize = minCodeSize + 1;
 
-        let dict : any = [];
+        let dict: any = [];
 
         let clear = function () {
             dict = [];

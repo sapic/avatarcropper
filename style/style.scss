@@ -1,8 +1,10 @@
 $background: #2F3136;
 $footerHeight: 36px;
-
-html, body, #container, .dialog-backdrop, .bigOverlay
-{
+html,
+body,
+#container,
+.dialog-backdrop,
+.bigOverlay {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -15,13 +17,12 @@ html, body, #container, .dialog-backdrop, .bigOverlay
     overflow: hidden;
 }
 
-body, .bigOverlay
-{
+body,
+.bigOverlay {
     background-color: $background;
 }
 
-.bigOverlay
-{
+.bigOverlay {
     z-index: 9999;
     height: 100%;
     font-size: 3em;
@@ -32,21 +33,18 @@ body, .bigOverlay
     justify-content: center;
 }
 
-.dialog-backdrop
-{
-    background-color: rgba(0,0,0,0.7);
+.dialog-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
     z-index: 1000;
 }
 
-.dialog
-{
+.dialog {
     $paddingY: 12px;
     $paddingX: 28px;
     $innerPaddingX: 12px;
     $maxWidth: 70vh;
     $maxHeight: 70vh;
     $minWidth: 500px;
-
     background: #eee;
     min-width: $minWidth;
     max-width: $maxWidth;
@@ -60,26 +58,20 @@ body, .bigOverlay
     height: auto;
     overflow: auto;
     text-align: center;
-
-    &.closable
-    {
+    &.closable {
         max-width: calc(#{$maxWidth} + #{$paddingX - $innerPaddingX} * 2);
         max-height: calc(#{$maxHeight} + #{$paddingY} * 2);
         min-width: calc(#{$minWidth} + #{$paddingX} * 2);
         overflow: hidden;
         padding: 0;
-
-        .close
-        {
+        .close {
             position: absolute;
             right: 16px;
             top: 12px;
             cursor: pointer;
             font-size: 2em;
         }
-
-        .innerContent
-        {
+        .innerContent {
             padding: $paddingY $paddingX + $innerPaddingX;
             overflow: auto;
             box-sizing: border-box;
@@ -88,16 +80,12 @@ body, .bigOverlay
     }
 }
 
-.dialog-whatsNew
-{
-    h1
-    {
+.dialog-whatsNew {
+    h1 {
         margin-bottom: 0;
         text-align: center;
     }
-
-    h2
-    {
+    h2 {
         text-decoration: underline;
         margin: 0;
         padding: 0;
@@ -105,44 +93,33 @@ body, .bigOverlay
         margin-top: 16px;
         text-align: left;
     }
-
-    ul
-    {
+    ul {
         text-align: left;
         margin: 8px 0;
         padding-left: 24px;
-
-        li
-        {
+        li {
             margin: 4px 0;
         }
     }
 }
 
-.dialog-supporters
-{
-    .innerContent
-    {
+.dialog-supporters {
+    .innerContent {
         padding: 24px 24px !important;
     }
-
-    h1
-    {
+    h1 {
         margin-top: 0;
     }
 }
 
-.dialog-render
-{
-    .pleaseWait
-    {
+.dialog-render {
+    .pleaseWait {
         color: #CC0000;
         font-style: italic;
         margin-top: 4px;
     }
-
-    .option, .save
-    {
+    .option,
+    .save {
         background: #333;
         color: #eee;
         border: 0;
@@ -156,14 +133,10 @@ body, .bigOverlay
         font-weight: bold;
         box-sizing: border-box;
     }
-
-    .optionBar
-    {
+    .optionBar {
         width: 100%;
         overflow: hidden;
-
-        .option
-        {
+        .option {
             border: 1px solid #aaa;
             border-radius: 0;
             border-left-width: 0;
@@ -174,53 +147,40 @@ body, .bigOverlay
             display: inline-block;
             margin-bottom: 4px;
             margin-top: 8px;
-
-            &:first-of-type
-            {
+            &:first-of-type {
                 border-left-width: 1px;
                 border-top-left-radius: 5px;
                 border-bottom-left-radius: 5px;
             }
-
-            &:last-of-type
-            {
+            &:last-of-type {
                 border-right-width: 1px;
                 border-top-right-radius: 5px;
                 border-bottom-right-radius: 5px;
             }
-
-            &.toggled
-            {
-                background:#eee;
-                color:#333;
+            &.toggled {
+                background: #eee;
+                color: #333;
             }
         }
     }
-
-    .image
-    {
+    .image {
         max-width: 300px;
         min-width: 300px;
         margin: 8px 0;
     }
-
-    .header
-    {
+    .header {
         margin: 0;
         font-weight: normal;
         font-size: 32px;
     }
 }
 
-.progressBar
-{
+.progressBar {
     height: 32px;
     border: 1px solid #aaa;
     margin: 8px 0;
     border-radius: 3px;
-
-    .progress
-    {
+    .progress {
         height: 100%;
         width: 0;
         background: #5588ff;
@@ -228,42 +188,33 @@ body, .bigOverlay
     }
 }
 
-.dialog-tutorial
-{
-    h1
-    {
+.dialog-tutorial {
+    h1 {
         margin: 8px 0;
         font-size: 32px;
     }
-
-    .image
-    {
+    .image {
         max-width: 300px;
         min-width: 300px;
         margin: 16px 0 12px 0;
     }
 }
 
-#container
-{
+#container {
     z-index: 0;
     height: calc(100% - #{$footerHeight});
 }
 
-.link
-{
+.link {
     text-decoration: underline;
     cursor: pointer;
     color: #222;
-
-    &:hover
-    {
+    &:hover {
         color: #555;
     }
 }
 
-#footer
-{
+#footer {
     position: absolute;
     left: 0;
     bottom: 0;
@@ -273,81 +224,58 @@ body, .bigOverlay
     color: white;
     padding: 0 8px;
     background: #555;
-    
     font-size: 16px;
     font-family: Helvetica;
     z-index: 1;
-
-    *
-    {
+    * {
         display: inline-block;
         color: white;
     }
-
-    .donate
-    {
+    .donate {
         margin-top: 4px;
         margin-left: 4px;
         float: left;
-
-        input
-        {
+        input {
             background: transparent;
         }
     }
-
-    .link
-    {
+    .link {
         text-decoration: underline;
         cursor: pointer;
         color: #ddd;
-
-        &:hover
-        {
+        &:hover {
             color: white;
         }
     }
-
-    div
-    {
+    div {
         height: $footerHeight;
         line-height: $footerHeight;
     }
-
-    #footerLeft
-    {
+    #footerLeft {
         position: absolute;
         top: 0;
         margin-left: 12px;
     }
-
-    #footerRight
-    {
+    #footerRight {
         position: absolute;
         right: 0;
         top: 0;
-
-        & > *
-        {
+        &>* {
             margin-right: 12px;
         }
     }
-
-    #closeFooter
-    {
+    #closeFooter {
         cursor: pointer;
     }
 }
 
-#f
-{
+#f {
     position: absolute;
     left: 800px;
     z-index: 1;
 }
 
-.cropView
-{
+.cropView {
     user-select: none;
     position: absolute;
     top: 0;
@@ -355,38 +283,33 @@ body, .bigOverlay
     width: 700px;
     height: 100%;
     background: transparent;
-    
-    .image, canvas
-    {
+    .image,
+    canvas {
         position: absolute;
         left: 0;
         top: 0;
         margin: 0;
         padding: 0;
     }
-
-    canvas
-    {
+    canvas {
         z-index: 1;
     }
 }
 
-.menu
-{
+.menu {
     position: absolute;
     right: 0;
     top: 0;
-    color:#eee;
+    color: #eee;
     width: 256px;
     max-height: 100%;
     z-index: 2;
     overflow-y: auto;
     overflow-x: hidden;
-
-    .item, .item > button
-    {
+    .item,
+    .item>button {
         pointer-events: all;
-        background-color:#111;
+        background-color: #111;
         text-align: center;
         cursor: pointer;
         color: #eee;
@@ -402,59 +325,40 @@ body, .bigOverlay
         box-sizing: content-box;
         float: left;
         position: relative;
-
-        &.half
-        {
+        &.half {
             width: 50%;
         }
-
-        &.toggled
-        {
-            background:#eee;
-            color:#333;
+        &.toggled {
+            background: #eee;
+            color: #333;
         }
-
-        &:hover
-        {
-            border:1px solid #aaa;
-            line-height:30px;
-            box-sizing:border-box;
-
-            & > button
-            {
+        &:hover {
+            border: 1px solid #aaa;
+            line-height: 30px;
+            box-sizing: border-box;
+            &>button {
                 height: 30px;
                 line-height: 30px;
             }
         }
-
-        .openInput
-        {
+        .openInput {
             display: none;
         }
-
-        &.zoomBar
-        {
-            & > button
-            {
+        &.zoomBar {
+            &>button {
                 width: 48px;
                 float: right;
                 background-color: #444;
-
-                &:hover
-                {
-                    background:#eee;
-                    color:#333;
+                &:hover {
+                    background: #eee;
+                    color: #333;
                 }
             }
-
-            .zoomLabel
-            {
+            .zoomLabel {
                 display: inline;
             }
         }
-
-        &.render
-        {
+        &.render {
             font-weight: bold;
             background: #bbff55;
             color: #111;
@@ -462,16 +366,12 @@ body, .bigOverlay
     }
 }
 
-.labelSlider
-{
-    .labelSlider-label
-    {
+.labelSlider {
+    .labelSlider-label {
         width: 100%;
         height: 100%;
     }
-
-    .labelSlider-slider
-    {
+    .labelSlider-slider {
         position: absolute;
         left: 0;
         top: 0;
@@ -485,12 +385,9 @@ body, .bigOverlay
         background: transparent;
         margin: 0px;
         opacity: 0.5;
-
-        &:focus
-        {
+        &:focus {
             //outline: none;
         }
-
         &::-webkit-slider-runnable-track {
             width: 100%;
             height: 32px;
@@ -499,7 +396,6 @@ body, .bigOverlay
             border-radius: 0px;
             border: 0;
         }
-
         &::-webkit-slider-thumb {
             height: 32px;
             width: 32px;
@@ -509,7 +405,6 @@ body, .bigOverlay
             -webkit-appearance: none;
             margin-top: 0px;
         }
-
         &::-moz-range-track {
             width: 100%;
             height: 32px;
@@ -518,7 +413,6 @@ body, .bigOverlay
             border-radius: 0px;
             border: 0;
         }
-
         &::-moz-range-thumb {
             border: 0;
             height: 32px;
@@ -527,7 +421,6 @@ body, .bigOverlay
             background: #eeeeee;
             cursor: pointer;
         }
-
         &::-ms-track {
             width: 100%;
             height: 32px;
@@ -536,7 +429,6 @@ body, .bigOverlay
             border-color: transparent;
             color: transparent;
         }
-
         &::-ms-thumb {
             border: 0;
             width: 32px;
@@ -545,46 +437,36 @@ body, .bigOverlay
             cursor: pointer;
             height: 32px;
         }
-          
     }
 }
 
-.previews
-{
+.previews {
     position: absolute;
     right: 0;
     bottom: 16px;
     background: transparent;
-
-    .preview
-    {
+    .preview {
         bottom: -2px; // for online indicator
         overflow: hidden;
-
-        .onlineIndicator
-        {
+        .onlineIndicator {
             z-index: 2;
             position: absolute;
             left: 18px;
             top: 20px;
         }
-
-        .bottomBar
-        {
+        .bottomBar {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-
-            .size
-            {
+            .size {
                 position: absolute;
                 left: 0;
                 bottom: 0;
                 right: 32px;
                 padding: 0;
                 margin: 0;
-                background-color:#eee;
+                background-color: #eee;
                 border-right: 1px solid #aaa;
                 border-top: 1px solid #aaa;
                 height: 32px;
@@ -596,9 +478,7 @@ body, .bigOverlay
                 line-height: 32px;
                 z-index: 2;
             }
-
-            .remove
-            {
+            .remove {
                 position: absolute;
                 bottom: 0;
                 right: 0;
@@ -620,21 +500,16 @@ body, .bigOverlay
     }
 }
 
-@media (max-width: 800px)
-{
-    #link-whatsNew
-    {
+@media (max-width: 800px) {
+    #link-whatsNew {
         display: none;
     }
-
     /*.dialog-render img, .dialog-tutorial img
     {
         max-width: 87%;
         min-width: 87%;
     }*/
-
-    .dialog-backdrop .dialog
-    {
+    .dialog-backdrop .dialog {
         width: 100%;
         max-width: 100%;
         min-width: 100%;
@@ -649,47 +524,37 @@ body, .bigOverlay
         border-radius: 0;
         text-align: center;
     }
-
-    .dialog-render .save
-    {
+    .dialog-render .save {
         margin-bottom: 8px;
     }
 }
 
-@media (max-width: 620px)
-{
-    #link-help
-    {
+@media (max-width: 620px) {
+    #link-help {
         display: none;
     }
 }
 
-@media (max-width: 490px)
-{
-    #footerLeft
-    {
+@media (max-width: 490px) {
+    #footerLeft {
         display: none;
     }
 }
 
-@media (max-width: 400px)
-{
-    .dialog-render .image, .dialog-tutorial .image
-    {
+@media (max-width: 400px) {
+    .dialog-render .image,
+    .dialog-tutorial .image {
         max-width: 100%;
         min-width: 100%;
     }
 }
 
-@media (max-width: 375px)
-{
-    #footer
-    {
+@media (max-width: 375px) {
+    #footer {
         display: none;
     }
-
-    #container, #bigOverlay
-    {
+    #container,
+    #bigOverlay {
         height: 100%;
     }
 }

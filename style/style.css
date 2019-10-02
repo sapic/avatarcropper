@@ -1,528 +1,601 @@
-html, body, #container, .dialog-backdrop, .bigOverlay {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 0;
-  margin: 0;
-  font-family: Helvetica, sans-serif;
-  user-select: none;
-  overflow: hidden;
+html,
+body,
+#container,
+.dialog-backdrop,
+.bigOverlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0;
+    margin: 0;
+    font-family: Helvetica, sans-serif;
+    user-select: none;
+    overflow: hidden;
 }
 
-body, .bigOverlay {
-  background-color: #2F3136;
+body,
+.bigOverlay {
+    background-color: #2F3136;
 }
 
 .bigOverlay {
-  z-index: 9999;
-  height: 100%;
-  font-size: 3em;
-  color: white;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    z-index: 9999;
+    height: 100%;
+    font-size: 3em;
+    color: white;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dialog-backdrop {
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
 }
 
 .dialog {
-  background: #eee;
-  min-width: 500px;
-  max-width: 70vh;
-  border-radius: 5px;
-  padding: 12px 28px;
-  position: absolute;
-  left: 50%;
-  top: 10%;
-  transform: translate(-50%, 0%);
-  max-height: 70vh;
-  height: auto;
-  overflow: auto;
-  text-align: center;
+    background: #eee;
+    min-width: 500px;
+    max-width: 70vh;
+    border-radius: 5px;
+    padding: 12px 28px;
+    position: absolute;
+    left: 50%;
+    top: 10%;
+    transform: translate(-50%, 0%);
+    max-height: 70vh;
+    height: auto;
+    overflow: auto;
+    text-align: center;
 }
+
 .dialog.closable {
-  max-width: calc(70vh + 16px * 2);
-  max-height: calc(70vh + 12px * 2);
-  min-width: calc(500px + 28px * 2);
-  overflow: hidden;
-  padding: 0;
+    max-width: calc(70vh + 16px * 2);
+    max-height: calc(70vh + 12px * 2);
+    min-width: calc(500px + 28px * 2);
+    overflow: hidden;
+    padding: 0;
 }
+
 .dialog.closable .close {
-  position: absolute;
-  right: 16px;
-  top: 12px;
-  cursor: pointer;
-  font-size: 2em;
+    position: absolute;
+    right: 16px;
+    top: 12px;
+    cursor: pointer;
+    font-size: 2em;
 }
+
 .dialog.closable .innerContent {
-  padding: 12px 40px;
-  overflow: auto;
-  box-sizing: border-box;
-  max-height: inherit;
+    padding: 12px 40px;
+    overflow: auto;
+    box-sizing: border-box;
+    max-height: inherit;
 }
 
 .dialog-whatsNew h1 {
-  margin-bottom: 0;
-  text-align: center;
+    margin-bottom: 0;
+    text-align: center;
 }
+
 .dialog-whatsNew h2 {
-  text-decoration: underline;
-  margin: 0;
-  padding: 0;
-  font-size: 1em;
-  margin-top: 16px;
-  text-align: left;
+    text-decoration: underline;
+    margin: 0;
+    padding: 0;
+    font-size: 1em;
+    margin-top: 16px;
+    text-align: left;
 }
+
 .dialog-whatsNew ul {
-  text-align: left;
-  margin: 8px 0;
-  padding-left: 24px;
+    text-align: left;
+    margin: 8px 0;
+    padding-left: 24px;
 }
+
 .dialog-whatsNew ul li {
-  margin: 4px 0;
+    margin: 4px 0;
 }
 
 .dialog-supporters .innerContent {
-  padding: 24px 24px !important;
+    padding: 24px 24px !important;
 }
+
 .dialog-supporters h1 {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .dialog-render .pleaseWait {
-  color: #CC0000;
-  font-style: italic;
-  margin-top: 4px;
+    color: #CC0000;
+    font-style: italic;
+    margin-top: 4px;
 }
-.dialog-render .option, .dialog-render .save {
-  background: #333;
-  color: #eee;
-  border: 0;
-  padding: 10px;
-  font-size: 18px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: block;
-  text-decoration: none;
-  text-align: center;
-  font-weight: bold;
-  box-sizing: border-box;
+
+.dialog-render .option,
+.dialog-render .save {
+    background: #333;
+    color: #eee;
+    border: 0;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    box-sizing: border-box;
 }
+
 .dialog-render .optionBar {
-  width: 100%;
-  overflow: hidden;
+    width: 100%;
+    overflow: hidden;
 }
+
 .dialog-render .optionBar .option {
-  border: 1px solid #aaa;
-  border-radius: 0;
-  border-left-width: 0;
-  border-right-width: 0;
-  margin-left: 0;
-  margin-right: 0;
-  padding: 6px;
-  display: inline-block;
-  margin-bottom: 4px;
-  margin-top: 8px;
+    border: 1px solid #aaa;
+    border-radius: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 6px;
+    display: inline-block;
+    margin-bottom: 4px;
+    margin-top: 8px;
 }
+
 .dialog-render .optionBar .option:first-of-type {
-  border-left-width: 1px;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+    border-left-width: 1px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
 }
+
 .dialog-render .optionBar .option:last-of-type {
-  border-right-width: 1px;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+    border-right-width: 1px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
+
 .dialog-render .optionBar .option.toggled {
-  background: #eee;
-  color: #333;
+    background: #eee;
+    color: #333;
 }
+
 .dialog-render .image {
-  max-width: 300px;
-  min-width: 300px;
-  margin: 8px 0;
+    max-width: 300px;
+    min-width: 300px;
+    margin: 8px 0;
 }
+
 .dialog-render .header {
-  margin: 0;
-  font-weight: normal;
-  font-size: 32px;
+    margin: 0;
+    font-weight: normal;
+    font-size: 32px;
 }
 
 .progressBar {
-  height: 32px;
-  border: 1px solid #aaa;
-  margin: 8px 0;
-  border-radius: 3px;
+    height: 32px;
+    border: 1px solid #aaa;
+    margin: 8px 0;
+    border-radius: 3px;
 }
+
 .progressBar .progress {
-  height: 100%;
-  width: 0;
-  background: #5588ff;
-  border-radius: 3px;
+    height: 100%;
+    width: 0;
+    background: #5588ff;
+    border-radius: 3px;
 }
 
 .dialog-tutorial h1 {
-  margin: 8px 0;
-  font-size: 32px;
+    margin: 8px 0;
+    font-size: 32px;
 }
+
 .dialog-tutorial .image {
-  max-width: 300px;
-  min-width: 300px;
-  margin: 16px 0 12px 0;
+    max-width: 300px;
+    min-width: 300px;
+    margin: 16px 0 12px 0;
 }
 
 #container {
-  z-index: 0;
-  height: calc(100% - 36px);
+    z-index: 0;
+    height: calc(100% - 36px);
 }
 
 .link {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #222;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #222;
 }
+
 .link:hover {
-  color: #555;
+    color: #555;
 }
 
 #footer {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  height: 36px;
-  line-height: 36px;
-  color: white;
-  padding: 0 8px;
-  background: #555;
-  font-size: 16px;
-  font-family: Helvetica;
-  z-index: 1;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 36px;
+    line-height: 36px;
+    color: white;
+    padding: 0 8px;
+    background: #555;
+    font-size: 16px;
+    font-family: Helvetica;
+    z-index: 1;
 }
+
 #footer * {
-  display: inline-block;
-  color: white;
+    display: inline-block;
+    color: white;
 }
+
 #footer .donate {
-  margin-top: 4px;
-  margin-left: 4px;
-  float: left;
+    margin-top: 4px;
+    margin-left: 4px;
+    float: left;
 }
+
 #footer .donate input {
-  background: transparent;
+    background: transparent;
 }
+
 #footer .link {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #ddd;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #ddd;
 }
+
 #footer .link:hover {
-  color: white;
+    color: white;
 }
+
 #footer div {
-  height: 36px;
-  line-height: 36px;
+    height: 36px;
+    line-height: 36px;
 }
+
 #footer #footerLeft {
-  position: absolute;
-  top: 0;
-  margin-left: 12px;
+    position: absolute;
+    top: 0;
+    margin-left: 12px;
 }
+
 #footer #footerRight {
-  position: absolute;
-  right: 0;
-  top: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
-#footer #footerRight > * {
-  margin-right: 12px;
+
+#footer #footerRight>* {
+    margin-right: 12px;
 }
+
 #footer #closeFooter {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 #f {
-  position: absolute;
-  left: 800px;
-  z-index: 1;
+    position: absolute;
+    left: 800px;
+    z-index: 1;
 }
 
 .cropView {
-  user-select: none;
-  position: absolute;
-  top: 0;
-  overflow: auto;
-  width: 700px;
-  height: 100%;
-  background: transparent;
+    user-select: none;
+    position: absolute;
+    top: 0;
+    overflow: auto;
+    width: 700px;
+    height: 100%;
+    background: transparent;
 }
-.cropView .image, .cropView canvas {
-  position: absolute;
-  left: 0;
-  top: 0;
-  margin: 0;
-  padding: 0;
-}
+
+.cropView .image,
 .cropView canvas {
-  z-index: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.cropView canvas {
+    z-index: 1;
 }
 
 .menu {
-  position: absolute;
-  right: 0;
-  top: 0;
-  color: #eee;
-  width: 256px;
-  max-height: 100%;
-  z-index: 2;
-  overflow-y: auto;
-  overflow-x: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: #eee;
+    width: 256px;
+    max-height: 100%;
+    z-index: 2;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
-.menu .item, .menu .item > button {
-  pointer-events: all;
-  background-color: #111;
-  text-align: center;
-  cursor: pointer;
-  color: #eee;
-  text-decoration: none;
-  border: 0;
-  font-size: 18px;
-  font-family: Helvetica;
-  height: 32px;
-  line-height: 32px;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  box-sizing: content-box;
-  float: left;
-  position: relative;
+
+.menu .item,
+.menu .item>button {
+    pointer-events: all;
+    background-color: #111;
+    text-align: center;
+    cursor: pointer;
+    color: #eee;
+    text-decoration: none;
+    border: 0;
+    font-size: 18px;
+    font-family: Helvetica;
+    height: 32px;
+    line-height: 32px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: content-box;
+    float: left;
+    position: relative;
 }
-.menu .item.half, .menu .item > button.half {
-  width: 50%;
+
+.menu .item.half,
+.menu .item>button.half {
+    width: 50%;
 }
-.menu .item.toggled, .menu .item > button.toggled {
-  background: #eee;
-  color: #333;
+
+.menu .item.toggled,
+.menu .item>button.toggled {
+    background: #eee;
+    color: #333;
 }
-.menu .item:hover, .menu .item > button:hover {
-  border: 1px solid #aaa;
-  line-height: 30px;
-  box-sizing: border-box;
+
+.menu .item:hover,
+.menu .item>button:hover {
+    border: 1px solid #aaa;
+    line-height: 30px;
+    box-sizing: border-box;
 }
-.menu .item:hover > button, .menu .item > button:hover > button {
-  height: 30px;
-  line-height: 30px;
+
+.menu .item:hover>button,
+.menu .item>button:hover>button {
+    height: 30px;
+    line-height: 30px;
 }
-.menu .item .openInput, .menu .item > button .openInput {
-  display: none;
+
+.menu .item .openInput,
+.menu .item>button .openInput {
+    display: none;
 }
-.menu .item.zoomBar > button, .menu .item > button.zoomBar > button {
-  width: 48px;
-  float: right;
-  background-color: #444;
+
+.menu .item.zoomBar>button,
+.menu .item>button.zoomBar>button {
+    width: 48px;
+    float: right;
+    background-color: #444;
 }
-.menu .item.zoomBar > button:hover, .menu .item > button.zoomBar > button:hover {
-  background: #eee;
-  color: #333;
+
+.menu .item.zoomBar>button:hover,
+.menu .item>button.zoomBar>button:hover {
+    background: #eee;
+    color: #333;
 }
-.menu .item.zoomBar .zoomLabel, .menu .item > button.zoomBar .zoomLabel {
-  display: inline;
+
+.menu .item.zoomBar .zoomLabel,
+.menu .item>button.zoomBar .zoomLabel {
+    display: inline;
 }
-.menu .item.render, .menu .item > button.render {
-  font-weight: bold;
-  background: #bbff55;
-  color: #111;
+
+.menu .item.render,
+.menu .item>button.render {
+    font-weight: bold;
+    background: #bbff55;
+    color: #111;
 }
 
 .labelSlider .labelSlider-label {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
+
 .labelSlider .labelSlider-slider {
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 0;
-  -webkit-appearance: none;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  box-sizing: border-box;
-  border: 0;
-  background: transparent;
-  margin: 0px;
-  opacity: 0.5;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    border: 0;
+    background: transparent;
+    margin: 0px;
+    opacity: 0.5;
 }
+
 .labelSlider .labelSlider-slider::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 32px;
-  cursor: pointer;
-  background: transparent;
-  border-radius: 0px;
-  border: 0;
+    width: 100%;
+    height: 32px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 0px;
+    border: 0;
 }
+
 .labelSlider .labelSlider-slider::-webkit-slider-thumb {
-  height: 32px;
-  width: 32px;
-  border-radius: 0px;
-  background: #eeeeee;
-  cursor: pointer;
-  -webkit-appearance: none;
-  margin-top: 0px;
+    height: 32px;
+    width: 32px;
+    border-radius: 0px;
+    background: #eeeeee;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: 0px;
 }
+
 .labelSlider .labelSlider-slider::-moz-range-track {
-  width: 100%;
-  height: 32px;
-  cursor: pointer;
-  background: transparent;
-  border-radius: 0px;
-  border: 0;
+    width: 100%;
+    height: 32px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 0px;
+    border: 0;
 }
+
 .labelSlider .labelSlider-slider::-moz-range-thumb {
-  border: 0;
-  height: 32px;
-  width: 32px;
-  border-radius: 0px;
-  background: #eeeeee;
-  cursor: pointer;
+    border: 0;
+    height: 32px;
+    width: 32px;
+    border-radius: 0px;
+    background: #eeeeee;
+    cursor: pointer;
 }
+
 .labelSlider .labelSlider-slider::-ms-track {
-  width: 100%;
-  height: 32px;
-  cursor: pointer;
-  background: transparent;
-  border-color: transparent;
-  color: transparent;
+    width: 100%;
+    height: 32px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
 }
+
 .labelSlider .labelSlider-slider::-ms-thumb {
-  border: 0;
-  width: 32px;
-  border-radius: 0px;
-  background: #eeeeee;
-  cursor: pointer;
-  height: 32px;
+    border: 0;
+    width: 32px;
+    border-radius: 0px;
+    background: #eeeeee;
+    cursor: pointer;
+    height: 32px;
 }
 
 .previews {
-  position: absolute;
-  right: 0;
-  bottom: 16px;
-  background: transparent;
+    position: absolute;
+    right: 0;
+    bottom: 16px;
+    background: transparent;
 }
+
 .previews .preview {
-  bottom: -2px;
-  overflow: hidden;
+    bottom: -2px;
+    overflow: hidden;
 }
+
 .previews .preview .onlineIndicator {
-  z-index: 2;
-  position: absolute;
-  left: 18px;
-  top: 20px;
+    z-index: 2;
+    position: absolute;
+    left: 18px;
+    top: 20px;
 }
+
 .previews .preview .bottomBar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
 }
+
 .previews .preview .bottomBar .size {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  right: 32px;
-  padding: 0;
-  margin: 0;
-  background-color: #eee;
-  border-right: 1px solid #aaa;
-  border-top: 1px solid #aaa;
-  height: 32px;
-  padding: 0 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-sizing: border-box;
-  line-height: 32px;
-  z-index: 2;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 32px;
+    padding: 0;
+    margin: 0;
+    background-color: #eee;
+    border-right: 1px solid #aaa;
+    border-top: 1px solid #aaa;
+    height: 32px;
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    line-height: 32px;
+    z-index: 2;
 }
+
 .previews .preview .bottomBar .remove {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  border: 0;
-  background: 0;
-  outline: 0;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  background-color: #eee;
-  width: 32px;
-  height: 32px;
-  line-height: 32px;
-  z-index: 3;
-  border-top: 1px solid #aaa;
-  box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: 0;
+    background: 0;
+    outline: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    background-color: #eee;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    z-index: 3;
+    border-top: 1px solid #aaa;
+    box-sizing: border-box;
 }
 
 @media (max-width: 800px) {
-  #link-whatsNew {
-    display: none;
-  }
-
-  /*.dialog-render img, .dialog-tutorial img
+    #link-whatsNew {
+        display: none;
+    }
+    /*.dialog-render img, .dialog-tutorial img
   {
       max-width: 87%;
       min-width: 87%;
   }*/
-  .dialog-backdrop .dialog {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    height: 100%;
-    min-height: 100%;
-    max-height: 100%;
-    top: 0;
-    left: 0;
-    transform: unset;
-    box-sizing: border-box;
-    margin: 0;
-    border-radius: 0;
-    text-align: center;
-  }
-
-  .dialog-render .save {
-    margin-bottom: 8px;
-  }
+    .dialog-backdrop .dialog {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        max-height: 100%;
+        top: 0;
+        left: 0;
+        transform: unset;
+        box-sizing: border-box;
+        margin: 0;
+        border-radius: 0;
+        text-align: center;
+    }
+    .dialog-render .save {
+        margin-bottom: 8px;
+    }
 }
+
 @media (max-width: 620px) {
-  #link-help {
-    display: none;
-  }
+    #link-help {
+        display: none;
+    }
 }
-@media (max-width: 490px) {
-  #footerLeft {
-    display: none;
-  }
-}
-@media (max-width: 400px) {
-  .dialog-render .image, .dialog-tutorial .image {
-    max-width: 100%;
-    min-width: 100%;
-  }
-}
-@media (max-width: 375px) {
-  #footer {
-    display: none;
-  }
 
-  #container, #bigOverlay {
-    height: 100%;
-  }
+@media (max-width: 490px) {
+    #footerLeft {
+        display: none;
+    }
 }
+
+@media (max-width: 400px) {
+    .dialog-render .image,
+    .dialog-tutorial .image {
+        max-width: 100%;
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 375px) {
+    #footer {
+        display: none;
+    }
+    #container,
+    #bigOverlay {
+        height: 100%;
+    }
+}
+
 
 /*# sourceMappingURL=style.css.map */

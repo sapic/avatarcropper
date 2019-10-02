@@ -8,16 +8,16 @@
 let w = window as any;
 if (!w.localStorage) {
     w.localStorage = {
-        getItem: function(sKey) {
+        getItem: function (sKey) {
             if (!sKey || !this.hasOwnProperty(sKey)) {
                 return null;
             }
             return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
         },
-        key: function(nKeyId) {
+        key: function (nKeyId) {
             return unescape(document.cookie.replace(/\s*\=(?:.(?!;))*$/, "").split(/\s*\=(?:[^;](?!;))*[^;]?;\s*/)[nKeyId]);
         },
-        setItem: function(sKey, sValue) {
+        setItem: function (sKey, sValue) {
             if (!sKey) {
                 return;
             }
@@ -25,14 +25,14 @@ if (!w.localStorage) {
             this.length = document.cookie.match(/\=/g).length;
         },
         length: 0,
-        removeItem: function(sKey) {
+        removeItem: function (sKey) {
             if (!sKey || !this.hasOwnProperty(sKey)) {
                 return;
             }
             document.cookie = escape(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
             this.length--;
         },
-        hasOwnProperty: function(sKey) {
+        hasOwnProperty: function (sKey) {
             return (new RegExp("(?:^|;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
         }
     };
@@ -40,7 +40,7 @@ if (!w.localStorage) {
 }
 
 let Storage = {
-    get: function(key, def) {
+    get: function (key, def) {
         // def is default value if key is not found //
         if (def === undefined) return JSON.parse(localStorage.getItem(key));
         if (localStorage.hasOwnProperty(key)) {
@@ -50,16 +50,16 @@ let Storage = {
             return def;
         }
     },
-    set: function(key, value) {
+    set: function (key, value) {
         localStorage.setItem(key, JSON.stringify(value));
     },
-    remove: function(key) {
+    remove: function (key) {
         localStorage.removeItem(key);
     },
-    hasKey: function(key) {
+    hasKey: function (key) {
         return localStorage.hasOwnProperty(key);
     },
-    clear: function() {
+    clear: function () {
         localStorage.clear();
     }
 };

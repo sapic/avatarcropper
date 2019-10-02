@@ -476,7 +476,7 @@
                     image = new Blob([data], {
                         type: "image/gif"
                     });
-                    
+
                     this.activeWorkers.forEach(function(worker) {
                         worker.terminate();
                     });
@@ -486,7 +486,7 @@
                         worker.terminate();
                     });
                     this.freeWorkers = [];
-                    
+
                     return this.emit("finished", image, data)
                 };
                 GIF.prototype.renderNextFrame = function() {
@@ -532,12 +532,13 @@
                     var data = this.getContextData(ctx);
                     var bg = 0;
                     var trans = false;
-                    var green = 0, violet = 0;
-                    
+                    var green = 0,
+                        violet = 0;
+
                     for (var i = 0; i < data.length; i += 4) {
                         var color = (data[i + 0] << 16) | (data[i + 1] << 8) | (data[i + 2]);
                         green += data[i + 1];
-                        violet += (data[i] + data[i+2]) / 2;
+                        violet += (data[i] + data[i + 2]) / 2;
                         if (colors.indexOf(color) === -1) {
                             colors.push(color);
                         }
@@ -558,7 +559,7 @@
                         bg = (green < violet ? 0x00ff00 : 0xff00ff);
                     } // "{\"x\":26,\"y\":55,\"diameter\":98}"
 
-                    
+
 
                     ctx.fillStyle = "#" + bg.toString(16).padStart(6, "0");
                     ctx.fillRect(0, 0, this.options.width, this.options.height);

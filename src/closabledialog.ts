@@ -1,24 +1,21 @@
 import { Dialog } from "./dialog";
 import { createElement } from "./util";
 
-export class ClosableDialog extends Dialog
-{
-    private innerContent : HTMLElement;
+export class ClosableDialog extends Dialog {
+    private innerContent: HTMLElement;
 
-    constructor()
-    {
+    constructor() {
         super();
 
         this.dialog.classList.add("closable");
 
         let close = createElement("div", "close");
         close.innerText = "❌";
-        close.addEventListener("click", () =>
-        {
+        close.addEventListener("click", () => {
             this.hide();
         });
         this.appendChild(close);
-        
+
         this.innerContent = createElement("div", "innerContent");
         this.appendChild(this.innerContent);
         this.contentContainer = this.innerContent;

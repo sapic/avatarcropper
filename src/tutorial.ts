@@ -2,24 +2,20 @@ import { ClosableDialog } from "./closabledialog";
 import { createElement } from "./util";
 import { PRIVACYPOLICY } from "./privacypolicy";
 
-export class TutorialDialog extends ClosableDialog
-{
-    constructor()
-    {
+export class TutorialDialog extends ClosableDialog {
+    constructor() {
         super();
         this.dialog.classList.add("dialog-tutorial");
     }
 
-    show()
-    {
+    show() {
         this.innerHTML = "";
         this.contentContainer.style.userSelect = "";
         let h1 = createElement("h1");
         h1.innerText = "Tutorial..";
 
         let learnMore = createElement("span", "link");
-        learnMore.addEventListener("click", () =>
-        {
+        learnMore.addEventListener("click", () => {
             this.contentContainer.style.userSelect = "text";
             this.innerText = PRIVACYPOLICY;
             this.contentContainer.scrollTop = 0;

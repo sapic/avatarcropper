@@ -1,26 +1,25 @@
-import {SuperGifUtils} from './utils';
-import {SuperGifStream} from './stream';
+import { SuperGifUtils } from './utils';
+import { SuperGifStream } from './stream';
 import { EventClass } from '../eventclass';
 
 // The actual parsing; returns an object with properties.
 export class SuperGifParser extends EventClass {
-    private shouldAbort : boolean = false;
-    private shouldAbortSilently : boolean = false;
+    private shouldAbort: boolean = false;
+    private shouldAbortSilently: boolean = false;
 
-    constructor(private stream: SuperGifStream, private handler : any) {
+    constructor(private stream: SuperGifStream, private handler: any) {
         super();
 
         this.createEvent("abort");
     }
 
-    public abort(silent : boolean = false)
-    {
+    public abort(silent: boolean = false) {
         this.shouldAbort = true;
         this.shouldAbortSilently = silent;
     }
 
     // LZW (GIF-specific)
-    private parseCT(entries : any) { // Each entry is 3 bytes, for RGB.
+    private parseCT(entries: any) { // Each entry is 3 bytes, for RGB.
         let ct = [];
         for (let i = 0; i < entries; i++) {
             ct.push(this.stream.readBytes(3));
@@ -60,8 +59,8 @@ export class SuperGifParser extends EventClass {
         this.handler.hdr && this.handler.hdr(hdr);
     };
 
-    private parseExt(block : any) {
-        let parseGCExt = (block : any) => {
+    private parseExt(block: any) {
+        let parseGCExt = (block: any) => {
             let blockSize = this.stream.readByte(); // Always 4
             let bits = SuperGifUtils.byteToBitArr(this.stream.readByte());
             block.reserved = bits.splice(0, 3); // Reserved; should be 000.
@@ -78,12 +77,12 @@ export class SuperGifParser extends EventClass {
             this.handler.gce && this.handler.gce(block);
         };
 
-        let parseComExt = (block : any) => {
+        let parseComExt = (block: any) => {
             block.comment = this.readSubBlocks();
             this.handler.com && this.handler.com(block);
         };
 
-        let parsePTExt = (block : any) => {
+        let parsePTExt = (block: any) => {
             // No one *ever* uses this. If you use it, deal with parsing it yourself.
             let blockSize = this.stream.readByte(); // Always 12
             block.ptHeader = this.stream.readBytes(12);
@@ -91,8 +90,8 @@ export class SuperGifParser extends EventClass {
             this.handler.pte && this.handler.pte(block);
         };
 
-        let parseAppExt = (block : any) => {
-            let parseNetscapeExt = (block : any) => {
+        let parseAppExt = (block: any) => {
+            let parseNetscapeExt = (block: any) => {
                 let blockSize = this.stream.readByte(); // Always 3
                 block.unknown = this.stream.readByte(); // ??? Always 1? What is this?
                 block.iterations = this.stream.readUnsigned();
@@ -100,7 +99,7 @@ export class SuperGifParser extends EventClass {
                 this.handler.app && this.handler.app.NETSCAPE && this.handler.app.NETSCAPE(block);
             };
 
-            let parseUnknownAppExt = (block : any) => {
+            let parseUnknownAppExt = (block: any) => {
                 block.appData = this.readSubBlocks();
                 // FIXME: This won't work if a handler wants to match on any identifier.
                 this.handler.app && this.handler.app[block.identifier] && this.handler.app[block.identifier](block);
@@ -119,7 +118,7 @@ export class SuperGifParser extends EventClass {
             }
         };
 
-        let parseUnknownExt = (block : any) => {
+        let parseUnknownExt = (block: any) => {
             block.data = this.readSubBlocks();
             this.handler.unknown && this.handler.unknown(block);
         };
@@ -149,13 +148,13 @@ export class SuperGifParser extends EventClass {
         }
     };
 
-    private parseImg(img : any) {
-        let deinterlace = (pixels : any, width : any) => {
+    private parseImg(img: any) {
+        let deinterlace = (pixels: any, width: any) => {
             // Of course this defeats the purpose of interlacing. And it's *probably*
             // the least efficient way it's ever been implemented. But nevertheless...
             let newPixels = new Array(pixels.length);
             let rows = pixels.length / width;
-            let cpRow = (toRow : any, fromRow : any) => {
+            let cpRow = (toRow: any, fromRow: any) => {
                 let fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
                 newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
             };
@@ -225,13 +224,11 @@ export class SuperGifParser extends EventClass {
                 throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
         }
 
-        if (this.shouldAbort)
-        {
-            if (!this.shouldAbortSilently)
-            {
+        if (this.shouldAbort) {
+            if (!this.shouldAbortSilently) {
                 this.emitEvent("abort");
             }
-            
+
             this.shouldAbort = false;
             return;
         }

@@ -9,85 +9,70 @@ import { KeyManager, Keys } from "./keymanager";
 
 type MouseAction = "move" | "resize" | "new" | "none";
 
-class Circle extends Rectangle
-{
-    private cropView : CropView;
-    private _origin : Rectangle;
+class Circle extends Rectangle {
+    private cropView: CropView;
+    private _origin: Rectangle;
 
-    constructor(cropView : CropView)
-    {
+    constructor(cropView: CropView) {
         super(new Point(), new Point());
         this.cropView = cropView;
         this.saveOrigin();
     }
 
-    public get radius() : Point
-    {
+    public get radius(): Point {
         return this.size.dividedBy(2);
     }
 
-    public set radius(radius : Point)
-    {
+    public set radius(radius: Point) {
         this.size = radius.times(2);
     }
 
-    public reset() : void
-    {
+    public reset(): void {
         this.position = new Point(0);
         this.size = new Point(this.cropView.outerRect.size.min / 2);
     }
 
-    public get rectangle() : Rectangle
-    {
+    public get rectangle(): Rectangle {
         return this.copy();
     }
 
-    public saveOrigin() : void
-    {
+    public saveOrigin(): void {
         this._origin = this.copy();
     }
-    
-    public get origin() : Rectangle
-    {
+
+    public get origin(): Rectangle {
         return this._origin;
     }
 
-    public validate() : number
-    {
+    public validate(): number {
         let ret = 0b00000000;
 
-        if (this.width > this.cropView.outerWidth)
-        {
+        if (this.width > this.cropView.outerWidth) {
             this.setWidthKeepAR(this.cropView.outerWidth);
             ret |= 1;
         }
 
-        if (this.height > this.cropView.outerHeight)
-        {
+        if (this.height > this.cropView.outerHeight) {
             this.setHeightKeepAR(this.cropView.outerHeight);
             ret |= 2;
         }
 
-        if (this.x < 0) 
-        {
+        if (this.x < 0) {
             this.x = 0;
             ret |= 4;
         }
 
-        if (this.y < 0)
-        {
+        if (this.y < 0) {
             this.y = 0;
             ret |= 8;
         }
 
-        if (this.bottom > this.cropView.outerHeight)
-        {
+        if (this.bottom > this.cropView.outerHeight) {
             this.bottom = this.cropView.outerHeight;
             ret |= 16;
         }
 
-        if (this.right > this.cropView.outerWidth)
-        {
+        if (this.right > this.cropView.outerWidth) {
             this.right = this.cropView.outerWidth;
             ret |= 32;
         }
@@ -96,27 +81,25 @@ class Circle extends Rectangle
     }
 }
 
-export class CropView extends Widget
-{
-    public readonly image : HTMLImageElement;
-    public readonly overlay : Canvas;
-    private _isZoomFitted : boolean = false;
-    private _zoomFactor : number = 1;
+export class CropView extends Widget {
+    public readonly image: HTMLImageElement;
+    public readonly overlay: Canvas;
+    private _isZoomFitted: boolean = false;
+    private _zoomFactor: number = 1;
     private currentRotation = 0;
-    public currentFileType : string;
-    private circle : Circle;
-    private _filename : string;
-    private currentAction : MouseAction;
-    private mouseOrigin : Point;
-    private resizeAnchor : Point;
-    private resizeOffset : Point;
-    public readonly settings : Settings;
-    private readonly renderer : Renderer;
-    private loadingImage : boolean = false;
-    private antialiased : boolean;
-    
-    constructor(settingsObject : Settings)
-    {
+    public currentFileType: string;
+    private circle: Circle;
+    private _filename: string;
+    private currentAction: MouseAction;
+    private mouseOrigin: Point;
+    private resizeAnchor: Point;
+    private resizeOffset: Point;
+    public readonly settings: Settings;
+    private readonly renderer: Renderer;
+    private loadingImage: boolean = false;
+    private antialiased: boolean;
+
+    constructor(settingsObject: Settings) {
         super(createElement("div", "cropView"));
 
         this.createEvent("update");
@@ -143,46 +126,38 @@ export class CropView extends Widget
 
         this.overlay.mouse.addEventListener("move", this.mouseMove.bind(this));
         this.overlay.mouse.addEventListener("down", this.mouseDown.bind(this));
-    
-        this.overlay.canvas.addEventListener("touchmove", (e) => 
-        {
-            if (!(this.currentAction === "new" || this.currentAction === "none"))
-            {
+
+        this.overlay.canvas.addEventListener("touchmove", (e) => {
+            if (!(this.currentAction === "new" || this.currentAction === "none")) {
                 e.preventDefault();
             }
         });
 
-        document.body.addEventListener("mouseup", () =>
-        {
+        document.body.addEventListener("mouseup", () => {
             let ca = this.currentAction;
             this.currentAction = "none";
-            if (ca !== "none")
-            {
+            if (ca !== "none") {
                 this.refresh();
             }
         });
 
-        document.body.addEventListener("touchend", () =>
-        {
+        document.body.addEventListener("touchend", () => {
             let ca = this.currentAction;
             this.currentAction = "none";
-            if (ca !== "none")
-            {
+            if (ca !== "none") {
                 this.refresh();
             }
         });
 
         // move circle around with arrow keys //
         window.addEventListener("keydown", e => this.handleKeypress(e.keyCode));
-    
+
         //this.overlay.mouse.addEventListener("leave", this.overlay.mouse.events.up[0]);
         this.antialias = this.settings.antialias;
     }
 
-    private handleKeypress(key : number)
-    {
-        if (KeyManager.isArrowKey(key))
-        {
+    private handleKeypress(key: number) {
+        if (KeyManager.isArrowKey(key)) {
             //console.log( KeyManager.axis(Keys.right, Keys.left))
             this.circle.x += KeyManager.axis(Keys.right, Keys.left);
             this.circle.y += KeyManager.axis(Keys.down, Keys.up);
@@ -191,51 +166,41 @@ export class CropView extends Widget
         }
     }
 
-    public get rotation() : number
-    {
+    public get rotation(): number {
         return this.currentRotation;
     }
 
-    public get cropArea() : Rectangle
-    {
+    public get cropArea(): Rectangle {
         return this.circle.rectangle;
     }
 
-    public get zoomFactor() : number
-    {
+    public get zoomFactor(): number {
         return this._zoomFactor;
     }
 
-    public refresh() : void
-    {
+    public refresh(): void {
         this.emitEvent("update"); // renders overlay
     }
 
-    public reactTMToRefresh()
-    {
+    public reactTMToRefresh() {
         this.isZoomFitted && this.zoomFit();
     }
 
-    private renderOverlay() : void
-    {
+    private renderOverlay(): void {
         //console.log("rendering overlay");
         // draw mask //
-        if (this.settings.maskOpacity !== 1)
-        {
+        if (this.settings.maskOpacity !== 1) {
             this.overlay.clear();
         }
 
-        if (this.settings.maskOpacity !== 0)
-        {
+        if (this.settings.maskOpacity !== 0) {
             this.overlay.fill("rgba(0,0,0," + this.settings.maskOpacity + ")");
 
             this.overlay.blendMode = "destination-out";
-            if (this.settings.previewMode === "circle")
-            {
+            if (this.settings.previewMode === "circle") {
                 this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
             }
-            else
-            {
+            else {
                 this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
             }
         }
@@ -243,14 +208,12 @@ export class CropView extends Widget
         this.overlay.blendMode = "source-over";
         let lineWidth = ~~(1 / this.zoomFactor) + 1;
 
-        if (this.settings.outlinesEnabled)
-        {
+        if (this.settings.outlinesEnabled) {
             let sharp = lineWidth % 2 === 1;
 
-            this.overlay.lineDash = [ Math.min(this.overlay.width, this.overlay.height) / 100 ];
-            
-            if (this.settings.previewMode === "circle")
-            {
+            this.overlay.lineDash = [Math.min(this.overlay.width, this.overlay.height) / 100];
+
+            if (this.settings.previewMode === "circle") {
                 this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white", lineWidth);
             }
 
@@ -265,8 +228,7 @@ export class CropView extends Widget
             );
         }
 
-        if (this.settings.guidesEnabled)
-        {
+        if (this.settings.guidesEnabled) {
             this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.bottom, "white", lineWidth);
             this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.top, "white", lineWidth);
             this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.right, this.circle.cy, "white", lineWidth);
@@ -317,103 +279,88 @@ export class CropView extends Widget
     }
 
     // returns size of image (internal res of image) //
-    public get innerRect() : Rectangle
-    {
+    public get innerRect(): Rectangle {
         return new Rectangle(Point.Zero, new Point(this.image.width, this.image.height));
     }
 
-    public get innerWidth() : number
-    {
+    public get innerWidth(): number {
         return this.image.width;
     }
 
-    public get innerHeight() : number
-    {
+    public get innerHeight(): number {
         return this.image.height;
     }
 
     // returns sizes taking rotation into consideration (internal res of overlay) //
-    public get outerRect() : Rectangle
-    {
+    public get outerRect(): Rectangle {
         return new Rectangle(Point.Zero, new Point(this.overlay.width, this.overlay.height));
     }
 
-    public get outerWidth() : number
-    {
+    public get outerWidth(): number {
         return this.overlay.width;
     }
 
-    public get outerHeight() : number
-    {
+    public get outerHeight(): number {
         return this.overlay.height;
     }
 
-    public get apparentWidth() : number
-    {
+    public get apparentWidth(): number {
         return this.container.getBoundingClientRect().width;
     }
 
-    public get apparentHeight() : number
-    {
+    public get apparentHeight(): number {
         return this.container.getBoundingClientRect().height;
     }
 
-    private get isZoomFitted() : boolean
-    {
+    private get isZoomFitted(): boolean {
         return this._isZoomFitted;
     }
 
-    private set isZoomFitted(z : boolean)
-    {
+    private set isZoomFitted(z: boolean) {
         this._isZoomFitted = z;
 
-        if (z)
-        {
+        if (z) {
             this.container.style.overflow = "hidden";
         }
-        else
-        {
+        else {
             this.container.style.overflow = "";
         }
     }
 
-    public zoom(factor? : number, shouldUpdate : boolean = true) : void
-    {
+    public zoom(factor?: number, shouldUpdate: boolean = true): void {
         let ogScrollTopP = this.container.scrollTop / this.container.scrollHeight;
         let ogScrollLeftP = this.container.scrollLeft / this.container.scrollWidth;
 
         this.container.scrollTop = 0;
         this.container.scrollLeft = 0;
         let rotatePart = "";
-    
+
         if (this.image.style.transform.indexOf(" rotate") !== -1) {
             rotatePart = this.image.style.transform.substr(
                 this.image.style.transform.indexOf(" rotate")
             );
         }
-    
+
         factor = factor || this.zoomFactor;
         this._zoomFactor = factor;
         this.overlay.zoom(factor);
         this.image.style.transform = "scale(" + factor + "," + factor + ")";
 
         this.image.style.transform += rotatePart;
-    
+
         let r = this.image.getBoundingClientRect();
-        
-        if (r.left !== 0)
-        {
+
+        if (r.left !== 0) {
             let current = parseFloat(this.image.style.left || "0px");
             current -= r.left;
-    
+
             this.image.style.left = current + "px";
         }
-        
-        if (r.top !== 0)
-        {
+
+        if (r.top !== 0) {
             let current = parseFloat(this.image.style.top || "0px");
             current -= r.top;
-    
+
             this.image.style.top = current + "px";
         }
 
@@ -423,32 +370,27 @@ export class CropView extends Widget
         this.container.scrollLeft = ogScrollTopP * this.contentContainer.scrollWidth;
     }
 
-    public zoomIn() : void
-    {
+    public zoomIn(): void {
         this.isZoomFitted = false;
         this.zoom(this.zoomFactor * 1.1);
     }
-    
-    public zoomOut() : void
-    {
+
+    public zoomOut(): void {
         this.isZoomFitted = false;
         this.zoom(this.zoomFactor / 1.1);
     }
 
-    public zoomFit(force : boolean = true, shouldUpdate : boolean = true) : void
-    {    
-        if (!this.image)
-        {
+    public zoomFit(force: boolean = true, shouldUpdate: boolean = true): void {
+        if (!this.image) {
             return;
         }
-    
-        if (!this.isZoomFitted && !force)
-        {
+
+        if (!this.isZoomFitted && !force) {
             return;
         }
-        
+
         this.isZoomFitted = true;
-    
+
         /*if (detectIE() !== false) {
             zoom(1);
             return;
@@ -456,17 +398,17 @@ export class CropView extends Widget
 
         var cr = this.container.getBoundingClientRect();
         var ir = { width: this.overlay.width, height: this.overlay.height };
-    
+
         var fw = cr.width / ir.width;
         var fh = cr.height / ir.height;
         var f = Math.min(fw, fh);
-    
+
         //document.getElementById("container-canvas").style["width"] = cr.width + "px";
-    
+
         this.zoom(f, shouldUpdate);
         //console.log("---");
         //console.log("zoom1: ", nr.height / ir.height);
-    
+
         /*window.requestAnimationFrame(function() {
     
             var delta = container.scrollWidth - container.clientWidth;
@@ -493,42 +435,40 @@ export class CropView extends Widget
         });*/
     }
 
-    public rotate(deg? : number, shouldUpdate : boolean = true) : void
-    {
+    public rotate(deg?: number, shouldUpdate: boolean = true): void {
         let odeg = this.currentRotation;
         if (deg === undefined) deg = this.currentRotation;
-    
+
         this.currentRotation = deg;
-        
-        if (this.image.style.transform.indexOf(" rotate") !== -1)
-        {
+
+        if (this.image.style.transform.indexOf(" rotate") !== -1) {
             this.image.style.transform = this.image.style.transform.substr(
                 0,
                 this.image.style.transform.indexOf(" rotate")
             );
         }
-    
+
         let b4 = this.image.style.transform;
-    
+
         this.image.style.left = "0px";
         this.image.style.top = "0px";
-    
+
         this.overlay.resize(this.image.width, this.image.height);
-    
+
         let or = this.image.getBoundingClientRect();
-    
+
         this.image.style.transform = b4 + " rotate(" + deg + "deg)";
-    
+
         let r = this.image.getBoundingClientRect();
         let dx = -r.left - this.container.scrollLeft;
         let dy = -r.top - this.container.scrollTop;
-        
+
         this.image.style.left = dx + "px";
         this.image.style.top = dy + "px";
-    
+
         this.overlay.width *= (r.width / or.width);
         this.overlay.height *= (r.height / or.height);
-    
+
         /*let circleMagnitude = Math.sqrt(
             Math.pow(this.overlay.width - circle.cx(), 2) +
             Math.pow(this.overlay.height - circle.cy(), 2)
@@ -544,14 +484,13 @@ export class CropView extends Widget
     
         circle.x += cdx;
         circle.y += cdy;*/
-    
+
         this.zoomFit(false, shouldUpdate);
         this.circle.validate();
         shouldUpdate && this.emitEvent("update");
     }
 
-    public set antialias(antialias : boolean)
-    {
+    public set antialias(antialias: boolean) {
         makePixelated(this.image, !antialias);
         this.overlay.pixelated = !antialias;
 
@@ -559,15 +498,12 @@ export class CropView extends Widget
         this.emitEvent("antialiaschange", this.antialiased);
     }
 
-    public get antialias() : boolean
-    {
+    public get antialias(): boolean {
         return this.antialiased;
     }
 
-    public setImageFromFile(file : File) : boolean
-    {
-        if (!file || file.type.split("/")[0] !== "image" || this.loadingImage)
-        {
+    public setImageFromFile(file: File): boolean {
+        if (!file || file.type.split("/")[0] !== "image" || this.loadingImage) {
             return false;
         }
 
@@ -579,10 +515,8 @@ export class CropView extends Widget
         return true;
     }
 
-    private setImageFromFileHelper(image : HTMLImageElement)
-    {
-        if (this.image.src)
-        {
+    private setImageFromFileHelper(image: HTMLImageElement) {
+        if (this.image.src) {
             URL.revokeObjectURL(this.image.src);
         }
 
@@ -602,50 +536,41 @@ export class CropView extends Widget
         this.loadingImage = false;
     }
 
-    public flipHorizontal() : void
-    {
+    public flipHorizontal(): void {
         let c = new Canvas({ width: this.image.width, height: this.image.height });
         c.context.scale(-1, 1);
         c.drawImage(this.image, 0, 0, -this.image.width, this.image.height);
         c.context.setTransform(1, 0, 0, 1, 0, 0);
 
         this.loadingImage = true;
-        c.createImage((img) =>
-        {
+        c.createImage((img) => {
             this.flipHelper(img, true);
         }, undefined, false);
     }
 
-    public flipVertical() : void
-    {
+    public flipVertical(): void {
         let c = new Canvas({ width: this.image.width, height: this.image.height });
         c.context.scale(1, -1);
         c.drawImage(this.image, 0, 0, this.image.width, -this.image.height);
         c.context.setTransform(1, 0, 0, 1, 0, 0);
 
         this.loadingImage = true;
-        c.createImage((img : HTMLImageElement) =>
-        {
+        c.createImage((img: HTMLImageElement) => {
             this.flipHelper(img, false);
         }, undefined, false);
     }
 
-    private flipHelper(image : HTMLImageElement, horizontal : boolean) : void
-    {
-        if (this.image.src)
-        {
+    private flipHelper(image: HTMLImageElement, horizontal: boolean): void {
+        if (this.image.src) {
             URL.revokeObjectURL(this.image.src);
         }
 
-        this.image.onload = () =>
-        {
+        this.image.onload = () => {
             this.rotate(-this.rotation, false);
-            if (horizontal)
-            {
+            if (horizontal) {
                 this.circle.cx = this.outerWidth - this.circle.cx;
             }
-            else
-            {
+            else {
                 this.circle.cy = this.outerHeight - this.circle.cy;
             }
             this.emitEvent("imagechange", this.image.src);
@@ -656,40 +581,33 @@ export class CropView extends Widget
         this.image.src = image.src;
     }
 
-    public renderCroppedImage() : void
-    {
+    public renderCroppedImage(): void {
         this.renderer.render();
     }
 
-    public get filename() : string
-    {
+    public get filename(): string {
         return this._filename;
     }
 
-    public get src() : string
-    {
+    public get src(): string {
         return this.image.src || null;
     }
 
-    public centerCropArea() : void
-    {
+    public centerCropArea(): void {
         this.circle.center = this.outerRect.center;
         this.circle.validate();
         this.refresh();
     }
 
-    public setCropSize(size : number) : void
-    {
+    public setCropSize(size: number): void {
         this.circle.size = new Point(size);
         this.circle.validate();
         this.refresh();
     }
 
-    private getMouseAction(x : number, y : number) : MouseAction
-    {
+    private getMouseAction(x: number, y: number): MouseAction {
         let mousePoint = new Point(x, y);
-        if (this.circle.containsPoint(new Point(x, y)))
-        {
+        if (this.circle.containsPoint(new Point(x, y))) {
             // this logic for non-square crop area (aspect ratio != 1:1)
             /*let handleSize = this.circle.radius.min / 2;
             let _rb = (p1, p2) => Rectangle.between(p1, p2);
@@ -707,14 +625,12 @@ export class CropView extends Widget
 
             return grabbingHandle ? "resize" : "move";
         }
-        else
-        {
+        else {
             return "new";
         }
     }
 
-    private mouseDown(x : number, y : number) : void
-    {
+    private mouseDown(x: number, y: number): void {
         var action = this.getMouseAction(x, y);
         this.currentAction = action;
 
@@ -724,99 +640,81 @@ export class CropView extends Widget
         this.resizeOffset = this.circle.getPointFromAnchor(this.getCircleAnchor(this.mouseOrigin)).minus(this.mouseOrigin);
     }
 
-    private mouseMove(x : number, y : number) : void
-    {
+    private mouseMove(x: number, y: number): void {
         // determine what cursor to show //
         let action = this.currentAction;
-        if (action === "none")
-        {
+        if (action === "none") {
             action = this.getMouseAction(x, y);
         }
 
-        if (action === "move")
-        {
+        if (action === "move") {
             this.overlay.canvas.style.cursor = "move";
         }
-        else if (action === "resize")
-        {
+        else if (action === "resize") {
             let xr = x < this.circle.cx;
             let yr = y < this.circle.cy;
             let thing = +xr ^ +yr; // nice
             this.overlay.canvas.style.cursor = thing ? "nesw-resize" : "nwse-resize";
         }
-        else
-        {
+        else {
             this.overlay.canvas.style.cursor = "default";
         }
 
         // actually do stuff //
-        if (this.currentAction === "none")
-        {
+        if (this.currentAction === "none") {
             return;
         }
-        else if (this.currentAction === "move")
-        {
+        else if (this.currentAction === "move") {
             let d = new Point(x, y).minus(this.mouseOrigin);
             this.circle.position = this.circle.origin.position.plus(d);
             this.circle.validate();
             this.mouseOrigin = new Point(x, y);
             this.circle.saveOrigin();
         }
-        else if (this.currentAction === "resize")
-        {
+        else if (this.currentAction === "resize") {
             this.performResize(x, y);
         }
-        
+
         this.circle.round(this.settings.resizeLock); // u rite
 
         this.emitEvent("update");
     }
 
-    private getCircleAnchor(p : Point) : RectAnchor
-    {
+    private getCircleAnchor(p: Point): RectAnchor {
         let x = p.x;
         let y = p.y;
 
-        if (x > this.circle.cx)
-        {
-            if (y > this.circle.cy)
-            {
+        if (x > this.circle.cx) {
+            if (y > this.circle.cy) {
                 return "se";
             }
-            else
-            {
+            else {
                 return "ne";
             }
         }
-        else
-        {
-            if (y > this.circle.cy)
-            {
+        else {
+            if (y > this.circle.cy) {
                 return "sw";
             }
-            else
-            {
+            else {
                 return "nw";
             }
         }
     }
 
-    private performResize(x : number, y : number)
-    {
+    private performResize(x: number, y: number) {
         let anchor = Rectangle.anchorOpposite(this.getCircleAnchor(new Point(x, y)));
 
-        if (!this.settings.resizeLock)
-        {
+        if (!this.settings.resizeLock) {
             this.resizeAnchor = this.circle.getPointFromAnchor(anchor).minus(this.resizeOffset);
             let size = this.circle.size.copy();
-    
+
             let r = Rectangle.between(new Point(x, y), this.resizeAnchor);
             //r.round();
             this.circle.fitInsideGreedy(r, anchor, this.outerRect);
             this.circle.validate();
         }
-        else
-        {
+        else {
             let r = Rectangle.between(new Point(x, y).plus(this.resizeOffset), this.circle.center);
             r.expandToward(anchor, 2);
             //r.round();

@@ -5,34 +5,31 @@ import { FractionalProgressBar } from "./fractionalprogressbar";
 import { Canvas } from "./canvas";
 import { ClosableDialog } from "./closabledialog";
 
-declare var GIF : any;
-declare var SuperGif : any;
+declare var GIF: any;
+declare var SuperGif: any;
 
-interface CropOption
-{
-    label : string;
-    url : string;
+interface CropOption {
+    label: string;
+    url: string;
 }
 
-export class Renderer extends ClosableDialog
-{
+export class Renderer extends ClosableDialog {
     private readonly renderedString = "Rendered! yayy";
     private readonly renderingString = "Rendering...";
-    private readonly cropView : CropView;
-    private shouldStopRendering : boolean = false;
-    private currentlyRendering : boolean = false;
-    private progressBar : FractionalProgressBar;
-    private readonly imageElement : HTMLImageElement;
-    private optionBar : HTMLElement;
-    private headerElement : HTMLElement;
-    private noteElement : HTMLElement;
-    private pleaseWaitElement : HTMLElement;
-    private saveButton : HTMLElement;
-    private loadGif : any;
-    private readonly initialized : boolean = false;
+    private readonly cropView: CropView;
+    private shouldStopRendering: boolean = false;
+    private currentlyRendering: boolean = false;
+    private progressBar: FractionalProgressBar;
+    private readonly imageElement: HTMLImageElement;
+    private optionBar: HTMLElement;
+    private headerElement: HTMLElement;
+    private noteElement: HTMLElement;
+    private pleaseWaitElement: HTMLElement;
+    private saveButton: HTMLElement;
+    private loadGif: any;
+    private readonly initialized: boolean = false;
 
-    constructor(cropView : CropView)
-    {
+    constructor(cropView: CropView) {
         super();
 
         this.dialog.classList.add("dialog-render");
@@ -58,8 +55,7 @@ export class Renderer extends ClosableDialog
 
         this.saveButton = createElement("a", "save");
         this.saveButton.innerText = "Save";
-        this.saveButton.addEventListener("click", () =>
-        {
+        this.saveButton.addEventListener("click", () => {
             (<HTMLAnchorElement>this.saveButton).href = this.imageElement.src;
         });
 
@@ -76,37 +72,31 @@ export class Renderer extends ClosableDialog
         this.initialized = true;
     }
 
-    public render()
-    {
+    public render() {
         this.currentlyRendering = true;
         this.shouldStopRendering = false;
         this.show();
 
-        if (this.cropView.currentFileType === "gif")
-        {
+        if (this.cropView.currentFileType === "gif") {
             this.renderGif();
         }
-        else
-        {
+        else {
             this.getFrameURLs(this.cropView.image, false, true, this.display.bind(this));
             this.currentlyRendering = false;
         }
     }
 
-    private renderGif() : void
-    {
+    private renderGif(): void {
         let gif = new SuperGif({
             gif: this.cropView.image.cloneNode()
         });
 
         this.loadGif = gif;
 
-        let onload = () =>
-        {
+        let onload = () => {
             this.loadGif = null;
 
-            if (this.shouldStopRendering)
-            {
+            if (this.shouldStopRendering) {
                 this.currentlyRendering = false;
                 this.tryClose();
             }
@@ -122,19 +112,15 @@ export class Renderer extends ClosableDialog
             });
 
             let len = gif.get_length();
-            this.progressBar.addFractionPart(1/6, len);
+            this.progressBar.addFractionPart(1 / 6, len);
 
-            let renderFrame = (i : number) =>
-            {
+            let renderFrame = (i: number) => {
                 gif.move_to(i);
 
-                this.getFrameURLs(gif.get_canvas(), true, false, (options) =>
-                {
+                this.getFrameURLs(gif.get_canvas(), true, false, (options) => {
                     let img = new Image();
-                    img.addEventListener("load", () =>
-                    {
-                        if (this.shouldStopRendering)
-                        {
+                    img.addEventListener("load", () => {
+                        if (this.shouldStopRendering) {
                             this.currentlyRendering = false;
                             this.tryClose();
                             return;
@@ -147,12 +133,10 @@ export class Renderer extends ClosableDialog
                         this.progressBar.step();
 
                         i++;
-                        if (i === len)
-                        {
+                        if (i === len) {
                             saveGif.render();
                         }
-                        else
-                        {
+                        else {
                             renderFrame(i);
                         }
                     });
@@ -160,8 +144,7 @@ export class Renderer extends ClosableDialog
                 });
             };
 
-            saveGif.on("finished", (blob : Blob) =>
-            {
+            saveGif.on("finished", (blob: Blob) => {
                 let url = URL.createObjectURL(blob);
                 this.display([
                     {
@@ -169,49 +152,42 @@ export class Renderer extends ClosableDialog
                         url: url
                     }
                 ]);
-                
+
                 this.currentlyRendering = false;
             });
 
-            saveGif.on("abort", () =>
-            {
+            saveGif.on("abort", () => {
                 this.currentlyRendering = false;
                 this.tryClose();
             });
 
-            saveGif.on("progress", (progress : number) =>
-            {
-                this.progressBar.progress = 1/6 + progress * 5/6;
+            saveGif.on("progress", (progress: number) => {
+                this.progressBar.progress = 1 / 6 + progress * 5 / 6;
 
-                if (this.shouldStopRendering)
-                {
+                if (this.shouldStopRendering) {
                     saveGif.abort();
                 }
             });
-            
+
             renderFrame(0);
         };
 
-        gif.load(onload, undefined, () =>
-        {
+        gif.load(onload, undefined, () => {
             this.loadGif = null;
             this.currentlyRendering = false;
             this.tryClose();
         });
     }
 
-    private getFrameURLs(frame : Canvas | HTMLImageElement | HTMLCanvasElement, pixelated : boolean, getCircle : boolean, callback : (options : CropOption[]) => void) : void
-    {
-        let ret : CropOption[] = [];
+    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean, callback: (options: CropOption[]) => void): void {
+        let ret: CropOption[] = [];
         let expectedLength = getCircle ? 2 : 1;
         let counter = 0;
-        
-        let check = (url : string, label : string, index : number) =>
-        {
+
+        let check = (url: string, label: string, index: number) => {
             counter++;
             ret[index] = { url, label };
-            if (counter === expectedLength)
-            {
+            if (counter === expectedLength) {
                 callback(ret);
             }
         };
@@ -245,19 +221,17 @@ export class Renderer extends ClosableDialog
             this.cropView.cropArea.height
         );
 
-        squareCrop.createBlob((blob : Blob) =>
-        {
+        squareCrop.createBlob((blob: Blob) => {
             check(URL.createObjectURL(blob), "Square", 0);
         });
 
-        if (getCircle)
-        {
+        if (getCircle) {
             let circleCrop = new Canvas({
                 width: this.cropView.cropArea.width,
                 height: this.cropView.cropArea.height,
                 pixelated: pixelated
             });
-    
+
             circleCrop.drawCroppedImage(
                 rc,
                 0,
@@ -270,36 +244,31 @@ export class Renderer extends ClosableDialog
 
             circleCrop.blendMode = "destination-in";
             circleCrop.fillCircleInSquare(0, 0, circleCrop.width, "white");
-    
-            circleCrop.createBlob((blob : Blob) =>
-            {
+
+            circleCrop.createBlob((blob: Blob) => {
                 check(URL.createObjectURL(blob), "Circle", 1);
             });
         }
     }
 
-    private display(cropOptions : CropOption[]) : void
-    {
+    private display(cropOptions: CropOption[]): void {
         this.progressBar.hide();
         showElement(this.optionBar);
         showElement(this.saveButton);
         this.headerElement.innerText = this.renderedString;
         this.optionBar.innerHTML = "";
-        let firstButton : HTMLElement;
-        
-        cropOptions.forEach((option, i) =>
-        {
+        let firstButton: HTMLElement;
+
+        cropOptions.forEach((option, i) => {
             let b = createElement("button", "option");
             b.style.width = (1 / cropOptions.length * 100) + "%";
             b.innerText = option.label;
             (<any>b).url = option.url;
-            b.addEventListener("click", () =>
-            {
+            b.addEventListener("click", () => {
                 this.imageElement.src = option.url;
 
                 let bs = this.optionBar.children;
-                for (let i = 0; i < bs.length; i++)
-                {
+                for (let i = 0; i < bs.length; i++) {
                     bs[i].classList.remove("toggled");
                 }
 
@@ -307,15 +276,13 @@ export class Renderer extends ClosableDialog
             });
 
             this.optionBar.appendChild(b);
-            
-            if (i === 0)
-            {
+
+            if (i === 0) {
                 firstButton = b;
             }
         });
 
-        this.imageElement.onload = () =>
-        {
+        this.imageElement.onload = () => {
             this.contentContainer.scrollTop = this.contentContainer.scrollHeight;
             this.imageElement.onload = null;
         };
@@ -323,8 +290,7 @@ export class Renderer extends ClosableDialog
         firstButton.click();
     }
 
-    public show()
-    {
+    public show() {
         this.progressBar.show();
         this.progressBar.reset();
         this.headerElement.innerText = this.renderingString;
@@ -337,22 +303,17 @@ export class Renderer extends ClosableDialog
         super.show();
     }
 
-    public hide(force : boolean = false)
-    {
-        if (force || !this.initialized)
-        {
+    public hide(force: boolean = false) {
+        if (force || !this.initialized) {
             super.hide();
         }
-        else
-        {
+        else {
             this.tryClose();
         }
     }
 
-    public tryClose() : boolean
-    {
-        if (this.currentlyRendering)
-        {
+    public tryClose(): boolean {
+        if (this.currentlyRendering) {
             this.shouldStopRendering = true;
             this.loadGif && this.loadGif.abort();
             showElement(this.pleaseWaitElement);
@@ -360,8 +321,7 @@ export class Renderer extends ClosableDialog
         }
 
         let bs = this.optionBar.children;
-        for (let i = 0; i < bs.length; i++)
-        {
+        for (let i = 0; i < bs.length; i++) {
             (<any>bs[i]).url && URL.revokeObjectURL((<any>bs[i]).url);
         }
 

@@ -1,21 +1,19 @@
 import { ClosableDialog } from "./closabledialog";
 
-export class SupportersDialog extends ClosableDialog
-{
+export class SupportersDialog extends ClosableDialog {
     private ppl =
-    [
-        "Glen Cathey",
-        "Betty Glez",
-        "Max Abbot",
-        "MetalSonicDash",
-        "Almxg Levi",
-        "Tenkay",
-        "PanPan",
-        "and 2 anons:)"
-    ];
+        [
+            "Glen Cathey",
+            "Betty Glez",
+            "Max Abbot",
+            "MetalSonicDash",
+            "Almxg Levi",
+            "Tenkay",
+            "PanPan",
+            "and 2 anons:)"
+        ];
 
-    constructor()
-    {
+    constructor() {
         super();
         this.dialog.classList.add("dialog-supporters");
 

@@ -1,5 +1,5 @@
 export let PRIVACYPOLICY =
-"tl;dr = i use google analytics to see how many people use the site, including how many people use a certain browser, whether people use desktops or phones, etc to help me get an idea of what to focus on when developing/testing the site\n\
+    "tl;dr = i use google analytics to see how many people use the site, including how many people use a certain browser, whether people use desktops or phones, etc to help me get an idea of what to focus on when developing/testing the site\n\
 \n\
 my awesome Privacy Policy\n\
 \n\

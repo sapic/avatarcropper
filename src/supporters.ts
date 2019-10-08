@@ -10,6 +10,7 @@ export class SupportersDialog extends ClosableDialog {
             "Almxg Levi",
             "Tenkay",
             "PanPan",
+            "wtx",
             "and 2 anons:)"
         ];
 

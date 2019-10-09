@@ -501,9 +501,6 @@ body,
 }
 
 @media (max-width: 800px) {
-    #link-whatsNew {
-        display: none;
-    }
     /*.dialog-render img, .dialog-tutorial img
     {
         max-width: 87%;
@@ -526,6 +523,18 @@ body,
     }
     .dialog-render .save {
         margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 840px) {
+    #link-whatsNew {
+        display: none;
+    }
+}
+
+@media (max-width: 690px) {
+    #link-discord {
+        display: none;
     }
 }
 

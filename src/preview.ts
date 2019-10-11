@@ -3,6 +3,7 @@ import { createElement, showElement, hideElement, makePixelated } from "./util";
 import { Canvas } from "./canvas";
 import { CropView } from "./cropview";
 import { Point } from "./point";
+import { Rectangle } from "./rectangle";
 
 export class Preview extends Widget {
     private mask: Canvas;
@@ -37,8 +38,7 @@ export class Preview extends Widget {
         (<any>this.container.style)["z-index"] = -size;
 
         this.mask = new Canvas({
-            width: size.x,
-            height: size.y + 2
+            size: size.plus(new Point(0, 2))
         });
         this.mask.canvas.className = "mask";
         (<any>this.mask.canvas.style)["z-index"] = 1;
@@ -53,9 +53,9 @@ export class Preview extends Widget {
         this.image.style.position = "absolute";
 
         if (size.equals(new Point(30))) {
-            this.onlineIndicator = new Canvas({ width: 14, height: 14 });
-            this.onlineIndicator.fillCircleInSquare(0, 0, 14, "#2F3136");
-            this.onlineIndicator.fillCircleInSquare(2, 2, 10, "rgb(67,181,129)");
+            this.onlineIndicator = new Canvas({ size: new Point(14) });
+            this.onlineIndicator.fillCircleInSquare(new Point(0, 0), 14, "#2F3136");
+            this.onlineIndicator.fillCircleInSquare(new Point(2, 2), 10, "rgb(67,181,129)");
             this.onlineIndicator.canvas.className = "onlineIndicator";
         }
 
@@ -105,7 +105,7 @@ export class Preview extends Widget {
             else {
                 this.mask.fill("#2F3136");
                 this.mask.blendMode = "destination-out";
-                this.mask.fillCircleInRect(0, 0, this.size.x, this.size.y, "white");
+                this.mask.fillCircleInRect(new Rectangle(new Point(0), this.size), "white");
                 this.mask.blendMode = "source-over";
                 if (this.onlineIndicator) {
                     showElement(this.onlineIndicator.canvas);

@@ -4,6 +4,7 @@ import { createElement, hideElement, showElement, makePixelated } from "./util";
 import { FractionalProgressBar } from "./fractionalprogressbar";
 import { Canvas } from "./canvas";
 import { ClosableDialog } from "./closabledialog";
+import { Point } from "./point";
 
 declare var GIF: any;
 declare var SuperGif: any;
@@ -193,32 +194,25 @@ export class Renderer extends ClosableDialog {
         };
 
         let rc = new Canvas({
-            width: this.cropView.outerWidth,
-            height: this.cropView.outerHeight,
+            size: this.cropView.outerSize,
             pixelated: pixelated
         });
 
         rc.drawRotatedImage(
             frame,
             this.cropView.rotation / 180 * Math.PI,
-            this.cropView.outerWidth / 2 - this.cropView.innerWidth / 2,
-            this.cropView.outerHeight / 2 - this.cropView.innerHeight / 2
+            this.cropView.outerSize.dividedBy(2).minus(this.cropView.innerSize.dividedBy(2))
         );
 
         let squareCrop = new Canvas({
-            width: this.cropView.cropArea.width,
-            height: this.cropView.cropArea.height,
+            size: this.cropView.cropArea.size,
             pixelated: pixelated
         });
 
         squareCrop.drawCroppedImage(
             rc,
-            0,
-            0,
-            this.cropView.cropArea.x,
-            this.cropView.cropArea.y,
-            this.cropView.cropArea.width,
-            this.cropView.cropArea.height
+            new Point(0),
+            this.cropView.cropArea
         );
 
         squareCrop.createBlob((blob: Blob) => {
@@ -227,23 +221,18 @@ export class Renderer extends ClosableDialog {
 
         if (getCircle) {
             let circleCrop = new Canvas({
-                width: this.cropView.cropArea.width,
-                height: this.cropView.cropArea.height,
+                size: this.cropView.cropArea.size,
                 pixelated: pixelated
             });
 
             circleCrop.drawCroppedImage(
                 rc,
-                0,
-                0,
-                this.cropView.cropArea.x,
-                this.cropView.cropArea.y,
-                this.cropView.cropArea.width,
-                this.cropView.cropArea.height
+                new Point(0),
+                this.cropView.cropArea
             );
 
             circleCrop.blendMode = "destination-in";
-            circleCrop.fillCircleInSquare(0, 0, circleCrop.width, "white");
+            circleCrop.fillCircleInSquare(new Point(0), circleCrop.width, "white");
 
             circleCrop.createBlob((blob: Blob) => {
                 check(URL.createObjectURL(blob), "Circle", 1);

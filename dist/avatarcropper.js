@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -254,7 +254,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             this.cropView.centerCropArea();
         };
         AvatarCropper.prototype.setCropSize = function () {
-            var promptStr = "The current picture is " + this.cropView.innerWidth.toString() + "x" + this.cropView.innerHeight.toString() + "\n" +
+            var promptStr = "The current picture is " + this.cropView.innerSize.x.toString() + "x" + this.cropView.innerSize.y.toString() + "\n" +
                 "The current croparea is " + this.cropView.cropArea.width + "x" + this.cropView.cropArea.height + "\n" +
                 "Enter in a size either by specifying a number (like 64) or a percentage of width (50%w) or height (50%h)";
             var sizeStr = window.prompt(promptStr);
@@ -263,10 +263,10 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             }
             var size = parseInt(sizeStr);
             if (sizeStr.endsWith("%w")) {
-                size = this.cropView.innerWidth * (size / 100);
+                size = this.cropView.innerSize.x * (size / 100);
             }
             else if (sizeStr.endsWith("%h")) {
-                size = this.cropView.innerHeight * (size / 100);
+                size = this.cropView.innerSize.y * (size / 100);
             }
             this.cropView.setCropSize(size);
         };

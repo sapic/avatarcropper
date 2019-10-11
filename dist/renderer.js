@@ -4,14 +4,14 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "./closabledialog"], function (require, exports, util_1, fractionalprogressbar_1, canvas_1, closabledialog_1) {
+define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "./closabledialog", "./point"], function (require, exports, util_1, fractionalprogressbar_1, canvas_1, closabledialog_1, point_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Renderer = /** @class */ (function (_super) {
@@ -144,29 +144,26 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                 }
             };
             var rc = new canvas_1.Canvas({
-                width: this.cropView.outerWidth,
-                height: this.cropView.outerHeight,
+                size: this.cropView.outerSize,
                 pixelated: pixelated
             });
-            rc.drawRotatedImage(frame, this.cropView.rotation / 180 * Math.PI, this.cropView.outerWidth / 2 - this.cropView.innerWidth / 2, this.cropView.outerHeight / 2 - this.cropView.innerHeight / 2);
+            rc.drawRotatedImage(frame, this.cropView.rotation / 180 * Math.PI, this.cropView.outerSize.dividedBy(2).minus(this.cropView.innerSize.dividedBy(2)));
             var squareCrop = new canvas_1.Canvas({
-                width: this.cropView.cropArea.width,
-                height: this.cropView.cropArea.height,
+                size: this.cropView.cropArea.size,
                 pixelated: pixelated
             });
-            squareCrop.drawCroppedImage(rc, 0, 0, this.cropView.cropArea.x, this.cropView.cropArea.y, this.cropView.cropArea.width, this.cropView.cropArea.height);
+            squareCrop.drawCroppedImage(rc, new point_1.Point(0), this.cropView.cropArea);
             squareCrop.createBlob(function (blob) {
                 check(URL.createObjectURL(blob), "Square", 0);
             });
             if (getCircle) {
                 var circleCrop = new canvas_1.Canvas({
-                    width: this.cropView.cropArea.width,
-                    height: this.cropView.cropArea.height,
+                    size: this.cropView.cropArea.size,
                     pixelated: pixelated
                 });
-                circleCrop.drawCroppedImage(rc, 0, 0, this.cropView.cropArea.x, this.cropView.cropArea.y, this.cropView.cropArea.width, this.cropView.cropArea.height);
+                circleCrop.drawCroppedImage(rc, new point_1.Point(0), this.cropView.cropArea);
                 circleCrop.blendMode = "destination-in";
-                circleCrop.fillCircleInSquare(0, 0, circleCrop.width, "white");
+                circleCrop.fillCircleInSquare(new point_1.Point(0), circleCrop.width, "white");
                 circleCrop.createBlob(function (blob) {
                     check(URL.createObjectURL(blob), "Circle", 1);
                 });

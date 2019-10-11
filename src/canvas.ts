@@ -1,65 +1,131 @@
-export class Canvas {
-    canvas: HTMLCanvasElement;
-    translation: any;
-    align: any;
-    usingDeepCalc: boolean;
-    mouse: any;
-    offset: any;
+import { Point } from "./point";
+import { array_contains } from "./util";
+import { Rectangle } from "./rectangle";
 
-    constructor(options) {
+type CanvasOptions =
+{
+    canvasElement? : HTMLCanvasElement,
+    size? : Point,
+    align? :
+    {
+        horizontal : boolean,
+        vertical : boolean
+    },
+    deepCalc? : boolean,
+    pixelated? : boolean,
+    opaque? : boolean
+};
+
+type CanvasTextBaseline = "top" | "hanging" | "middle" | "alphabetic" | "ideographic" | "bottom";
+type CanvasTextAlign = "start" | "end" | "left" | "right" | "center";
+
+type MouseMoveFn = (pos : Point, isDown : boolean, lastPos : Point, originalPos : Point, e : MouseEvent) => any;
+type MouseDownFn = (pos : Point, e : MouseEvent) => any;
+type MouseUpFn = (pos : Point, originalPos : Point, e : MouseEvent) => any;
+type MouseLeaveFn = (pos : Point, e : MouseEvent) => any;
+
+type Drawable = HTMLImageElement | Canvas | HTMLCanvasElement;
+
+type CanvasMouse =
+{
+    isDown: boolean,
+    lastPos: { x: number, y: number },
+    originalPos: { x: number, y: number },
+    events:
+    {
+        move: MouseMoveFn[],
+        down: MouseDownFn[],
+        up: MouseUpFn[],
+        leave: MouseLeaveFn[]
+    }
+};
+
+export class Canvas
+{
+    canvas : HTMLCanvasElement;
+    translation : Point;
+    align : { horizontal: boolean, vertical: boolean };
+    usingDeepCalc : boolean;
+    mouse : CanvasMouse;
+    offset : Point;
+    public readonly context : CanvasRenderingContext2D;
+
+    constructor(options : CanvasOptions = {})
+    {
         options = options || {}
 
-        if (!options.canvasElement) {
+        if (!options.canvasElement)
+        {
             options.canvasElement = document.createElement("canvas");
         }
-
-        if (typeof (options.canvasElement) === "string") {
+        else if (typeof(options.canvasElement) === "string")
+        {
             options.canvasElement = document.querySelector(options.canvasElement);
         }
 
         this.canvas = options.canvasElement;
+        this.context = this.canvas.getContext("2d", { alpha: !options.opaque });
+        
+        options.size = options.size || new Point(1);
+        this.resize(options.size, false);
 
-        this.resize(options.width, options.height);
-
-        this.translation = { x: 0, y: 0 }
+        this.translation = new Point(0);
 
         this.align =
-            {
-                horizontal: (options.align && options.align.horizontal) || false,
-                vertical: (options.align && options.align.vertical) || false
-            }
-
-        if (this.align.horizontal || this.align.vertical) {
-            this.canvas.style["transform-origin"] = "center";
+        {
+            horizontal: (options.align && options.align.horizontal) || false,
+            vertical: (options.align && options.align.vertical) || false
         }
-        else {
-            this.canvas.style["transform-origin"] = "top left";
+
+        if (this.align.horizontal || this.align.vertical)
+        {
+            //this.canvas.style.transformOrigin = "center";
+            //this.canvas.style.position = "absolute";
+
+            /*if (this.align.horizontal && this.align.vertical)
+            {
+                this.canvas.style.transform = "translate(-50%, -50%)";
+                this.canvas.style.left = "50%";
+                this.canvas.style.top = "50%";
+            }
+            else if (this.align.horizontal)
+            {
+                this.canvas.style.transform = "translateX(-50%)";
+                this.canvas.style.left = "50%";
+            }
+            else // vertical
+            {
+                this.canvas.style.transform = "translateY(-50%)";
+                this.canvas.style.top = "50%";
+            }*/
+        }
+        else
+        {
+            this.canvas.style.transformOrigin = "top left";
         }
 
         this.usingDeepCalc = options.deepCalc || false;
         this.pixelated = options.pixelated || false;
 
-        if (this.usingDeepCalc) {
+        if (this.usingDeepCalc)
+        {
             this.deepCalcPosition();
             window.addEventListener("resize", this.deepCalcPosition);
         }
 
         this.mouse =
+        {
+            isDown: false,
+            lastPos: null,
+            originalPos: { x: -1, y: -1 },
+            events:
             {
-                isDown: false,
-                lastPos: null,
-                originalPos: { x: -1, y: -1 },
-                events:
-                {
-                    move: [],
-                    down: [],
-                    up: [],
-                    leave: []
-                },
-                addEventListener: function (eventName, fn) {
-                    this.events[eventName].push(fn);
-                }
+                move: [],
+                down: [],
+                up: [],
+                leave: []
             }
+        };
 
         this.canvas.addEventListener("mousemove", this.mouseMove.bind(this));
         this.canvas.addEventListener("touchmove", this.mouseMove.bind(this));
@@ -71,106 +137,145 @@ export class Canvas {
         this.canvas.addEventListener("touchcancel", this.mouseLeave.bind(this));
     }
 
-    static round(x) {
-        let negative = x < 0;
-        x = Math.abs(x);
-        x = (x + 0.5) | 0;
-        if (negative) x = -x;
-        return x;
-    }
-
-    resize(w?, h?, redraw?) {
-        if (w === undefined && h === undefined) {
-            return;
-        }
-
-        w = w || this.width;
-        h = h || this.height;
-
-        let c;
-
-        if (redraw) {
-            c = this.canvas.cloneNode();
-        }
-
-        this.canvas.width = w;
-        this.canvas.height = h;
-
-        if (redraw) {
-            this.drawImage(c);
+    public addEventListener(eventName : "mouseup", fn : MouseUpFn) : void;
+    public addEventListener(eventName : "mousedown", fn : MouseDownFn) : void;
+    public addEventListener(eventName : "mousemove", fn : MouseMoveFn) : void;
+    public addEventListener(eventName : "mouseleave", fn : MouseLeaveFn) : void;
+    public addEventListener(eventName : string, fn : Function) : void
+    {
+        if (array_contains(["mouseup","mousedown","mousemove","mouseleave"], eventName))
+        {
+            this.mouse.events[eventName.substr(5)].push(fn);
         }
     }
 
-    zoom(x?, y?) {
-        x = x || 1;
-        y = y || x;
+    public resize(size : Point, redraw : boolean)
+    {
+        let c : HTMLCanvasElement;
+
+        if (redraw)
+        {
+            c = <HTMLCanvasElement>this.canvas.cloneNode();
+        }
+        
+        this.canvas.width = size.x;
+        this.canvas.height = size.y;
+
+        if (redraw)
+        {
+            this.drawImage(c, new Point(0));
+        }
+    }
+
+    public zoom(amount : number | Point)
+    {
+        let x : number;
+        let y : number;
+
+        if (typeof(amount) === "number")
+        {
+            x = amount;
+            y = amount;
+        }
+        else
+        {
+            x = amount.x;
+            y = amount.y;
+        }
 
         this.canvas.style["transform"] = "scale(" + x + ", " + y + ")";
     }
 
-    scale(x?, y?) {
-        return this.zoom(x, y);
+    public zoomToFit(size : Point)
+    {
+        let wRatio = size.x / this.width;
+        let hRatio = size.y / this.height;
+
+        if (wRatio < hRatio)
+        {
+            this.zoom(wRatio);
+        }
+        else
+        {
+            this.zoom(hRatio);
+        }
     }
 
-    clear() {
-        this.context.clearRect(-this.translation.x, -this.translation.y, this.canvas.width, this.canvas.height);
+    public scale(amount : number | Point)
+    {
+        return this.zoom(amount);
     }
 
-    deepCalcPosition() {
-        let z = <HTMLElement>this.canvas, x = 0, y = 0, c;
+    public clear()
+    {
+        this.context.clearRect(-this.translation.x, -this.translation.y, this.canvas.width, this.canvas.height);  
+    }
 
-        while (z && !isNaN(z.offsetLeft) && !isNaN(z.offsetTop)) {
-            c = window.getComputedStyle(z, null);
-            x += z.offsetLeft - z.scrollLeft + (c ? parseInt(c.getPropertyValue('border-left-width'), 10) : 0);
-            y += z.offsetTop - z.scrollTop + (c ? parseInt(c.getPropertyValue('border-top-width'), 10) : 0);
+    private deepCalcPosition()
+    {
+        let z = <HTMLElement>this.canvas, x = 0, y = 0, c; 
+
+        while(z && !isNaN(z.offsetLeft) && !isNaN(z.offsetTop)) {        
+            c =  window.getComputedStyle(z, null); 
+            x += z.offsetLeft - z.scrollLeft + (c ? parseInt(c.getPropertyValue('border-left-width') , 10) : 0);
+            y += z.offsetTop - z.scrollTop + (c ? parseInt(c.getPropertyValue('border-top-width') , 10) : 0);
             z = <HTMLElement>z.offsetParent;
         }
 
-        this.offset = { x: x, y: y }
+        this.offset = new Point(x, y);
     }
 
-    posFromEvent(e) {
-        let x = e.pageX;
-        let y = e.pageY;
+    private posFromEvent(e : MouseEvent | TouchEvent) : Point
+    {
+        let ret = new Point();
 
-
-        if (e.changedTouches) {
-            x = e.changedTouches[0].pageX;
-            y = e.changedTouches[0].pageY;
+        if (e instanceof MouseEvent)
+        {
+            ret = new Point(e.pageX, e.pageY);
+        }
+        else
+        {
+            ret = new Point(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
         }
 
-        if (this.usingDeepCalc) {
+        if (this.usingDeepCalc)
+        {
             this.deepCalcPosition();
         }
 
         let bounds = this.canvas.getBoundingClientRect();
 
-        let ox = this.usingDeepCalc ? this.offset.x : bounds.left;
-        let oy = this.usingDeepCalc ? this.offset.y : bounds.top;
+        let o = this.usingDeepCalc ? this.offset.copy() : new Point(bounds.left, bounds.top);
 
-        if (this.align.horizontal && ox > 0) {
-            ox = (2 * ox - bounds.width) / 2;
+        if (this.align.horizontal && o.x > 0)
+        {
+            o.x = (2 * o.x - bounds.width) / 2;
         }
 
-        if (this.align.vertical && oy > 0) {
-            oy = (2 * oy - bounds.height) / 2;
+        if (this.align.vertical && o.y > 0)
+        {
+            o.y = (2 * o.y - bounds.height) / 2;
         }
-
-        x -= ox;
-        y -= oy;
-
-        x *= this.canvas.width / bounds.width;
-        y *= this.canvas.height / bounds.height;
-
-        return { x, y }
+        
+        ret.subtract(o);
+        ret.multiply(this.size.dividedBy(new Point(bounds.width, bounds.height)));
+        
+        return ret;
     }
 
-    mouseMove(e) {
+    public get size() : Point
+    {
+        return new Point(this.canvas.width, this.canvas.height);
+    }
+
+    private mouseMove(e : MouseEvent) : void
+    {
         let pos = this.posFromEvent(e);
         if (!this.mouse.lastPos) this.mouse.lastPos = pos;
         if (!this.mouse.isDown) this.mouse.originalPos = pos;
 
-        this.mouse.events.move.forEach(fn => {
+        this.mouse.events.move.forEach(fn =>
+        {
             let event = fn.call(
                 this,
                 pos.x,
@@ -183,47 +288,51 @@ export class Canvas {
                 e
             );
 
-            if (event !== false) {
+            if (event !== false)
+            {
                 this.mouse.lastPos = pos;
             }
         });
     }
 
-    mouseDown(e) {
+    private mouseDown(e : MouseEvent) : void
+    {
         let pos = this.posFromEvent(e);
         this.mouse.isDown = true;
         this.mouse.lastPos = pos;
         this.mouse.originalPos = pos;
 
-        this.mouse.events.down.forEach(fn => {
+        this.mouse.events.down.forEach(fn =>
+        {
             fn.call(this, pos.x, pos.y, e);
         });
     }
 
-    mouseUp(e) {
+    private mouseUp(e : MouseEvent) : void
+    {
         let pos = this.posFromEvent(e);
         this.mouse.isDown = false;
 
-        this.mouse.events.up.forEach(fn => {
+        this.mouse.events.up.forEach(fn =>
+        {
             fn.call(this, pos.x, pos.y, this.mouse.originalPos.x, this.mouse.originalPos.y, e);
         });
 
         this.mouse.lastPos = pos;
     }
 
-    mouseLeave(e) {
+    private mouseLeave(e : MouseEvent) : void
+    {
         let pos = this.posFromEvent(e);
 
-        this.mouse.events.leave.forEach(fn => {
+        this.mouse.events.leave.forEach(fn =>
+        {
             fn.call(this, pos.x, pos.y, e);
         });
     }
 
-    get context() {
-        return this.canvas.getContext("2d");
-    }
-
-    set pixelated(bool) {
+    public set pixelated(bool : boolean)
+    {
         bool = !bool;
 
         let ctx = this.context;
@@ -232,348 +341,355 @@ export class Canvas {
         //(<any>ctx).msImageSmoothingEnabled = bool;
         (<any>ctx).imageSmoothingEnabled = bool;
 
-        if (!bool) {
-            let types = ["optimizeSpeed", "crisp-edges", "-moz-crisp-edges", "-webkit-optimize-contrast", "optimize-contrast", "pixelated"];
-
+        if (!bool)
+        {
+            let types = [ "optimizeSpeed", "crisp-edges", "-moz-crisp-edges", "-webkit-optimize-contrast", "optimize-contrast", "pixelated" ];
+            
             types.forEach(type => this.canvas.style["image-rendering"] = type);
         }
-        else {
+        else
+        {
             this.canvas.style["image-rendering"] = "";
         }
         //this.canvas.style.msInterpolationMode = "nearest-neighbor";
     }
 
-    get width() { return this.canvas.width; }
-    set width(w) { this.resize(w, this.height); }
-    get height() { return this.canvas.height; }
-    set height(h) { this.resize(this.width, h); }
+    public get width() : number { return this.canvas.width; }
+    public get height() : number { return this.canvas.height; }
 
-    get opacity() { return this.context.globalAlpha; }
-    set opacity(opacity) { this.context.globalAlpha = opacity; }
+    public get opacity() : number { return this.context.globalAlpha; }
+    public set opacity(opacity : number) { this.context.globalAlpha = opacity; }
 
-    get color() { return this.context.fillStyle; }
-    set color(val) {
+    public get color() : string { return <string>this.context.fillStyle; }
+    public set color(val : string)
+    {
         if (val === undefined) return;
 
         this.context.fillStyle = val;
         this.context.strokeStyle = val;
     }
 
-    get font() { return this.context.font; }
-    set font(val) {
+    public get font() : string { return this.context.font; }
+    public set font(val : string)
+    {
         if (val === undefined) return;
 
         this.context.font = val;
     }
 
-    get lineWidth() { return this.context.lineWidth; }
-    set lineWidth(val) {
+    public get lineWidth() : number { return this.context.lineWidth; }
+    public set lineWidth(val : number)
+    {
         if (val === undefined) return;
-
+        
         this.context.lineWidth = val;
     }
 
-    get blendMode() { return this.context.globalCompositeOperation; }
-    set blendMode(val) { this.context.globalCompositeOperation = val; }
+    public get blendMode() : string { return this.context.globalCompositeOperation; }
+    public set blendMode(val : string) { this.context.globalCompositeOperation = val; }
 
-    get lineDash() { return this.context.getLineDash(); }
-    set lineDash(dash) { this.context.setLineDash(dash); }
+    public get lineDash() : number[] { return this.context.getLineDash(); }
+    public set lineDash(dash : number[]) { this.context.setLineDash(dash); }
 
-    createBlob(callback, mimeType?) {
-        this.canvas.toBlob(function (blob) {
+    public createBlob(callback : (blob : Blob) => any, mimeType? : string) : void
+    {
+        this.canvas.toBlob(function(blob)
+        {
             callback(blob);
         }, mimeType);
     }
 
-    createImage(callback, mimeType?, autoRevoke = true) {
-        this.canvas.toBlob(function (blob) {
+    public createImage(callback : (image : HTMLImageElement) => any, mimeType? : string, autoRevoke : boolean = true)
+    {
+        this.canvas.toBlob(function(blob) {
             let ret = new Image();
-
-            ret.onload = function () {
-                callback(this);
-                this.onload = null;
-                autoRevoke && URL.revokeObjectURL((<HTMLImageElement>this).src);
-            }
-
+    
+            ret.onload = () =>
+            {
+                callback(ret);
+                ret.onload = null;
+                autoRevoke && URL.revokeObjectURL(ret.src);
+            };
+        
             let url = URL.createObjectURL(blob);
             ret.src = url;
         }, mimeType);
     }
 
-    drawImage(image, x?, y?, w?, h?) {
-        if (image instanceof Canvas) {
+    public get imageData() : ImageData
+    {
+        return this.context.getImageData(0, 0, this.width, this.height);
+    }
+
+    public drawImage(image : Drawable, position : Point | Rectangle) : void
+    {
+        if (image instanceof Canvas)
+        {
             image = image.canvas;
         }
 
-        if (x === undefined) x = 0;
-        if (y === undefined) y = 0;
-        if (w === undefined) w = image.width;
-        if (h === undefined) h = image.height;
-
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-
-        this.context.drawImage(image, x, y, w, h);
+        if (position instanceof Point)
+        {
+            this.context.drawImage(image, position.x, position.y);
+        }
+        else
+        {
+            this.context.drawImage(image, position.x, position.y, position.width, position.height);
+        }        
     }
 
-    drawScaledImage(image, x, y, sw, sh) {
-        let w = image.width * sw;
-        let h = image.height * sh;
-
-        this.drawImage(image, x, y, w, h);
-    }
-
-    drawCroppedImage(image, x, y, cx, cy, cw, ch, w?, h?) {
-        if (image instanceof Canvas) {
+    public drawCroppedImage(image : Drawable, position : Point | Rectangle, cropRegion : Rectangle) : void
+    {
+        if (image instanceof Canvas)
+        {
             image = image.canvas;
         }
 
-        if (w === undefined) w = cw;
-        if (h === undefined) h = ch;
-
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        cx = Canvas.round(cx);
-        cy = Canvas.round(cy);
-        cw = Canvas.round(cw);
-        ch = Canvas.round(ch);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-
-        this.context.drawImage(image, cx, cy, cw, ch, x, y, w, h);
+        if (position instanceof Point)
+        {
+            this.context.drawImage(image, cropRegion.x, cropRegion.y, cropRegion.width, cropRegion.height, position.x, position.y, cropRegion.width, cropRegion.height);
+        }
+        else
+        {
+            this.context.drawImage(image, cropRegion.x, cropRegion.y, cropRegion.width, cropRegion.height, position.x, position.y, position.width, position.height);
+        }
     }
-
-    drawRotatedCroppedImage(image, rotate, anchorX, anchorY, x, y, cx, cy, cw, ch, w, h) {
-        if (image instanceof Canvas) {
+    
+    public drawRotatedCroppedImage(image : Drawable, rotate : number, anchor : Point, position : Point | Rectangle, cropRegion : Rectangle) : void
+    {
+        if (image instanceof Canvas)
+        {
             image = image.canvas;
         }
-
-        if (w === undefined) w = cw;
-        if (h === undefined) h = ch;
-
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        cx = Canvas.round(cx);
-        cy = Canvas.round(cy);
-        cw = Canvas.round(cw);
-        ch = Canvas.round(ch);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-
+    
         var ctx = this.context;
-
+    
         ctx.save();
-        ctx.translate(x + anchorX, y + anchorY);
+        ctx.translate(position.x + anchor.x, position.y + anchor.y);
         ctx.rotate(rotate);
-        ctx.drawImage(image, cx, cy, cw, ch, -anchorX, -anchorY, w, h);
+
+        if (position instanceof Point)
+        {
+            ctx.drawImage(image, cropRegion.x, cropRegion.y, cropRegion.width, cropRegion.height, -anchor.x, -anchor.y, image.width, image.height);
+        }
+        else
+        {
+            ctx.drawImage(image, cropRegion.x, cropRegion.y, cropRegion.width, cropRegion.height, -anchor.x, -anchor.y, position.width, position.height);
+        }
+
         ctx.restore();
     }
 
-    // use closures to make function factory function for onclick etc
-
-    fillImage(image, resizeToFit) {
-        if (resizeToFit) {
-            this.resize(image.width, image.height);
+    public fillWithImage(image : Drawable, resizeCanvasToFit : boolean) : void
+    {
+        if (resizeCanvasToFit)
+        {
+            this.resize(new Point(image.width, image.height), false);
         }
-
-        this.drawImage(image, 0, 0, this.width, this.height);
+        
+        this.drawImage(image, new Point(0));
     }
 
-    drawLine(x1, y1, x2, y2, color?, lineWidth?) {
+    public drawLine(start : Point, end : Point, color? : string, lineWidth? : number) : void
+    {
         this.color = color;
         this.lineWidth = lineWidth;
-
+    
         this.context.beginPath();
-        this.context.moveTo(x1, y1);
-        this.context.lineTo(x2, y2);
+        this.context.moveTo(start.x, start.y);
+        this.context.lineTo(end.x, end.y);
         this.context.stroke();
     }
 
-    drawRect(x: number, y: number, w: number, h: number, color, lineWidth, sharp) {
+    public drawRect(rect : Rectangle, color : string, lineWidth : number, sharp : boolean = true) : void
+    {
         this.color = color;
         this.lineWidth = lineWidth;
 
-        if (sharp === undefined) sharp = true;
-
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-
-        if (sharp) {
-            x += 0.5;
-            y += 0.5;
+        if (sharp)
+        {
+            rect = rect.translated(new Point(0.5));
         }
 
-        this.context.strokeRect(x, y, w, h);
+        this.context.strokeRect(rect.x, rect.y, rect.width, rect.height);
     }
 
-    fillRect(x: number, y: number, w: number, h: number, color) {
+    public fillRect(rect : Rectangle, color : string) : void
+    {
         this.color = color;
 
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-
-        this.context.fillRect(x, y, w, h);
+        this.context.fillRect(rect.x, rect.y, rect.width, rect.height);
     }
 
     // https://stackoverflow.com/a/7838871
-    drawRoundedRect(x: number, y: number, w: number, h: number, r: number, color, lineWidth, sharp) {
+    public drawRoundedRect(rect : Rectangle, radius : number, color : string, lineWidth : number, sharp : boolean = true) : void
+    {
         this.color = color;
         this.lineWidth = lineWidth;
 
-        if (sharp === undefined) sharp = true;
-
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-        r = Canvas.round(r);
-
-        if (sharp) {
-            x += 0.5;
-            y += 0.5;
+        if (sharp)
+        {
+            rect = rect.translated(new Point(0.5));
         }
 
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
+        if (rect.width < 2 * radius) radius = rect.width / 2;
+        if (rect.height < 2 * radius) radius = rect.height / 2;
 
         this.context.beginPath();
-        this.context.moveTo(x + r, y);
-        this.context.arcTo(x + w, y, x + w, y + h, r);
-        this.context.arcTo(x + w, y + h, x, y + h, r);
-        this.context.arcTo(x, y + h, x, y, r);
-        this.context.arcTo(x, y, x + w, y, r);
+        this.context.moveTo(rect.x + radius, rect.y);
+        this.context.arcTo(rect.right, rect.y, rect.right, rect.bottom, radius);
+        this.context.arcTo(rect.right, rect.bottom, rect.x, rect.bottom, radius);
+        this.context.arcTo(rect.x, rect.bottom, rect.x, rect.y, radius);
+        this.context.arcTo(rect.x, rect.y, rect.right, rect.y, radius);
         this.context.closePath();
         this.context.stroke();
     }
 
-    fillRoundedRect(x: number, y: number, w: number, h: number, r: number, color, sharp?) {
+    public fillRoundedRect(rect : Rectangle, radius : number, color : string, sharp : boolean = true) : void
+    {
         this.color = color;
 
-        if (sharp === undefined) sharp = true;
-
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-        r = Canvas.round(r);
-
-        if (sharp) {
-            x += 0.5;
-            y += 0.5;
+        if (sharp)
+        {
+            rect = rect.translated(new Point(0.5));
         }
 
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
+        if (rect.width < 2 * radius) radius = rect.width / 2;
+        if (rect.height < 2 * radius) radius = rect.height / 2;
 
         this.context.beginPath();
-        this.context.moveTo(x + r, y);
-        this.context.arcTo(x + w, y, x + w, y + h, r);
-        this.context.arcTo(x + w, y + h, x, y + h, r);
-        this.context.arcTo(x, y + h, x, y, r);
-        this.context.arcTo(x, y, x + w, y, r);
+        this.context.moveTo(rect.x + radius, rect.y);
+        this.context.arcTo(rect.right, rect.y, rect.right, rect.bottom, radius);
+        this.context.arcTo(rect.right, rect.bottom, rect.x, rect.bottom, radius);
+        this.context.arcTo(rect.x, rect.bottom, rect.x, rect.y, radius);
+        this.context.arcTo(rect.x, rect.y, rect.right, rect.y, radius);
         this.context.closePath();
         this.context.fill();
     }
 
-    fill(color) {
-        this.fillRect(0, 0, this.width, this.height, color);
+    public fill(color : string) : void
+    {
+        this.fillRect(new Rectangle(new Point(0), this.size), color);
     }
 
-    fillText(text, x, y, color, baseline, align, font) {
+    public fillText(text : string, position : Point, color : string, baseline? : CanvasTextBaseline, align? : CanvasTextAlign, font? : string) : void
+    {
         this.color = color;
-        this.font = font;
-
-        this.context.textBaseline = baseline;
-        this.context.textAlign = align;
-        this.context.fillText(text, x, y);
+        
+        if (font)
+        {
+            this.font = font;
+        }
+        if (baseline)
+        {
+            this.context.textBaseline = baseline;
+        }
+        if (align)
+        {
+            this.context.textAlign = align;
+        }
+        
+        this.context.fillText(text, position.x, position.y);
     }
 
-    fillCircle(x: number, y: number, radius: number, color) {
+    public fillCircle(position : Point, radius : number, color : string) : void
+    {
         this.color = color;
 
         this.context.beginPath();
-        this.context.arc(x, y, radius, 0, 2 * Math.PI, false);
+        this.context.arc(position.x, position.y, radius, 0, 2 * Math.PI, false);
         this.context.fill();
     }
 
-    fillCircleInSquare(x: number, y: number, diameter: number, color) {
+    public fillCircleInSquare(position : Point, diameter : number, color : string)
+    {    
         this.color = color;
-
+    
         this.context.beginPath();
-        this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
+        this.context.arc(position.x + diameter / 2, position.y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
         this.context.fill();
     }
 
-    drawCircleInSquare(x: number, y: number, diameter: number, color, lineWidth) {
+    public drawCircleInSquare(position : Point, diameter : number, color, lineWidth) : void
+    {
         this.color = color;
         this.lineWidth = lineWidth;
 
         this.context.beginPath();
-        this.context.arc(x + diameter / 2, y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
+        this.context.arc(position.x + diameter / 2, position.y + diameter / 2, diameter / 2, 0, 2 * Math.PI, false);
         this.context.stroke();
     }
 
-    fillCircleInRect(x: number, y: number, diameterX: number, diameterY: number, color: string) {
-        if (diameterX === diameterY) {
-            return this.fillCircleInSquare(x, y, diameterX, color);
+    public fillCircleInRect(rect : Rectangle, color : string) : void
+    {
+        if (rect.isSquare)
+        {
+            return this.fillCircleInSquare(rect.position, rect.width, color);
         }
-
+        
         this.color = color;
 
         this.context.beginPath();
-        this.context.ellipse(x, y, diameterX / 2, diameterY / 2, 0, 0, Math.PI * 2);
+        this.context.ellipse(rect.x, rect.y, rect.width / 2, rect.height / 2, 0, 0, Math.PI * 2);
         this.context.fill();
     }
 
-    drawCircleInRect(x: number, y: number, diameterX: number, diameterY: number, color?: string, lineWidth?: number) {
-        if (diameterX === diameterY) {
-            return this.drawCircleInSquare(x, y, diameterX, color, lineWidth);
+    public drawCircleInRect(rect : Rectangle, color? : string, lineWidth? : number) : void
+    {
+        if (rect.isSquare)
+        {
+            return this.drawCircleInSquare(rect.position, rect.width, color, lineWidth);
         }
-
+        
         this.color = color;
         this.lineWidth = lineWidth;
 
         this.context.beginPath();
-        this.context.ellipse(x, y, diameterX / 2, diameterY / 2, 0, 0, Math.PI * 2);
+        this.context.ellipse(rect.x, rect.y, rect.width / 2, rect.height / 2, 0, 0, Math.PI * 2);
         this.context.stroke();
     }
 
-    drawRotatedImage(image: Canvas | HTMLImageElement | HTMLCanvasElement, rotate: number, x: number, y: number, w?: number, h?: number) {
-        if (image instanceof Canvas) {
+    public drawRotatedImage(image : Drawable, rotate : number, position : Point | Rectangle) : void
+    {
+        if (image instanceof Canvas)
+        {
             image = image.canvas;
         }
 
-        if (w === undefined) w = image.width;
-        if (h === undefined) h = image.height;
+        let w : number;
+        let h : number;
 
-        x = Canvas.round(x);
-        y = Canvas.round(y);
-        w = Canvas.round(w);
-        h = Canvas.round(h);
-
+        if (position instanceof Point)
+        {
+            w = image.width;
+            h = image.height;
+        }
+        else
+        {
+            w = position.width;
+            h = position.height;
+        }
+        
         this.context.save();
-        this.context.translate(x + w / 2, y + h / 2);
+        this.context.translate(position.x + w / 2, position.y + h / 2);
         this.context.rotate(rotate);
         this.context.drawImage(image, -w / 2, -h / 2, w, h);
         this.context.restore();
     }
 
-    static fileToImage(file, callback, autoRevoke = true) {
+    public static fileToImage(file : File, callback : (image : HTMLImageElement) => any, autoRevoke : boolean = true)
+    {
         let img = new Image();
-
-        img.onload = function () {
-            callback(this);
-            if (autoRevoke) {
-                window.URL.revokeObjectURL((<HTMLImageElement>this).src);
+    
+        img.onload = () =>
+        {
+            callback(img);
+            if (autoRevoke)
+            {
+                window.URL.revokeObjectURL(img.src);
             }
-        }
-
+        };
+    
         img.src = window.URL.createObjectURL(file);
     }
 }
@@ -583,13 +699,13 @@ if (!HTMLCanvasElement.prototype.toBlob) {
     Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
         value: function (callback, type, quality) {
             var canvas = this;
-            setTimeout(function () {
-                var binStr = atob(canvas.toDataURL(type, quality).split(',')[1]),
+            setTimeout(function() {
+                var binStr = atob( canvas.toDataURL(type, quality).split(',')[1] ),
                     len = binStr.length,
                     arr = new Uint8Array(len);
 
-                for (var i = 0; i < len; i++) {
-                    arr[i] = binStr.charCodeAt(i);
+                for (var i = 0; i < len; i++ ) {
+                arr[i] = binStr.charCodeAt(i);
                 }
 
                 callback(new Blob([arr], { type: type || 'image/png' }));

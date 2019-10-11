@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55,12 +55,12 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         });
         Circle.prototype.validate = function () {
             var ret = 0;
-            if (this.width > this.cropView.outerWidth) {
-                this.setWidthKeepAR(this.cropView.outerWidth);
+            if (this.width > this.cropView.outerSize.x) {
+                this.setWidthKeepAR(this.cropView.outerSize.x);
                 ret |= 1;
             }
-            if (this.height > this.cropView.outerHeight) {
-                this.setHeightKeepAR(this.cropView.outerHeight);
+            if (this.height > this.cropView.outerSize.y) {
+                this.setHeightKeepAR(this.cropView.outerSize.y);
                 ret |= 2;
             }
             if (this.x < 0) {
@@ -71,12 +71,12 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 this.y = 0;
                 ret |= 8;
             }
-            if (this.bottom > this.cropView.outerHeight) {
-                this.bottom = this.cropView.outerHeight;
+            if (this.bottom > this.cropView.outerSize.y) {
+                this.bottom = this.cropView.outerSize.y;
                 ret |= 16;
             }
-            if (this.right > this.cropView.outerWidth) {
-                this.right = this.cropView.outerWidth;
+            if (this.right > this.cropView.outerSize.x) {
+                this.right = this.cropView.outerSize.x;
                 ret |= 32;
             }
             return ret;
@@ -106,8 +106,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             });
             _this.appendChild(_this.image, _this.overlay.canvas);
             document.body.appendChild(_this.renderer.container);
-            _this.overlay.mouse.addEventListener("move", _this.mouseMove.bind(_this));
-            _this.overlay.mouse.addEventListener("down", _this.mouseDown.bind(_this));
+            _this.overlay.addEventListener("mousemove", _this.mouseMove.bind(_this));
+            _this.overlay.addEventListener("mousedown", _this.mouseDown.bind(_this));
             _this.overlay.canvas.addEventListener("touchmove", function (e) {
                 if (!(_this.currentAction === "new" || _this.currentAction === "none")) {
                     e.preventDefault();
@@ -179,10 +179,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 this.overlay.fill("rgba(0,0,0," + this.settings.maskOpacity + ")");
                 this.overlay.blendMode = "destination-out";
                 if (this.settings.previewMode === "circle") {
-                    this.overlay.fillCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
+                    this.overlay.fillCircleInRect(this.circle, "white");
                 }
                 else {
-                    this.overlay.fillRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white");
+                    this.overlay.fillRect(this.circle, "white");
                 }
             }
             this.overlay.blendMode = "source-over";
@@ -191,29 +191,29 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
                 var sharp = lineWidth % 2 === 1;
                 this.overlay.lineDash = [Math.min(this.overlay.width, this.overlay.height) / 100];
                 if (this.settings.previewMode === "circle") {
-                    this.overlay.drawCircleInRect(this.circle.x, this.circle.y, this.circle.size.x, this.circle.size.y, "white", lineWidth);
+                    this.overlay.drawCircleInRect(this.circle, "white", lineWidth);
                 }
-                this.overlay.drawRect(this.circle.x - lineWidth, this.circle.y - lineWidth, this.circle.width + lineWidth, this.circle.height + lineWidth, "white", lineWidth, sharp);
+                this.overlay.drawRect(new rectangle_1.Rectangle(this.circle.position.minus(lineWidth), this.circle.size.plus(lineWidth)), "white", lineWidth, sharp);
             }
             if (this.settings.guidesEnabled) {
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.bottom, "white", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.top, "white", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.right, this.circle.cy, "white", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.left, this.circle.cy, "white", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.cx, this.circle.bottom), "white", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.cx, this.circle.top), "white", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.right, this.circle.cy), "white", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.left, this.circle.cy), "white", lineWidth);
                 this.overlay.context.lineDashOffset = this.overlay.context.getLineDash()[0];
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.bottom, "cyan", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.cx, this.circle.top, "cyan", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.right, this.circle.cy, "cyan", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy, this.circle.left, this.circle.cy, "cyan", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.cx, this.circle.bottom), "cyan", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.cx, this.circle.top), "cyan", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.right, this.circle.cy), "cyan", lineWidth);
+                this.overlay.drawLine(this.circle.center, new point_1.Point(this.circle.left, this.circle.cy), "cyan", lineWidth);
                 this.overlay.context.lineDashOffset = 0;
-                this.overlay.drawLine(this.circle.cx - lineWidth * 2, this.circle.cy, this.circle.cx + lineWidth * 2, this.circle.cy, "cyan", lineWidth);
-                this.overlay.drawLine(this.circle.cx, this.circle.cy - lineWidth * 2, this.circle.cx, this.circle.cy + lineWidth * 2, "cyan", lineWidth);
+                this.overlay.drawLine(new point_1.Point(this.circle.cx - lineWidth * 2, this.circle.cy), new point_1.Point(this.circle.cx + lineWidth * 2, this.circle.cy), "cyan", lineWidth);
+                this.overlay.drawLine(new point_1.Point(this.circle.cx, this.circle.cy - lineWidth * 2), new point_1.Point(this.circle.cx, this.circle.cy + lineWidth * 2), "cyan", lineWidth);
             }
             /*let theta = (90 - this.rotation) / 180 * Math.PI;
             let cot = (t) => 1 / Math.tan(t);
             
-            let cx = this.outerWidth / 2;
-            let cy = this.outerHeight / 2;
+            let cx = this.outerSize.x / 2;
+            let cy = this.outerSize.y / 2;
             
             let circleX = this.circle.cx;
             let circleY = this.circle.cy;
@@ -246,21 +246,14 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         Object.defineProperty(CropView.prototype, "innerRect", {
             // returns size of image (internal res of image) //
             get: function () {
-                return new rectangle_1.Rectangle(point_1.Point.Zero, new point_1.Point(this.image.width, this.image.height));
+                return new rectangle_1.Rectangle(new point_1.Point(0), this.innerSize);
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(CropView.prototype, "innerWidth", {
+        Object.defineProperty(CropView.prototype, "innerSize", {
             get: function () {
-                return this.image.width;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(CropView.prototype, "innerHeight", {
-            get: function () {
-                return this.image.height;
+                return new point_1.Point(this.image.width, this.image.height);
             },
             enumerable: true,
             configurable: true
@@ -268,35 +261,21 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         Object.defineProperty(CropView.prototype, "outerRect", {
             // returns sizes taking rotation into consideration (internal res of overlay) //
             get: function () {
-                return new rectangle_1.Rectangle(point_1.Point.Zero, new point_1.Point(this.overlay.width, this.overlay.height));
+                return new rectangle_1.Rectangle(new point_1.Point(0), this.outerSize);
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(CropView.prototype, "outerWidth", {
+        Object.defineProperty(CropView.prototype, "outerSize", {
             get: function () {
-                return this.overlay.width;
+                return new point_1.Point(this.overlay.width, this.overlay.height);
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(CropView.prototype, "outerHeight", {
+        Object.defineProperty(CropView.prototype, "apparentSize", {
             get: function () {
-                return this.overlay.height;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(CropView.prototype, "apparentWidth", {
-            get: function () {
-                return this.container.getBoundingClientRect().width;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(CropView.prototype, "apparentHeight", {
-            get: function () {
-                return this.container.getBoundingClientRect().height;
+                return point_1.Point.fromSizeLike(this.container.getBoundingClientRect());
             },
             enumerable: true,
             configurable: true
@@ -415,16 +394,15 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             var b4 = this.image.style.transform;
             this.image.style.left = "0px";
             this.image.style.top = "0px";
-            this.overlay.resize(this.image.width, this.image.height);
-            var or = this.image.getBoundingClientRect();
+            var size = point_1.Point.fromSizeLike(this.image);
+            var or = point_1.Point.fromSizeLike(this.image.getBoundingClientRect());
             this.image.style.transform = b4 + " rotate(" + deg + "deg)";
-            var r = this.image.getBoundingClientRect();
-            var dx = -r.left - this.container.scrollLeft;
-            var dy = -r.top - this.container.scrollTop;
-            this.image.style.left = dx + "px";
-            this.image.style.top = dy + "px";
-            this.overlay.width *= (r.width / or.width);
-            this.overlay.height *= (r.height / or.height);
+            var r = rectangle_1.Rectangle.fromClientRect(this.image.getBoundingClientRect());
+            var delta = r.topLeft.inverted.minus(new point_1.Point(this.container.scrollLeft, this.container.scrollTop));
+            this.image.style.left = delta.x + "px";
+            this.image.style.top = delta.y + "px";
+            size.multiply(r.size.dividedBy(or));
+            this.overlay.resize(size, false);
             /*let circleMagnitude = Math.sqrt(
                 Math.pow(this.overlay.width - circle.cx(), 2) +
                 Math.pow(this.overlay.height - circle.cy(), 2)
@@ -471,7 +449,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             if (this.image.src) {
                 URL.revokeObjectURL(this.image.src);
             }
-            this.overlay.resize(image.width, image.height);
+            this.overlay.resize(point_1.Point.fromSizeLike(image), false);
             this.overlay.clear();
             this.image.width = image.width;
             this.image.height = image.height;
@@ -485,9 +463,9 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         };
         CropView.prototype.flipHorizontal = function () {
             var _this = this;
-            var c = new canvas_1.Canvas({ width: this.image.width, height: this.image.height });
+            var c = new canvas_1.Canvas({ size: point_1.Point.fromSizeLike(this.image) });
             c.context.scale(-1, 1);
-            c.drawImage(this.image, 0, 0, -this.image.width, this.image.height);
+            c.drawImage(this.image, new rectangle_1.Rectangle(new point_1.Point(0), point_1.Point.fromSizeLike(this.image).times(new point_1.Point(-1, 1))));
             c.context.setTransform(1, 0, 0, 1, 0, 0);
             this.loadingImage = true;
             c.createImage(function (img) {
@@ -496,9 +474,9 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
         };
         CropView.prototype.flipVertical = function () {
             var _this = this;
-            var c = new canvas_1.Canvas({ width: this.image.width, height: this.image.height });
+            var c = new canvas_1.Canvas({ size: point_1.Point.fromSizeLike(this.image) });
             c.context.scale(1, -1);
-            c.drawImage(this.image, 0, 0, this.image.width, -this.image.height);
+            c.drawImage(this.image, new rectangle_1.Rectangle(new point_1.Point(0), point_1.Point.fromSizeLike(this.image).times(new point_1.Point(1, -1))));
             c.context.setTransform(1, 0, 0, 1, 0, 0);
             this.loadingImage = true;
             c.createImage(function (img) {
@@ -513,10 +491,10 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./renderer", ".
             this.image.onload = function () {
                 _this.rotate(-_this.rotation, false);
                 if (horizontal) {
-                    _this.circle.cx = _this.outerWidth - _this.circle.cx;
+                    _this.circle.cx = _this.outerSize.x - _this.circle.cx;
                 }
                 else {
-                    _this.circle.cy = _this.outerHeight - _this.circle.cy;
+                    _this.circle.cy = _this.outerSize.y - _this.circle.cy;
                 }
                 _this.emitEvent("imagechange", _this.image.src);
                 _this.refresh();

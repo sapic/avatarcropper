@@ -6,6 +6,30 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
             this.position = position;
             this.size = size;
         }
+        Rectangle.fromClientRect = function (rect) {
+            return new Rectangle(new point_1.Point(rect.left, rect.top), point_1.Point.fromSizeLike(rect));
+        };
+        Object.defineProperty(Rectangle.prototype, "isSquare", {
+            get: function () {
+                return this.width === this.height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Rectangle.prototype.plus = function (operand) {
+            return new Rectangle(this.position.plus(operand.position), this.size.plus(operand.size));
+        };
+        Rectangle.prototype.times = function (operand) {
+            if (typeof (operand) === "number") {
+                return new Rectangle(this.position.times(operand), this.size.times(operand));
+            }
+            else {
+                return new Rectangle(this.position.times(operand.position), this.size.times(operand.size));
+            }
+        };
+        Rectangle.prototype.translated = function (offset) {
+            return new Rectangle(this.position.plus(offset), this.size.copy());
+        };
         Rectangle.prototype.toString = function () {
             return "(" + this.x + ", " + this.y + ", " + this.width + ", " + this.height + ")";
         };
@@ -183,6 +207,13 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
                 this.size.round();
             }
         };
+        Object.defineProperty(Rectangle.prototype, "rounded", {
+            get: function () {
+                return new Rectangle(this.position.rounded, this.size.rounded);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Rectangle.prototype, "local", {
             get: function () {
                 return new Rectangle(new point_1.Point(0), this.size.copy());
@@ -346,6 +377,16 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
         };
         Rectangle.prototype.containsRect = function (r) {
             return this.containsPoint(r.topLeft) && this.containsPoint(r.bottomRight);
+        };
+        /**
+         * @param r Rectangle to test for intersection with this one.
+         * @returns Whether or not the rectangles intersect. If they are just touching, will return `false`.
+         */
+        Rectangle.prototype.intersects = function (r) {
+            return !(r.left >= this.right ||
+                r.right <= this.left ||
+                r.top >= this.bottom ||
+                r.bottom <= this.top);
         };
         Rectangle.between = function (p1, p2) {
             var pos = new point_1.Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));

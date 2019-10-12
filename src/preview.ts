@@ -117,6 +117,7 @@ export class Preview extends Widget {
 
             if (this.lastMode === "square") {
                 this.mask.clear();
+                this.mask.fillRect(new Rectangle(new Point(0, this.size.y), new Point(this.size.x, 2)), "#2F3136");
                 if (this.onlineIndicator) {
                     hideElement(this.onlineIndicator.canvas);
                 }

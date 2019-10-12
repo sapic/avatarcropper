@@ -96,6 +96,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./re
                 this.applyGradient();
                 if (this.lastMode === "square") {
                     this.mask.clear();
+                    this.mask.fillRect(new rectangle_1.Rectangle(new point_1.Point(0, this.size.y), new point_1.Point(this.size.x, 2)), "#2F3136");
                     if (this.onlineIndicator) {
                         util_1.hideElement(this.onlineIndicator.canvas);
                     }

@@ -74,7 +74,8 @@ export class Preview extends Widget {
         this.bottomBar = createElement("div", "bottomBar");
 
         this.sizeDisplay = createElement("div", "size");
-        this.sizeDisplay.innerText = size + "x" + size;
+        this.sizeDisplay.innerText = size.x + "x" + size.y;
+        this.container.title = this.sizeDisplay.innerText;
 
         this.removeButton = createElement("button", "remove");
         this.removeButton.innerText = "✖";

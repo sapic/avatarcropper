@@ -169,7 +169,7 @@ export class AvatarCropper extends Widget {
         let circle = createElement("button", "open item half");
         circle.innerText = "Circle";
         let square = createElement("button", "open item half");
-        square.innerText = "Sqauarare";
+        square.innerText = "Squaré";
         circle.addEventListener("click", () => {
             circle.classList.add("toggled");
             square.classList.remove("toggled");

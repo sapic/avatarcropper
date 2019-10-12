@@ -287,7 +287,7 @@ body,
   color: #eee;
   width: 256px;
   max-height: 100%;
-  z-index: 2;
+  z-index: 3;
   overflow-y: auto;
   overflow-x: hidden;
 }

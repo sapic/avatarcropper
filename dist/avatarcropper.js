@@ -123,7 +123,7 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
             var circle = util_1.createElement("button", "open item half");
             circle.innerText = "Circle";
             var square = util_1.createElement("button", "open item half");
-            square.innerText = "Sqauarare";
+            square.innerText = "Squaré";
             circle.addEventListener("click", function () {
                 circle.classList.add("toggled");
                 square.classList.remove("toggled");

@@ -60,7 +60,8 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./re
             }
             _this.bottomBar = util_1.createElement("div", "bottomBar");
             _this.sizeDisplay = util_1.createElement("div", "size");
-            _this.sizeDisplay.innerText = size + "x" + size;
+            _this.sizeDisplay.innerText = size.x + "x" + size.y;
+            _this.container.title = _this.sizeDisplay.innerText;
             _this.removeButton = util_1.createElement("button", "remove");
             _this.removeButton.innerText = "✖";
             _this.removeButton.addEventListener("click", function () {

@@ -1,4 +1,4 @@
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", "./rectangle"], function (require, exports, rectangle_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -33,6 +33,9 @@ define(["require", "exports"], function (require, exports) {
         };
         Point.fromPointLike = function (pointLike) {
             return new Point(pointLike.x, pointLike.y);
+        };
+        Point.prototype.toRectangle = function (offset) {
+            return new rectangle_1.Rectangle(offset || new Point(0), this.copy());
         };
         Object.defineProperty(Point.prototype, "xOnly", {
             /**

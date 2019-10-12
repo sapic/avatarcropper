@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "./closabledialog", "./point"], function (require, exports, util_1, fractionalprogressbar_1, canvas_1, closabledialog_1, point_1) {
+define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "./closabledialog", "./point", "./borders"], function (require, exports, util_1, fractionalprogressbar_1, canvas_1, closabledialog_1, point_1, borders_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Renderer = /** @class */ (function (_super) {
@@ -143,6 +143,11 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                     callback(ret);
                 }
             };
+            var borderCanvas = new canvas_1.Canvas({
+                size: this.cropView.cropArea.size,
+                pixelated: pixelated
+            });
+            borders_1.Border.apply(borderCanvas);
             var rc = new canvas_1.Canvas({
                 size: this.cropView.outerSize,
                 pixelated: pixelated
@@ -153,6 +158,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                 pixelated: pixelated
             });
             squareCrop.drawCroppedImage(rc, new point_1.Point(0), this.cropView.cropArea);
+            squareCrop.drawImage(borderCanvas, new point_1.Point(0));
             squareCrop.createBlob(function (blob) {
                 check(URL.createObjectURL(blob), "Square", 0);
             });
@@ -162,6 +168,7 @@ define(["require", "exports", "./util", "./fractionalprogressbar", "./canvas", "
                     pixelated: pixelated
                 });
                 circleCrop.drawCroppedImage(rc, new point_1.Point(0), this.cropView.cropArea);
+                circleCrop.drawImage(borderCanvas, new point_1.Point(0));
                 circleCrop.blendMode = "destination-in";
                 circleCrop.fillCircleInSquare(new point_1.Point(0), circleCrop.width, "white");
                 circleCrop.createBlob(function (blob) {

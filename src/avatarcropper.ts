@@ -1,7 +1,7 @@
 import { Widget } from "./widget";
 import { CropView } from "./cropview";
 import { Previews } from "./previews";
-import { createElement, hideElement, showElement, getIEVersion } from "./util";
+import { createElement, hideElement, showElement, getIEVersion, createOptionElement } from "./util";
 import { LabelSlider } from "./labeledslider";
 import Storage from "./storage";
 import { doFooterThings, showTutorial } from "./footer";
@@ -10,6 +10,7 @@ import { TextDialog } from "./textdialog";
 import { DragDrop } from "./dragdrop";
 import { Point } from "./point";
 import { KeyManager } from "./keymanager";
+import { Border } from "./borders";
 
 export interface Settings {
     previewSizes: number[],
@@ -22,6 +23,7 @@ export interface Settings {
     dismissedCookie: boolean;
     guidesEnabled: boolean;
     resizeLock: boolean;
+    borderSize: number;
 }
 
 export class AvatarCropper extends Widget {
@@ -51,13 +53,16 @@ export class AvatarCropper extends Widget {
         dismissedIE: false,
         dismissedCookie: false,
         guidesEnabled: true,
-        resizeLock: false
+        resizeLock: false,
+        borderSize: 0.05
     };
 
     constructor(container: HTMLElement) {
         super(container);
 
         this.loadSettings();
+        Border.size = this.settings.borderSize;
+        console.log(this.settings.borderSize);
         this.constructMenu();
         this.cropView = new CropView(this.settings);
         this.previews = new Previews(this.cropView);
@@ -293,6 +298,29 @@ export class AvatarCropper extends Widget {
         });
         GlobalEvents.emitEvent("resizelockchange");
 
+        // create border options //
+        let border = <HTMLSelectElement>createElement("select", "item");
+        for (let borderType in Border.types) {
+            border.add(createOptionElement(Border.types[borderType].text, borderType));
+        }
+        border.addEventListener("change", () => {
+            Border.type = border.value;
+        });
+        this.menu.appendChild(border);
+
+        // create border slider //
+        let borderSlider = new LabelSlider(0, 0.5, 0.01, "Border Size", "item");
+        borderSlider.value = Border.size;
+        borderSlider.on("slide", (value : number) => {
+            Border.size = value;
+        });
+        borderSlider.on("change", () => {
+            this.settings.borderSize = borderSlider.value;
+            this.saveSettings();
+        });
+        this.menu.appendChild(borderSlider.container);
+
+        // create render button //
         let render = createElement("button", "item render show");
         render.innerText = "Render/Save";
         render.addEventListener("click", this.renderCroppedImage.bind(this));

@@ -4,9 +4,12 @@ import { Canvas } from "./canvas";
 import { CropView } from "./cropview";
 import { Point } from "./point";
 import { Rectangle } from "./rectangle";
+import { Border } from "./borders";
+import { GlobalEvents } from "./eventclass";
 
 export class Preview extends Widget {
     private mask: Canvas;
+    private border: Canvas;
     private image: HTMLImageElement;
     private onlineIndicator: Canvas;
     private bottomBar: HTMLElement;
@@ -21,6 +24,8 @@ export class Preview extends Widget {
         super(createElement("div", "preview"));
 
         this.createEvent("requestremove");
+
+        GlobalEvents.on("borderchange", () => this.applyGradient());
 
         this.cropView = cropView;
         this.cropView.on("update", this.update.bind(this));
@@ -41,8 +46,15 @@ export class Preview extends Widget {
             size: size.plus(new Point(0, 2))
         });
         this.mask.canvas.className = "mask";
-        (<any>this.mask.canvas.style)["z-index"] = 1;
+        (<any>this.mask.canvas.style)["z-index"] = 2;
         this.mask.canvas.style.position = "absolute";
+
+        this.border = new Canvas({
+            size: size
+        });
+        this.border.canvas.className = "border";
+        (<any>this.border.canvas.style)["z-index"] = 1;
+        this.border.canvas.style.position = "absolute";
 
         this.image = <HTMLImageElement>createElement("img", "image");
         this.image.style.position = "absolute";
@@ -73,7 +85,7 @@ export class Preview extends Widget {
         this.bottomBar.appendChild(this.sizeDisplay);
         this.bottomBar.appendChild(this.removeButton);
 
-        this.appendChild(this.image, this.mask.canvas, (this.onlineIndicator && this.onlineIndicator.canvas) || null, this.bottomBar);
+        this.appendChild(this.image, this.mask.canvas, this.border.canvas, (this.onlineIndicator && this.onlineIndicator.canvas) || null, this.bottomBar);
 
         this.container.addEventListener("mouseenter", () => {
             showElement(this.bottomBar);
@@ -91,10 +103,16 @@ export class Preview extends Widget {
     public get size(): Point {
         return this._size;
     }
+    
+    public applyGradient(): void {
+        Border.apply(this.border);
+    }
 
     public update() {
         if (this.cropView.settings.previewMode !== this.lastMode) {
             this.lastMode = this.cropView.settings.previewMode;
+
+            this.applyGradient();
 
             if (this.lastMode === "square") {
                 this.mask.clear();

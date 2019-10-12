@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -19,6 +19,9 @@ define(["require", "exports", "./util", "./closabledialog"], function (require, 
         function WhatsNewDialog() {
             var _this = _super.call(this) || this;
             _this.list = {
+                "October 2019": [
+                    "Added borders for LGBT frends... more/custom borders coming soon"
+                ],
                 "July 2019": [
                     "Added functionality for centering, setting size manually, and resize locking",
                     "Bug fixes and performance improvements"
@@ -55,7 +58,7 @@ define(["require", "exports", "./util", "./closabledialog"], function (require, 
                     "Loading screen so you can't open a file before it's ready for you to"
                 ],
                 "July 2018": [
-                    "Drag &amp; Drop support - thanx TheRebelG0d",
+                    "Drag & Drop support - thanx TheRebelG0d",
                     "New rendering where you can pick circle or square after rendering... revolutionary...",
                     "Zoom functionality",
                     "Other stuff probaly"

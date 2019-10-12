@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./rectangle"], function (require, exports, widget_1, util_1, canvas_1, point_1, rectangle_1) {
+define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./rectangle", "./borders", "./eventclass"], function (require, exports, widget_1, util_1, canvas_1, point_1, rectangle_1, borders_1, eventclass_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Preview = /** @class */ (function (_super) {
@@ -20,6 +20,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./re
             var _this = _super.call(this, util_1.createElement("div", "preview")) || this;
             _this.lastMode = "none";
             _this.createEvent("requestremove");
+            eventclass_1.GlobalEvents.on("borderchange", function () { return _this.applyGradient(); });
             _this.cropView = cropView;
             _this.cropView.on("update", _this.update.bind(_this));
             _this.cropView.on("imagechange", function (src) {
@@ -36,8 +37,14 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./re
                 size: size.plus(new point_1.Point(0, 2))
             });
             _this.mask.canvas.className = "mask";
-            _this.mask.canvas.style["z-index"] = 1;
+            _this.mask.canvas.style["z-index"] = 2;
             _this.mask.canvas.style.position = "absolute";
+            _this.border = new canvas_1.Canvas({
+                size: size
+            });
+            _this.border.canvas.className = "border";
+            _this.border.canvas.style["z-index"] = 1;
+            _this.border.canvas.style.position = "absolute";
             _this.image = util_1.createElement("img", "image");
             _this.image.style.position = "absolute";
             _this.image.style["transform-origin"] = "top left";
@@ -61,7 +68,7 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./re
             });
             _this.bottomBar.appendChild(_this.sizeDisplay);
             _this.bottomBar.appendChild(_this.removeButton);
-            _this.appendChild(_this.image, _this.mask.canvas, (_this.onlineIndicator && _this.onlineIndicator.canvas) || null, _this.bottomBar);
+            _this.appendChild(_this.image, _this.mask.canvas, _this.border.canvas, (_this.onlineIndicator && _this.onlineIndicator.canvas) || null, _this.bottomBar);
             _this.container.addEventListener("mouseenter", function () {
                 util_1.showElement(_this.bottomBar);
             });
@@ -79,9 +86,13 @@ define(["require", "exports", "./widget", "./util", "./canvas", "./point", "./re
             enumerable: true,
             configurable: true
         });
+        Preview.prototype.applyGradient = function () {
+            borders_1.Border.apply(this.border);
+        };
         Preview.prototype.update = function () {
             if (this.cropView.settings.previewMode !== this.lastMode) {
                 this.lastMode = this.cropView.settings.previewMode;
+                this.applyGradient();
                 if (this.lastMode === "square") {
                     this.mask.clear();
                     if (this.onlineIndicator) {

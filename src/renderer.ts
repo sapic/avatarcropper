@@ -5,6 +5,7 @@ import { FractionalProgressBar } from "./fractionalprogressbar";
 import { Canvas } from "./canvas";
 import { ClosableDialog } from "./closabledialog";
 import { Point } from "./point";
+import { Border } from "./borders";
 
 declare var GIF: any;
 declare var SuperGif: any;
@@ -193,6 +194,13 @@ export class Renderer extends ClosableDialog {
             }
         };
 
+        let borderCanvas = new Canvas({
+            size: this.cropView.cropArea.size,
+            pixelated: pixelated
+        });
+
+        Border.apply(borderCanvas);
+
         let rc = new Canvas({
             size: this.cropView.outerSize,
             pixelated: pixelated
@@ -215,6 +223,8 @@ export class Renderer extends ClosableDialog {
             this.cropView.cropArea
         );
 
+        squareCrop.drawImage(borderCanvas, new Point(0));
+
         squareCrop.createBlob((blob: Blob) => {
             check(URL.createObjectURL(blob), "Square", 0);
         });
@@ -230,6 +240,8 @@ export class Renderer extends ClosableDialog {
                 new Point(0),
                 this.cropView.cropArea
             );
+
+            circleCrop.drawImage(borderCanvas, new Point(0));
 
             circleCrop.blendMode = "destination-in";
             circleCrop.fillCircleInSquare(new Point(0), circleCrop.width, "white");

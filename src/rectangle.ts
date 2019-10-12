@@ -17,6 +17,18 @@ export class Rectangle
         return new Rectangle(new Point(rect.left, rect.top), Point.fromSizeLike(rect));
     }
 
+    public expand(multiplier : number) : Rectangle
+    {
+        let r = this.copy();
+        let newSize = r.size.times(multiplier);
+        let center = r.center;
+        let diff = newSize.minus(r.size);
+        r.position.subtract(diff.dividedBy(2));
+        r.size.add(diff);
+        r.center = center;
+        return r;
+    }
+
     public get isSquare() : boolean
     {
         return this.width === this.height;

@@ -9,6 +9,16 @@ define(["require", "exports", "./point"], function (require, exports, point_1) {
         Rectangle.fromClientRect = function (rect) {
             return new Rectangle(new point_1.Point(rect.left, rect.top), point_1.Point.fromSizeLike(rect));
         };
+        Rectangle.prototype.expand = function (multiplier) {
+            var r = this.copy();
+            var newSize = r.size.times(multiplier);
+            var center = r.center;
+            var diff = newSize.minus(r.size);
+            r.position.subtract(diff.dividedBy(2));
+            r.size.add(diff);
+            r.center = center;
+            return r;
+        };
         Object.defineProperty(Rectangle.prototype, "isSquare", {
             get: function () {
                 return this.width === this.height;

@@ -1,3 +1,5 @@
+import { Rectangle } from "./rectangle";
+
 /**
  * A class to represent a two-dimensional point in space, or something that would benefit from a similar treatment.
  *
@@ -45,6 +47,11 @@ export class Point
     public static fromPointLike(pointLike : { x : number, y : number}) : Point
     {
         return new Point(pointLike.x, pointLike.y);
+    }
+
+    public toRectangle(offset? : Point) : Rectangle
+    {
+        return new Rectangle(offset || new Point(0), this.copy());
     }
 
     /**

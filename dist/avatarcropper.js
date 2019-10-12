@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop", "./point", "./keymanager"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1, point_1, keymanager_1) {
+define(["require", "exports", "./widget", "./cropview", "./previews", "./util", "./labeledslider", "./storage", "./footer", "./eventclass", "./dragdrop", "./point", "./keymanager", "./borders"], function (require, exports, widget_1, cropview_1, previews_1, util_1, labeledslider_1, storage_1, footer_1, eventclass_1, dragdrop_1, point_1, keymanager_1, borders_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var AvatarCropper = /** @class */ (function (_super) {
@@ -30,9 +30,12 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 dismissedIE: false,
                 dismissedCookie: false,
                 guidesEnabled: true,
-                resizeLock: false
+                resizeLock: false,
+                borderSize: 0.05
             };
             _this.loadSettings();
+            borders_1.Border.size = _this.settings.borderSize;
+            console.log(_this.settings.borderSize);
             _this.constructMenu();
             _this.cropView = new cropview_1.CropView(_this.settings);
             _this.previews = new previews_1.Previews(_this.cropView);
@@ -238,6 +241,27 @@ define(["require", "exports", "./widget", "./cropview", "./previews", "./util", 
                 }
             });
             eventclass_1.GlobalEvents.emitEvent("resizelockchange");
+            // create border options //
+            var border = util_1.createElement("select", "item");
+            for (var borderType in borders_1.Border.types) {
+                border.add(util_1.createOptionElement(borders_1.Border.types[borderType].text, borderType));
+            }
+            border.addEventListener("change", function () {
+                borders_1.Border.type = border.value;
+            });
+            this.menu.appendChild(border);
+            // create border slider //
+            var borderSlider = new labeledslider_1.LabelSlider(0, 0.5, 0.01, "Border Size", "item");
+            borderSlider.value = borders_1.Border.size;
+            borderSlider.on("slide", function (value) {
+                borders_1.Border.size = value;
+            });
+            borderSlider.on("change", function () {
+                _this.settings.borderSize = borderSlider.value;
+                _this.saveSettings();
+            });
+            this.menu.appendChild(borderSlider.container);
+            // create render button //
             var render = util_1.createElement("button", "item render show");
             render.innerText = "Render/Save";
             render.addEventListener("click", this.renderCroppedImage.bind(this));

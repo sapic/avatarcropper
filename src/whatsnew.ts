@@ -4,6 +4,10 @@ import { ClosableDialog } from "./closabledialog";
 export class WhatsNewDialog extends ClosableDialog {
     private list =
         {
+            "October 2019":
+                [
+                    "Added borders for LGBT frends... more/custom borders coming soon"
+                ],
             "July 2019":
                 [
                     "Added functionality for centering, setting size manually, and resize locking",
@@ -48,7 +52,7 @@ export class WhatsNewDialog extends ClosableDialog {
                 ],
             "July 2018":
                 [
-                    "Drag &amp; Drop support - thanx TheRebelG0d",
+                    "Drag & Drop support - thanx TheRebelG0d",
                     "New rendering where you can pick circle or square after rendering... revolutionary...",
                     "Zoom functionality",
                     "Other stuff probaly"

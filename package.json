@@ -9,7 +9,7 @@
         "url": "https://github.com/sapic/avatarcropper.git"
     },
     "scripts": {
-        "build": "npx parcel build src/index.html",
+        "build": "npx parcel build src/index.html --public-url ./",
         "start": "npx parcel src/index.html"
     },
     "staticFiles": {

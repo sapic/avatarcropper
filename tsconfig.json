@@ -1,19 +1,17 @@
 {
-  "compilerOptions": {
-      "composite": true,
-      "declaration": true,
-      "declarationMap": true,
-      "outDir": "./dist",
-      "module": "amd",
-      "target": "ES5",
-      "strict": false,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "sourceMap": true,
-      "lib": [ "es6", "dom" ],
-      "rootDir": "src"
-  },
-  "include": [
-      "src/**/*.ts"
-  ]
+    "compilerOptions": {
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "outDir": "./dist",
+        "module": "commonjs",
+        "target": "ES5",
+        "strict": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "lib": ["es6", "dom"],
+        "rootDir": "src"
+    },
+    "include": ["src/**/*.ts"]
 }

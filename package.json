@@ -20,10 +20,15 @@
         "watch:sass": "npx sass --watch style/style.scss style/style.css",
         "serve": "npx live-server --watch=./dist,./style,./resources,./index.html"
     },
+    "staticFiles": {
+        "staticPath": "public"
+    },
     "devDependencies": {
         "concurrently": "^5.0.0",
         "copyfiles": "^2.1.1",
+        "cssnano": "^4.1.10",
         "live-server": "^1.2.1",
+        "parcel-plugin-static-files-copy": "^2.2.1",
         "sass": "^1.23.0",
         "typescript": "^3.6.3"
     }

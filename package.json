@@ -9,16 +9,8 @@
         "url": "https://github.com/sapic/avatarcropper.git"
     },
     "scripts": {
-        "postinstall": "npm run build",
-        "build": "npx concurrently -c \"yellow\" \"npm:build:*\"",
-        "build:copy": "npx copyfiles -u 1 \"src/*.js\" \"dist/\"",
-        "build:ts": "npx tsc",
-        "build:sass": "npx sass style/style.scss style/style.css",
-        "start": "npx concurrently -c \"yellow,blue\" \"npm:watch:*\" \"npm:serve\"",
-        "watch": "npx concurrently -c \"yellow\" \"npm:watch:*\"",
-        "watch:ts": "npx tsc -w",
-        "watch:sass": "npx sass --watch style/style.scss style/style.css",
-        "serve": "npx live-server --watch=./dist,./style,./resources,./index.html"
+        "build": "npx parcel build src/index.html",
+        "start": "npx parcel src/index.html"
     },
     "staticFiles": {
         "staticPath": "public"

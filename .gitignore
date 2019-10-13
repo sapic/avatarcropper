@@ -4,3 +4,4 @@ node_modules
 *.d.ts
 *.tsbuildinfo
 .vscode/settings.json
+dist/

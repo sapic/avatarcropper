@@ -35,6 +35,6 @@ jobs:
           git init
           git add .
           git commit -m "Deploying ${GITHUB_SHA}"
-          git remote set-url origin git@github.com:TrueCarry/avatarcropper.git
+          git remote add origin git@github.com:TrueCarry/avatarcropper.git
           git remote -v
           git push origin HEAD:gh-pages --force

@@ -22,6 +22,7 @@
         "live-server": "^1.2.1",
         "parcel-plugin-static-files-copy": "^2.2.1",
         "sass": "^1.23.0",
-        "typescript": "^3.6.3"
+        "typescript": "^3.6.3",
+        "@types/node": "^12.7.12"
     }
 }

@@ -12,7 +12,6 @@ export function showTutorial() {
 
 export function doFooterThings() {
     tutorial = new TutorialDialog()
-    console.log('doc body', document, document.body)
     document.body.appendChild(tutorial.container)
     document.getElementById('link-help').addEventListener('click', () => {
         showTutorial()

@@ -16,13 +16,13 @@
         "staticPath": "public"
     },
     "devDependencies": {
+        "@types/node": "^12.11.1",
         "concurrently": "^5.0.0",
         "copyfiles": "^2.1.1",
         "cssnano": "^4.1.10",
         "live-server": "^1.2.1",
         "parcel-plugin-static-files-copy": "^2.2.1",
         "sass": "^1.23.0",
-        "typescript": "^3.6.3",
-        "@types/node": "^12.7.12"
+        "typescript": "^3.6.4"
     }
 }

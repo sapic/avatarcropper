@@ -543,7 +543,7 @@ export class AvatarCropper extends Widget {
 }
 
 window.addEventListener('load', function() {
-    ;(<any>window).a = new AvatarCropper(document.getElementById('container'))
-    doFooterThings()
-    KeyManager.initialize()
+    KeyManager.initialize();
+    (<any>window).a = new AvatarCropper(document.getElementById('container'));
+    doFooterThings();
 })

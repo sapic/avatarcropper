@@ -5,7 +5,16 @@ on:
       - master
 
 jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Npm Install
+        run: npm install
+      - name: Run Build
+        run: npm run build
   build-and-deploy:
+    needs: build-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

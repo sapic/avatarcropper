@@ -7,8 +7,8 @@ import { ClosableDialog } from "./closabledialog";
 import { Point } from "./point";
 import { Border } from "./borders";
 
-declare var GIF: any;
-declare var SuperGif: any;
+import SuperGif from './supergif.js'
+import GIF from './gif.js'
 
 interface CropOption {
     label: string;

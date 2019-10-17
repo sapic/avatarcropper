@@ -9,22 +9,20 @@
         "url": "https://github.com/sapic/avatarcropper.git"
     },
     "scripts": {
-        "postinstall": "npm run build",
-        "build": "npx concurrently -c \"yellow\" \"npm:build:*\"",
-        "build:copy": "npx copyfiles -u 1 \"src/*.js\" \"dist/\"",
-        "build:ts": "npx tsc",
-        "build:sass": "npx sass style/style.scss style/style.css",
-        "start": "npx concurrently -c \"yellow,blue\" \"npm:watch:*\" \"npm:serve\"",
-        "watch": "npx concurrently -c \"yellow\" \"npm:watch:*\"",
-        "watch:ts": "npx tsc -w",
-        "watch:sass": "npx sass --watch style/style.scss style/style.css",
-        "serve": "npx live-server --watch=./dist,./style,./resources,./index.html"
+        "build": "npx parcel build src/index.html --public-url ./",
+        "start": "npx parcel src/index.html"
+    },
+    "staticFiles": {
+        "staticPath": "public"
     },
     "devDependencies": {
         "concurrently": "^5.0.0",
         "copyfiles": "^2.1.1",
+        "cssnano": "^4.1.10",
         "live-server": "^1.2.1",
+        "parcel-plugin-static-files-copy": "^2.2.1",
         "sass": "^1.23.0",
-        "typescript": "^3.6.3"
+        "typescript": "^3.6.3",
+        "@types/node": "^12.7.12"
     }
 }

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="shortcut icon" href="images/favicon.png" />
+    <title>Avatar Cropper</title>
+    <meta
+      property="og:description"
+      content="A small webpage that allows you to quickly crop avatars for many sites."
+    />
+    <meta property="og:title" content="Quick Avatar Cropper" />
+    <meta property="og:url" content="https://avatarcropper.com" />
+    <link rel="stylesheet" href="css/style.scss" />
+
+    <!-- <script src="js/gif.js"></script> -->
+    <!-- <script src="js/supergif.js"></script> -->
+    <script src="js/avatarcropper.ts"></script>
+    <!-- <script data-main="dist/main" src="js/require.js"></script> -->
+
+    <script>
+      if (
+        window.location.hostname === 'sapic.github.io' ||
+        window.location.hostname === 'songsing.github.io'
+      ) {
+        window.location = 'https://avatarcropper.com'
+      } else if (window.location.hostname === 'avatarcropper.com') {
+        ;(function(i, s, o, g, r, a, m) {
+          i['GoogleAnalyticsObject'] = r
+          ;(i[r] =
+            i[r] ||
+            function() {
+              ;(i[r].q = i[r].q || []).push(arguments)
+            }),
+            (i[r].l = 1 * new Date())
+          ;(a = s.createElement(o)), (m = s.getElementsByTagName(o)[0])
+          a.async = 1
+          a.src = g
+          m.parentNode.insertBefore(a, m)
+        })(
+          window,
+          document,
+          'script',
+          'https://www.google-analytics.com/analytics.js',
+          'ga',
+        )
+        ga('create', 'UA-104924541-1', 'auto')
+        ga('send', 'pageview')
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <div id="footer">
+      <form
+        action="https://www.paypal.com/cgi-bin/webscr"
+        method="post"
+        target="_blank"
+        class="donate"
+      >
+        <input type="hidden" name="cmd" value="_s-xclick" />
+        <input
+          type="hidden"
+          name="encrypted"
+          value="-----BEGIN PKCS7-----MIIHNwYJKoZIhvcNAQcEoIIHKDCCByQCAQExggEwMIIBLAIBADCBlDCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20CAQAwDQYJKoZIhvcNAQEBBQAEgYCVpIXZfRod7ai9g7w2fduWaIW2poM9Pgd9JZb84saGqxZmSX6LyFJJkmZao2hATzGCVgW5jpMeHxk6su4jU1taB+8KQoFJtLZBwdahRB9AhDqs80sqrxPA5in1qs3oS2OANDsxR1t53sUWiINoNAZNRvyDND8hcjmYWLZ5MKZHyDELMAkGBSsOAwIaBQAwgbQGCSqGSIb3DQEHATAUBggqhkiG9w0DBwQI9iDYe0qLVxmAgZCZwQbJWnktiO2ItvOytuZHevD6vDzjszGNAbbYs3ZHAuak4pYy1Q7/ShIG0SBXzoUu9Vqfb9gysVx26ydFrDPvu6VshtWwpyuSuRFBlk36UrjgMcyy2sz+WzwPkoxIlCkwcpf/Dh6bckSDeoVzFOANDp8CZxC36tNBLC4tG2JqtbJ/oqgThDHjpSiiiFHVGhygggOHMIIDgzCCAuygAwIBAgIBADANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20wHhcNMDQwMjEzMTAxMzE1WhcNMzUwMjEzMTAxMzE1WjCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMFHTt38RMxLXJyO2SmS+Ndl72T7oKJ4u4uw+6awntALWh03PewmIJuzbALScsTS4sZoS1fKciBGoh11gIfHzylvkdNe/hJl66/RGqrj5rFb08sAABNTzDTiqqNpJeBsYs/c2aiGozptX2RlnBktH+SUNpAajW724Nv2Wvhif6sFAgMBAAGjge4wgeswHQYDVR0OBBYEFJaffLvGbxe9WT9S1wob7BDWZJRrMIG7BgNVHSMEgbMwgbCAFJaffLvGbxe9WT9S1wob7BDWZJRroYGUpIGRMIGOMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxFDASBgNVBAoTC1BheVBhbCBJbmMuMRMwEQYDVQQLFApsaXZlX2NlcnRzMREwDwYDVQQDFAhsaXZlX2FwaTEcMBoGCSqGSIb3DQEJARYNcmVAcGF5cGFsLmNvbYIBADAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBQUAA4GBAIFfOlaagFrl71+jq6OKidbWFSE+Q4FqROvdgIONth+8kSK//Y/4ihuE4Ymvzn5ceE3S/iBSQQMjyvb+s2TWbQYDwcp129OPIbD9epdr4tJOUNiSojw7BHwYRiPh58S1xGlFgHFXwrEBb3dgNbMUa+u4qectsMAXpVHnD9wIyfmHMYIBmjCCAZYCAQEwgZQwgY4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLUGF5UGFsIEluYy4xEzARBgNVBAsUCmxpdmVfY2VydHMxETAPBgNVBAMUCGxpdmVfYXBpMRwwGgYJKoZIhvcNAQkBFg1yZUBwYXlwYWwuY29tAgEAMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xODA1MDEwODEzMjNaMCMGCSqGSIb3DQEJBDEWBBSoOiwUKLRWxIP6/C8QO7rijsKZmDANBgkqhkiG9w0BAQEFAASBgA7KS9+bkQhMKYnw9VTFyCtIZQ+om6jqnKsr1PFivi7ZqwWY3xq0EJfGDTb2fNLTcul0oy9Dd7LyR6QgL0mcbCajBgrjJZDSFvl0VIT/m/CzYgGJpIuLIFbhtfk5jvEswXlMN5NvdVz0th8ObjQeO7+xk5MWiFmprlhwtNKUPQAO-----END PKCS7-----
+            "
+        />
+        <button
+          type="submit"
+          border="0"
+          name="submit"
+          alt="PayPal - The safer, easier way to pay online!"
+          class="paypal__submit-image"
+        >
+          <img src="images/btn_donate_LG.gif" />
+        </button>
+        <!--img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"-->
+      </form>
+
+      <div id="footerLeft">
+        ❤️ <span id="link-supporters" class="link">Supporters</span>
+      </div>
+
+      <div id="footerRight">
+        <a id="link-discord" class="link" href="https://discord.steam.design"
+          >Discord</a
+        >
+        <div id="link-help" class="link">How 2 crop 101</div>
+        <div id="link-whatsNew" class="link">What's New 10/11/19</div>
+        <a
+          id="link-feedback"
+          class="link"
+          href="https://goo.gl/forms/gaMTVY7PCui5VZYv2"
+          target="_blank"
+          >Send Feedback/Report a bug</a
+        >
+        <div id="closeFooter">✖</div>
+      </div>
+    </div>
+  </body>
+</html>

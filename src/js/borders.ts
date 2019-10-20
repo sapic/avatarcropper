@@ -2,25 +2,22 @@ import { GlobalEvents } from "./eventclass";
 import { Point } from "./point";
 import { Canvas } from "./canvas";
 
-type GradientInfo = {
+export type GradientStop = {
+    pos: number,
+    color: string
+};
+
+export type GradientInfo = {
     name: string,
-    gradient: { pos: number, color: string }[],
-    p1: Point,
-    p2: Point
+    gradient: GradientStop[],
+    angle: number
 };
 
 export class Border {
     public static readonly types: { [type: string]: GradientInfo } = {
-        none: {
-            name: "No Border",
-            p1: new Point(0),
-            p2: new Point(0),
-            gradient: []
-        },
         lgbt: {
             name: "LGBT Pride",
-            p1: new Point(0.5, 0),
-            p2: new Point(0.5, 1),
+            angle: 0,
             gradient: [
                 { pos: 0/5, color: "#FF0018" },
                 { pos: 1/5, color: "#FFA52C" },
@@ -32,8 +29,7 @@ export class Border {
         },
         trans: {
             name: "Trans Pride",
-            p1: new Point(0.5, 0),
-            p2: new Point(0.5, 1),
+            angle: 0,
             gradient: [
                 { pos: 0, color: "#55CDFC" },
                 { pos: 0.25, color: "#F7A8B8" },
@@ -44,8 +40,7 @@ export class Border {
         },
         nonbinary: {
             name: "Nonbinary Pride",
-            p1: new Point(0.5, 0),
-            p2: new Point(0.5, 1),
+            angle: 0,
             gradient: [
                 { pos: 0/3, color: "#FFF430" },
                 { pos: 1/3, color: "#FFFFFF" },
@@ -57,8 +52,9 @@ export class Border {
 
     private static _type: "none" | "solid" | "gradient" = "none";
     private static _size: number = 0.05;
-    private static _color: string = "";
+    private static _color: string = "#FFAA00";
     private static _gradient: GradientInfo = Border.types.trans;
+    private static _shape: "circle" | "square" = "circle";
 
     public static get type() : "none" | "solid" | "gradient" {
         return this._type;
@@ -96,6 +92,39 @@ export class Border {
         return this._gradient;
     }
 
+    public static set shape(shape: "circle" | "square") {
+        this._shape = shape;
+        GlobalEvents.emitEvent("borderchange");
+    }
+
+    public static get shape(): "circle" | "square" {
+        return this._shape;
+    }
+
+    public static applyGradientToCanvas(gradientInfo : GradientInfo, canvas : Canvas) {
+        let a1 = (-270 - gradientInfo.angle) * Math.PI / 180;
+        let a2 = (-270 - (gradientInfo.angle + 180)) * Math.PI / 180;
+        
+        // https://math.stackexchange.com/questions/2468060/find-x-y-coordinates-of-a-square-given-an-angle-alpha
+        let p1 = new Point(
+            0.5 / Math.max(Math.abs(Math.cos(a1)), Math.abs(Math.sin(a1))) * Math.cos(a1),
+            0.5 / Math.max(Math.abs(Math.cos(a1)), Math.abs(Math.sin(a1))) * Math.sin(a1),
+        ).times(canvas.size).plus(canvas.size.dividedBy(2));
+        
+        let p2 = new Point(
+            0.5 / Math.max(Math.abs(Math.cos(a2)), Math.abs(Math.sin(a2))) * Math.cos(a2),
+            0.5 / Math.max(Math.abs(Math.cos(a2)), Math.abs(Math.sin(a2))) * Math.sin(a2),
+        ).times(canvas.size).plus(canvas.size.dividedBy(2));
+
+        // swap y values here since geometric y is inverted relative to screen y //
+        let gradient = canvas.context.createLinearGradient(p1.x, p2.y, p2.x, p1.y);
+        gradientInfo.gradient.forEach((def) => {
+            gradient.addColorStop(def.pos, def.color);
+        });
+        canvas.context.fillStyle = gradient;
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
     public static apply(canvas : Canvas) : void {
         canvas.clear();
 
@@ -107,16 +136,13 @@ export class Border {
             canvas.fillCircleInRect(canvas.size.toRectangle().expand(1 - this.size), "white");
             canvas.blendMode = "source-over";
         } else if (this.type === "gradient") {
-            let p1 = this.gradient.p1.times(canvas.size);
-            let p2 = this.gradient.p2.times(canvas.size);
-            let gradient = canvas.context.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-            this.gradient.gradient.forEach((def) => {
-                gradient.addColorStop(def.pos, def.color);
-            });
-            canvas.context.fillStyle = gradient;
-            canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+            this.applyGradientToCanvas(this.gradient, canvas);
             canvas.blendMode = "destination-out";
-            canvas.fillCircleInRect(canvas.size.toRectangle().expand(1 - this.size), "white");
+            if (this.shape === "circle") {
+                canvas.fillCircleInRect(canvas.size.toRectangle().expand(1 - this.size), "white");
+            } else {
+                canvas.fillRect(canvas.size.toRectangle().expand(1 - this.size), "white");
+            }
             canvas.blendMode = "source-over";
         }
     }

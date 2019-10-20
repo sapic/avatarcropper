@@ -1,7 +1,7 @@
 import { Widget } from "./widget";
 import { createElement, stopProp } from "./util";
 
-export class Dialog extends Widget {
+export abstract class Dialog extends Widget {
     protected dialog: HTMLElement;
 
     constructor() {
@@ -13,14 +13,16 @@ export class Dialog extends Widget {
         this.contentContainer = this.dialog;
 
         this.container.addEventListener("click", () => {
-            this.hide();
+            this.dismiss();
         });
 
         this.hide();
     }
 
-    show() {
+    public show(): void {
         super.show();
         this.contentContainer.scrollTop = 0;
     }
+    
+    public abstract dismiss(): void;
 }

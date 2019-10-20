@@ -136,6 +136,15 @@ export class Point
     }
 
     /**
+     * Creates a unit vector from a given angle.
+     * @param radians The angle in radians.
+     */
+    public static fromAngle(radians : number) : Point
+    {
+        return new Point(Math.cos(radians), Math.sin(radians));
+    }
+
+    /**
      * @param p The point with which to test equality.
      * @returns Whether or not the two points have equal x and y values.
      */

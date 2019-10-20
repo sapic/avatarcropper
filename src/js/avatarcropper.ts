@@ -18,6 +18,7 @@ import { Point } from './point'
 import { KeyManager } from './keymanager'
 import { Border } from './borders'
 import { Canvas } from './canvas'
+import { GradientEditButton } from './gradientedit'
 
 export interface Settings {
     previewSizes: number[]
@@ -338,21 +339,39 @@ export class AvatarCropper extends Widget {
 
         let borderSolidEdit = createElement("input", "item borderEdit") as HTMLInputElement;
         borderSolidEdit.type = "color";
+        borderSolidEdit.value = Border.color;
         borderSolidEdit.addEventListener("change", () => {
             Border.color = borderSolidEdit.value;
         });
         hideElement(borderSolidEdit);
         this.menu.appendChild(borderSolidEdit);
 
+        let borderGradientEdit = new GradientEditButton(new Point(32));
+        borderGradientEdit.gradient = Border.gradient;
+        borderGradientEdit.container.className = "item borderEdit";
+        borderGradientEdit.on("update", () => {
+            GlobalEvents.emitEvent("borderchange");
+        });
+        borderGradientEdit.hide();
+        this.menu.appendChild(borderGradientEdit.container);
+
         border.addEventListener('change', () => {
-            hideElement(borderSolidEdit);
-            border.classList.remove("edit");
 
             if (border.value === "solid") {
                 showElement(borderSolidEdit);
+                borderGradientEdit.hide();
                 border.classList.add("edit");
                 Border.type = "solid";
-                Border.color = borderSolidEdit.value;
+            } else if (border.value === "gradient") {
+                hideElement(borderSolidEdit);
+                borderGradientEdit.show();
+                border.classList.add("edit");
+                Border.type = "gradient";
+            } else {
+                hideElement(borderSolidEdit);
+                borderGradientEdit.hide();
+                border.classList.remove("edit");
+                Border.type = "none";
             }
         });
 

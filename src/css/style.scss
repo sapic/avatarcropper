@@ -374,6 +374,82 @@ body,
   }
 }
 
+.dialog-backdrop.gradientEdit {
+  .dialog > * {
+    margin-top: 12px;
+    display: block;
+    width: 100%;
+  }
+
+  text-align: center;
+
+  canvas {
+    border: 2px solid #111;
+    box-sizing: border-box;
+
+    &.preview {
+      margin-top: 0;
+      width: 250px;
+      display: inline-block;
+    }
+  }
+
+  .labelSlider {
+    position: relative;
+    height: 32px;
+    line-height: 32px;
+    background-color: #111;
+    color: #eee;
+  }
+
+  input {
+    cursor: pointer;
+    height: 32px;
+  }
+
+  .buttonRow, .saveRow {
+    display: flex;
+    flex-direction: row;
+
+    box-sizing: border-box;
+    
+    $m: 4px;
+    & > button {
+      cursor: pointer;
+      font-size: 16px;
+      flex-grow: 2;
+
+      margin: 0 4px;
+
+      &:first-of-type {
+        margin-left: 0;
+      }
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.gradientSlider {
+  position: relative;
+
+  .stop {
+    position: absolute;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #111;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &.current {
+      outline: 1px solid gold;
+    }
+  }
+}
+
 .labelSlider {
   .labelSlider-label {
     width: 100%;

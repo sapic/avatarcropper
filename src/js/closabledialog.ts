@@ -20,4 +20,8 @@ export class ClosableDialog extends Dialog {
         this.appendChild(this.innerContent);
         this.contentContainer = this.innerContent;
     }
+
+    public dismiss(): void {
+        this.hide();
+    }
 }

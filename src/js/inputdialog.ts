@@ -13,9 +13,7 @@ export abstract class InputDialog<T> extends Dialog {
         }
 
         this.container.addEventListener("click", () => {
-            this.emitEvent("return", InputDialog.NO_RESPONSE);
+            this.emitEvent("return", null);
         });
     }
-
-    public static NO_RESPONSE: any = null;
 }

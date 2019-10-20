@@ -359,6 +359,13 @@ body,
         display: inline;
       }
     }
+    &#borderSelect.edit {
+      width: calc(100% - 32px);
+    }
+    &.borderEdit {
+      width: 32px;
+      padding: 0;
+    }
     &.render {
       font-weight: bold;
       background: #bbff55;

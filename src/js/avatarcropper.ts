@@ -17,6 +17,7 @@ import { DragDrop } from './dragdrop'
 import { Point } from './point'
 import { KeyManager } from './keymanager'
 import { Border } from './borders'
+import { Canvas } from './canvas'
 
 export interface Settings {
     previewSizes: number[]
@@ -328,16 +329,32 @@ export class AvatarCropper extends Widget {
         GlobalEvents.emitEvent('resizelockchange')
 
         // create border options //
-        let border = <HTMLSelectElement>createElement('select', 'item')
-        for (let borderType in Border.types) {
-            border.add(
-                createOptionElement(Border.types[borderType].text, borderType),
-            )
-        }
-        border.addEventListener('change', () => {
-            Border.type = border.value
-        })
+        let border = <HTMLSelectElement>createElement('select', 'item');
+        border.id = "borderSelect";
+        border.add(createOptionElement("No Border", "none"));
+        border.add(createOptionElement("Solid Border", "solid"));
+        border.add(createOptionElement("Gradient Border", "gradient"));
         this.menu.appendChild(border)
+
+        let borderSolidEdit = createElement("input", "item borderEdit") as HTMLInputElement;
+        borderSolidEdit.type = "color";
+        borderSolidEdit.addEventListener("change", () => {
+            Border.color = borderSolidEdit.value;
+        });
+        hideElement(borderSolidEdit);
+        this.menu.appendChild(borderSolidEdit);
+
+        border.addEventListener('change', () => {
+            hideElement(borderSolidEdit);
+            border.classList.remove("edit");
+
+            if (border.value === "solid") {
+                showElement(borderSolidEdit);
+                border.classList.add("edit");
+                Border.type = "solid";
+                Border.color = borderSolidEdit.value;
+            }
+        });
 
         // create border slider //
         let borderSlider = new LabelSlider(0, 0.5, 0.01, 'Border Size', 'item')

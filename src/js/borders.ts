@@ -2,23 +2,23 @@ import { GlobalEvents } from "./eventclass";
 import { Point } from "./point";
 import { Canvas } from "./canvas";
 
-type BorderInfo = {
-    text: string,
+type GradientInfo = {
+    name: string,
     gradient: { pos: number, color: string }[],
     p1: Point,
     p2: Point
 };
 
 export class Border {
-    public static readonly types: { [type: string]: BorderInfo } = {
+    public static readonly types: { [type: string]: GradientInfo } = {
         none: {
-            text: "No Border",
+            name: "No Border",
             p1: new Point(0),
             p2: new Point(0),
             gradient: []
         },
         lgbt: {
-            text: "LGBT Pride",
+            name: "LGBT Pride",
             p1: new Point(0.5, 0),
             p2: new Point(0.5, 1),
             gradient: [
@@ -31,7 +31,7 @@ export class Border {
             ]
         },
         trans: {
-            text: "Trans Pride",
+            name: "Trans Pride",
             p1: new Point(0.5, 0),
             p2: new Point(0.5, 1),
             gradient: [
@@ -43,7 +43,7 @@ export class Border {
             ]
         },
         nonbinary: {
-            text: "Nonbinary Pride",
+            name: "Nonbinary Pride",
             p1: new Point(0.5, 0),
             p2: new Point(0.5, 1),
             gradient: [
@@ -55,18 +55,16 @@ export class Border {
         },
     };
 
-    public static get current(): BorderInfo {
-        return this.types[this.type];
-    }
-
-    private static _type: string = "none";
+    private static _type: "none" | "solid" | "gradient" = "none";
     private static _size: number = 0.05;
+    private static _color: string = "";
+    private static _gradient: GradientInfo = Border.types.trans;
 
-    public static get type() : string {
+    public static get type() : "none" | "solid" | "gradient" {
         return this._type;
     }
 
-    public static set type(type: string) {
+    public static set type(type: "none" | "solid" | "gradient") {
         this._type = type;
         GlobalEvents.emitEvent("borderchange");
     }
@@ -80,14 +78,39 @@ export class Border {
         GlobalEvents.emitEvent("borderchange");
     }
 
+    public static set color(color: string) {
+        this._color = color;
+        GlobalEvents.emitEvent("borderchange");
+    }
+
+    public static get color(): string {
+        return this._color;
+    }
+
+    public static set gradient(gradient: GradientInfo) {
+        this._gradient = gradient;
+        GlobalEvents.emitEvent("borderchange");
+    }
+
+    public static get gradient(): GradientInfo {
+        return this._gradient;
+    }
+
     public static apply(canvas : Canvas) : void {
         canvas.clear();
 
-        if (this.type !== "none" && this.size > 0) {
-            let p1 = this.current.p1.times(canvas.size);
-            let p2 = this.current.p2.times(canvas.size);
+        if (this.type === "none" || this.size === 0) {
+            return;
+        } else if (this.type === "solid") {
+            canvas.fill(this.color);
+            canvas.blendMode = "destination-out";
+            canvas.fillCircleInRect(canvas.size.toRectangle().expand(1 - this.size), "white");
+            canvas.blendMode = "source-over";
+        } else if (this.type === "gradient") {
+            let p1 = this.gradient.p1.times(canvas.size);
+            let p2 = this.gradient.p2.times(canvas.size);
             let gradient = canvas.context.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-            this.current.gradient.forEach((def) => {
+            this.gradient.gradient.forEach((def) => {
                 gradient.addColorStop(def.pos, def.color);
             });
             canvas.context.fillStyle = gradient;

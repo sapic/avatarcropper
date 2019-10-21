@@ -53,10 +53,14 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         this.container.classList.add("gradientEdit");
         this.gradientInfo = gradientInfo;
 
+        let leftCol = createElement("div", "leftCol");
+        let rightCol = createElement("div", "rightCol");
+
         // preview canvas //
         this.previewCanvas = new Canvas({ size: new Point(500) });
         this.previewCanvas.canvas.classList.add("preview")
         Border.applyGradientToCanvas(this.gradientInfo, this.previewCanvas);
+        leftCol.appendChild(this.previewCanvas.canvas);
 
         // gradient slider //
         this.gradientSlider = new GradientSlider(new Point(500, 28), this.gradientInfo);
@@ -66,6 +70,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         this.gradientSlider.on("colorchange", (color: string) => {
             this.colorSelect.value = color;
         });
+        rightCol.appendChild(this.gradientSlider.container);
 
         // color select //
         this.colorSelect = createElement("input") as HTMLInputElement;
@@ -74,6 +79,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         this.colorSelect.addEventListener("change", () => {
             this.gradientSlider.currentStopColor = this.colorSelect.value;
         });
+        rightCol.appendChild(this.colorSelect);
 
         // buttons //
         let buttonRow = createElement("div", "buttonRow");
@@ -98,6 +104,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
             this.gradientSlider.makeEquidistant();
         });
         buttonRow.appendChild(equidistant);
+        rightCol.appendChild(buttonRow);
 
         // angle slider //
         this.angleSlider = new LabelSlider(0, 360, 1, "Angle", "angleSlider");
@@ -107,6 +114,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
             this.gradientInfo.angle = this.angleSlider.value;
             this.dirty = true;
         });
+        rightCol.appendChild(this.angleSlider.container);
 
         // ok and cancel //
         let saveRow = createElement("div", "saveRow");
@@ -126,15 +134,12 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
 
         saveRow.appendChild(ok);
         saveRow.appendChild(cancel);
+        rightCol.appendChild(saveRow);
 
         // finalize //
         this.appendChild(
-            this.previewCanvas.canvas,
-            this.gradientSlider,
-            this.colorSelect,
-            buttonRow,
-            this.angleSlider,
-            saveRow,
+            leftCol,
+            rightCol
         );
         
         this.draw();
@@ -173,9 +178,6 @@ class GradientSlider extends Widget {
         this.createEvent("update");
         this.createEvent("currentstopchange");
 
-        this.container.style.width = size.x.toString() + "px";
-        this.container.style.height = size.y.toString() + "px";
-
         this.gradientCanvas = new Canvas({ size });
         this.stops = gradient.gradient;
 
@@ -200,6 +202,18 @@ class GradientSlider extends Widget {
             this.gradientCanvas.canvas,
             ...this.stopElements
         );
+    }
+
+    private get width() {
+        return this.gradientCanvas.width;
+    }
+
+    private get height() {
+        return this.gradientCanvas.height;
+    }
+
+    private get trackWidth() {
+        return this.width - this.height;
     }
 
     private applyMousedown(stopElement: HTMLElement, clientX: number) {
@@ -260,7 +274,7 @@ class GradientSlider extends Widget {
             let diff = this.dragOriginX - clientX;
             let x = this.elementOriginX - diff;
             x = Math.max(0, x);
-            x = Math.min(this.gradientCanvas.width - this.gradientCanvas.height, x);
+            x = Math.min(this.trackWidth, x);
             this.dragging.style.left = x.toString() + "px";
             this.update();
         }
@@ -269,7 +283,7 @@ class GradientSlider extends Widget {
     private update() {
         this.stops = this.stopElements.map((stop) => {
             return {
-                pos: parseInt(stop.style.left) / (this.gradientCanvas.width - this.gradientCanvas.height),
+                pos: parseInt(stop.style.left) / (this.trackWidth),
                 color: stop.getAttribute("color")
             };
         });
@@ -296,7 +310,7 @@ class GradientSlider extends Widget {
         let offset = li < this.stopElements.length - 1 ? 1 : -1;
         let newStop = this.createStop({
             color: "white",
-            pos: (parseInt(ref.style.left) + parseInt(this.stopElements[li + offset].style.left)) / 2 / (this.gradientCanvas.width - this.gradientCanvas.height)
+            pos: (parseInt(ref.style.left) + parseInt(this.stopElements[li + offset].style.left)) / 2 / (this.trackWidth)
         });
 
         this.stopElements.push(newStop);
@@ -328,7 +342,7 @@ class GradientSlider extends Widget {
         this.stopElements.sort((a, b) => parseInt(a.style.left) - parseInt(b.style.left));
 
         this.stopElements.forEach((stop, i) => {
-            stop.style.left = ((i / (this.stopElements.length - 1)) * (this.gradientCanvas.width - this.gradientCanvas.height)).toString() + "px";
+            stop.style.left = ((i / (this.stopElements.length - 1)) * (this.trackWidth)).toString() + "px";
         });
 
         this.update();

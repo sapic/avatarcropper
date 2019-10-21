@@ -356,7 +356,6 @@ export class AvatarCropper extends Widget {
         this.menu.appendChild(borderGradientEdit.container);
 
         border.addEventListener('change', () => {
-
             if (border.value === "solid") {
                 showElement(borderSolidEdit);
                 borderGradientEdit.hide();
@@ -449,9 +448,9 @@ export class AvatarCropper extends Widget {
             // showing, need to hide //
             Array.from(this.menu.children).forEach(child => {
                 if (!child.classList.contains('show')) {
-                    ;(<HTMLElement>child).style.display = 'none'
+                    (<HTMLElement>child).style.display = 'none';
                 }
-            })
+            });
 
             this.toggleMenuButton.classList.add('toggled')
             this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute(
@@ -459,8 +458,17 @@ export class AvatarCropper extends Widget {
             )
         } else {
             Array.from(this.menu.children).forEach(child => {
-                ;(<HTMLElement>child).style.display = ''
-            })
+                (<HTMLElement>child).style.display = '';
+            });
+
+            hideElement(document.querySelector("input.borderEdit"));
+            hideElement(document.querySelector("canvas.borderEdit"));
+
+            if (Border.type === "solid") {
+                showElement(document.querySelector("input.borderEdit"));
+            } else if (Border.type === "gradient") {
+                showElement(document.querySelector("canvas.borderEdit"));
+            }
 
             this.toggleMenuButton.classList.remove('toggled')
             this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute(

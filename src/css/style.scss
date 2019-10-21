@@ -42,12 +42,12 @@ body,
   $paddingY: 12px;
   $paddingX: 28px;
   $innerPaddingX: 12px;
-  $maxWidth: 70vh;
+  $maxWidth: 100%;
   $maxHeight: 70vh;
   $minWidth: 500px;
   background: #eee;
   min-width: $minWidth;
-  max-width: $maxWidth;
+  max-width: 80%;
   border-radius: 5px;
   padding: $paddingY $paddingX;
   position: absolute;
@@ -375,10 +375,45 @@ body,
 }
 
 .dialog-backdrop.gradientEdit {
-  .dialog > * {
+  .dialog {
+    display: flex;
+    flex-direction: row;
+
+    @media (max-width: 1024px)  {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      border-radius: 0;
+      height: 100%;
+      max-height: 100%;
+      top: 0;
+      left: 0;
+      transform: none;
+    }
+
+    @media (max-width: 824px) {
+      flex-direction: column;
+
+      .leftCol {
+        margin-right: 0;
+        margin-bottom: 16px;
+      }
+    }
+  }
+
+  .dialog > * > * {
     margin-top: 12px;
     display: block;
     width: 100%;
+    box-sizing: border-box;
+  }
+
+  .leftCol {
+    margin-right: 16px;
+  }
+
+  .rightCol {
+    flex-grow: 2;
   }
 
   text-align: center;
@@ -407,11 +442,21 @@ body,
     height: 32px;
   }
 
+  .gradientSlider {
+    margin-top: 0;
+    display: inline-block;
+    width: auto;
+  }
+
   .buttonRow, .saveRow {
     display: flex;
     flex-direction: row;
 
     box-sizing: border-box;
+
+    .ok {
+      flex-grow: 14;
+    }
     
     $m: 4px;
     & > button {
@@ -448,6 +493,8 @@ body,
       outline: 1px solid gold;
     }
   }
+  
+  text-align: left;
 }
 
 .labelSlider {

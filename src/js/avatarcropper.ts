@@ -16,7 +16,7 @@ import { TextDialog } from './textdialog'
 import { DragDrop } from './dragdrop'
 import { Point } from './point'
 import { KeyManager } from './keymanager'
-import { Border } from './borders'
+import { Border, GradientInfo } from './borders'
 import { Canvas } from './canvas'
 import { GradientEditButton } from './gradientedit'
 
@@ -335,7 +335,7 @@ export class AvatarCropper extends Widget {
         border.add(createOptionElement("No Border", "none"));
         border.add(createOptionElement("Solid Border", "solid"));
         border.add(createOptionElement("Gradient Border", "gradient"));
-        this.menu.appendChild(border)
+        this.menu.appendChild(border);
 
         let borderSolidEdit = createElement("input", "item borderEdit") as HTMLInputElement;
         borderSolidEdit.type = "color";
@@ -349,8 +349,8 @@ export class AvatarCropper extends Widget {
         let borderGradientEdit = new GradientEditButton(new Point(32));
         borderGradientEdit.gradient = Border.gradient;
         borderGradientEdit.container.className = "item borderEdit";
-        borderGradientEdit.on("update", () => {
-            GlobalEvents.emitEvent("borderchange");
+        borderGradientEdit.on("update", (gradientInfo: GradientInfo) => {
+            Border.gradient = gradientInfo;
         });
         borderGradientEdit.hide();
         this.menu.appendChild(borderGradientEdit.container);

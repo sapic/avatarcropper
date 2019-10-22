@@ -3,7 +3,7 @@ import { Canvas } from "./canvas";
 import { Point } from "./point";
 import { GradientInfo, Border, GradientStop } from "./borders";
 import { InputDialog } from "./inputdialog";
-import { createElement, array_last, array_remove } from "./util";
+import { createElement, array_last, array_remove, createOptionElement } from "./util";
 import { LabelSlider } from "./labeledslider";
 
 // what fucked up design pattern is this //
@@ -21,7 +21,7 @@ export class GradientEditButton extends Widget {
             let d = new GradientEditDialog(this.gradient);
             d.on("return", (gradient: GradientInfo) => {
                 this.gradient = gradient;
-                this.emitEvent("update");
+                this.emitEvent("update", this.gradient);
             });
             document.getElementById("container").appendChild(d.container);
             d.show();
@@ -61,6 +61,27 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         this.previewCanvas.canvas.classList.add("preview")
         Border.applyGradientToCanvas(this.gradientInfo, this.previewCanvas);
         leftCol.appendChild(this.previewCanvas.canvas);
+
+        // presets //
+        let presetRow = createElement("div", "row");
+
+        let presetLabel = createElement("span");
+        presetLabel.innerText = "Preset:";
+        presetRow.appendChild(presetLabel);
+
+        let presetSelect = createElement("select") as HTMLSelectElement;
+        for (let type in Border.types) {
+            let g = Border.types[type];
+            presetSelect.add(createOptionElement(g.name, JSON.stringify(g)));
+        }
+        presetSelect.addEventListener("change", () => {
+            this.gradientInfo = JSON.parse(presetSelect.value);
+            this.gradientSlider.stops = this.gradientInfo.gradient;
+            this.dirty = true;
+        });
+        presetRow.appendChild(presetSelect);
+
+        rightCol.appendChild(presetRow);
 
         // gradient slider //
         this.gradientSlider = new GradientSlider(new Point(500, 28), this.gradientInfo);
@@ -142,7 +163,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
             rightCol
         );
         
-        this.draw();
+        this._draw();
     }
     
     public dismiss(): void {
@@ -151,14 +172,14 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         }
     }
 
-    private draw(): void {
+    private _draw(): void {
         if (this.gradientSlider.dirty || this.dirty) {
             Border.applyGradientToCanvas(this.gradientInfo, this.previewCanvas);
             this.gradientSlider.draw();
             this.dirty = false;
         }
 
-        requestAnimationFrame(() => this.draw());
+        requestAnimationFrame(() => this._draw());
     }
 }
 
@@ -170,7 +191,7 @@ class GradientSlider extends Widget {
     private dragOriginX: number;
     private elementOriginX: number;
     public dirty: boolean = true;
-    private stops: GradientStop[] = [];
+    private _stops: GradientStop[] = [];
 
     constructor(size: Point, gradient: GradientInfo) {
         super("gradientSlider");
@@ -179,7 +200,6 @@ class GradientSlider extends Widget {
         this.createEvent("currentstopchange");
 
         this.gradientCanvas = new Canvas({ size });
-        this.stops = gradient.gradient;
 
         document.addEventListener("mouseup", () => {
             setTimeout(() => this.dragging = null, 1);
@@ -192,16 +212,22 @@ class GradientSlider extends Widget {
         document.addEventListener("mousemove", this.drag.bind(this));
         document.addEventListener("touchmove", this.drag.bind(this));
 
+        this.appendChild(this.gradientCanvas.canvas);
         this.stops = gradient.gradient.sort((a, b) => a.pos - b.pos);
+    }
+
+    public set stops(stops: GradientStop[]) {
+        this._stops = stops;
+        this.stopElements.forEach((element) => {
+            this.removeChild(element);
+        });
         this.stopElements = this.stops.map(this.createStop.bind(this));
-
-        // apply stuff //
         this.makeLastTouched(this.stopElements[0]);
+        this.appendChild(...this.stopElements);
+    }
 
-        this.appendChild(
-            this.gradientCanvas.canvas,
-            ...this.stopElements
-        );
+    public get stops(): GradientStop[] {
+        return this._stops;
     }
 
     private get width() {
@@ -281,7 +307,7 @@ class GradientSlider extends Widget {
     }
 
     private update() {
-        this.stops = this.stopElements.map((stop) => {
+        this._stops = this.stopElements.map((stop) => {
             return {
                 pos: parseInt(stop.style.left) / (this.trackWidth),
                 color: stop.getAttribute("color")

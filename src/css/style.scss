@@ -406,6 +406,23 @@ body,
     display: block;
     width: 100%;
     box-sizing: border-box;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  select {
+    flex-grow: 2;
+    margin-left: 8px;
+    font-size: 16px;
+    cursor: pointer;
   }
 
   .leftCol {
@@ -443,7 +460,6 @@ body,
   }
 
   .gradientSlider {
-    margin-top: 0;
     display: inline-block;
     width: auto;
   }

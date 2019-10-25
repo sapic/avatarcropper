@@ -187,31 +187,28 @@ export class AvatarCropper extends Widget {
         this.menu.appendChild(this.toggleMenuButton)
 
         let circle = createElement('button', 'open item half')
-        circle.innerText = 'Circle'
         let square = createElement('button', 'open item half')
+        circle.innerText = 'Circle'
         square.innerText = 'Squaré'
+        circle.classList.toggle("toggled", AvatarCropper.settings.previewMode === "circle");
+        square.classList.toggle("toggled", AvatarCropper.settings.previewMode === "square");
         circle.addEventListener('click', () => {
             circle.classList.add('toggled')
             square.classList.remove('toggled')
             AvatarCropper.settings.previewMode = 'circle'
-            this.cropView && this.cropView.refresh() // will update previews as well
+            this.cropView && this.cropView.update("circle toggle") // will update previews as well
             AvatarCropper.saveSettings();
         })
         square.addEventListener('click', () => {
             circle.classList.remove('toggled')
             square.classList.add('toggled')
             AvatarCropper.settings.previewMode = 'square'
-            this.cropView && this.cropView.refresh() // will update previews as well
+            this.cropView && this.cropView.update("square toggle") // will update previews as well
             AvatarCropper.saveSettings();
         })
         this.menu.appendChild(circle)
         this.menu.appendChild(square)
-
-        if (AvatarCropper.settings.previewMode === 'circle') {
-            circle.click()
-        } else {
-            square.click()
-        }
+        
 
         let tSlider = new LabelSlider(
             0,
@@ -496,7 +493,7 @@ export class AvatarCropper extends Widget {
             this.maskOutlineButton.classList.remove('toggled')
         }
 
-        this.cropView && this.cropView.refresh()
+        this.cropView && this.cropView.update("mask outline")
         AvatarCropper.saveSettings();
     }
 
@@ -511,13 +508,13 @@ export class AvatarCropper extends Widget {
             this.guidesButton.classList.remove('toggled')
         }
 
-        this.cropView && this.cropView.refresh()
+        this.cropView && this.cropView.update("guide toggle")
         AvatarCropper.saveSettings();
     }
 
     private setTransparency(transparency: number): void {
         AvatarCropper.settings.maskOpacity = 1 - transparency
-        this.cropView.refresh()
+        this.cropView.update("set transparenty")
     }
 
     private setRotation(deg: number): void {

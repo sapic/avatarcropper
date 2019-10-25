@@ -6,8 +6,10 @@ import { Point } from "./point";
 import { Rectangle } from "./rectangle";
 import { Border } from "./borders";
 import { GlobalEvents } from "./eventclass";
+import { Drawer } from "./drawer";
+import { AvatarCropper } from "./avatarcropper";
 
-export class Preview extends Widget {
+export class Preview extends Drawer {
     private mask: Canvas;
     private border: Canvas;
     private image: HTMLImageElement;
@@ -19,7 +21,6 @@ export class Preview extends Widget {
     private cropView: CropView;
     private lastMode: "square" | "circle" | "none" = "none";
     private antialiased: boolean;
-    private dirty: boolean = false;
 
     constructor(size: Point, cropView: CropView) {
         super(createElement("div", "preview"));
@@ -29,37 +30,45 @@ export class Preview extends Widget {
         GlobalEvents.on("borderchange", () => this.applyGradient());
 
         this.cropView = cropView;
-        this.cropView.on("update", this.update.bind(this));
+        this.cropView.on("update", (source: string) => {
+            this.update("preview: " + source);
+        });
         this.cropView.on("imagechange", (src: string) => {
             this.image.src = src;
         });
         this.cropView.on("antialiaschange", (aa: boolean) => {
             this.antialias = aa;
         });
+        /*this.cropView.on("actionstart", () => {
+            this.image.style.willChange = "left, top, transform";
+        });
+        this.cropView.on("actionend", () => {
+            this.image.style.willChange = "";
+        });*/
 
         this._size = size;
 
         this.container.style.width = size.x + "px";
         this.container.style.height = (size.y + 2) + "px";
-        (<any>this.container.style)["z-index"] = -size;
+        this.container.style.zIndex = (-size).toString();
 
         this.mask = new Canvas({
             size: size.plus(new Point(0, 2))
         });
         this.mask.canvas.className = "mask";
-        (<any>this.mask.canvas.style)["z-index"] = 2;
+        this.mask.canvas.style.zIndex = "2";
         this.mask.canvas.style.position = "absolute";
 
         this.border = new Canvas({
             size: size
         });
         this.border.canvas.className = "border";
-        (<any>this.border.canvas.style)["z-index"] = 1;
+        this.mask.canvas.style.zIndex = "1";
         this.border.canvas.style.position = "absolute";
 
         this.image = <HTMLImageElement>createElement("img", "image");
         this.image.style.position = "absolute";
-        (<any>this.image.style)["transform-origin"] = "top left";
+        this.image.style.transformOrigin = "top left";
         if (cropView.src) {
             this.image.src = cropView.src;
         }
@@ -100,7 +109,6 @@ export class Preview extends Widget {
         hideElement(this.bottomBar);
 
         this.antialias = true;
-        requestAnimationFrame(this.render.bind(this));
     }
 
     public get size(): Point {
@@ -111,13 +119,8 @@ export class Preview extends Widget {
         Border.apply(this.border);
     }
 
-    public render() {
-        if (!this.dirty) {
-            requestAnimationFrame(this.render.bind(this));
-            return;
-        }
-
-        if (this.cropView.settings.previewMode !== this.lastMode) {
+    protected draw() {
+        if (AvatarCropper.settings.previewMode !== this.lastMode) {
             this.lastMode = this.cropView.settings.previewMode;
 
             this.applyGradient();
@@ -158,12 +161,6 @@ export class Preview extends Widget {
 
         this.image.style.left = p.x + "px";
         this.image.style.top = p.y + "px";
-
-        requestAnimationFrame(this.render.bind(this));
-    }
-
-    public update() {
-        this.dirty = true;
     }
 
     public set antialias(antialias: boolean) {

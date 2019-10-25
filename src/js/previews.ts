@@ -41,7 +41,6 @@ export class Previews extends Widget {
             (left, right) => left.size.y > right.size.y
         );
         this.render();
-        p.update();
 
         this.emitEvent("sizeArrayChange", this.sizeArray);
     }

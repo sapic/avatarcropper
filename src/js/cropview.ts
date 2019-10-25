@@ -98,6 +98,7 @@ export class CropView extends Widget {
     private readonly renderer: Renderer;
     private loadingImage: boolean = false;
     private antialiased: boolean;
+    private dirty : boolean = false;
 
     constructor(settingsObject: Settings) {
         super(createElement("div", "cropView"));
@@ -106,8 +107,8 @@ export class CropView extends Widget {
         this.createEvent("imagechange");
         this.createEvent("antialiaschange");
 
-        this.on("update", this.renderOverlay.bind(this));
-        this.once("update", () => console.log("sup"));
+        //this.on("update", this.renderOverlay.bind(this));
+        //this.once("update", () => console.log("sup"));
 
         this.settings = settingsObject;
         this.circle = new Circle(this);
@@ -154,6 +155,7 @@ export class CropView extends Widget {
 
         //this.overlay.mouse.addEventListener("leave", this.overlay.mouse.events.up[0]);
         this.antialias = this.settings.antialias;
+        requestAnimationFrame(this.renderOverlay.bind(this));
     }
 
     private handleKeypress(key: number) {
@@ -180,6 +182,7 @@ export class CropView extends Widget {
 
     public refresh(): void {
         this.emitEvent("update"); // renders overlay
+        this.dirty = true;
     }
 
     public reactTMToRefresh() {
@@ -187,6 +190,10 @@ export class CropView extends Widget {
     }
 
     private renderOverlay(): void {
+        if (!this.dirty) {
+            requestAnimationFrame(this.renderOverlay.bind(this));
+            return;
+        }
         //console.log("rendering overlay");
         // draw mask //
         if (this.settings.maskOpacity !== 1) {
@@ -276,6 +283,7 @@ export class CropView extends Widget {
 
         this.overlay.drawLine(circleX, circleY, circleX, circleY + yy, "green", 2);
         this.overlay.drawLine(circleX, circleY, cx + ix, cy - iy, "blue", 2);*/
+        requestAnimationFrame(this.renderOverlay.bind(this));
     }
 
     // returns size of image (internal res of image) //

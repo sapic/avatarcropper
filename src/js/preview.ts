@@ -19,6 +19,7 @@ export class Preview extends Widget {
     private cropView: CropView;
     private lastMode: "square" | "circle" | "none" = "none";
     private antialiased: boolean;
+    private dirty: boolean = false;
 
     constructor(size: Point, cropView: CropView) {
         super(createElement("div", "preview"));
@@ -99,6 +100,7 @@ export class Preview extends Widget {
         hideElement(this.bottomBar);
 
         this.antialias = true;
+        requestAnimationFrame(this.render.bind(this));
     }
 
     public get size(): Point {
@@ -109,7 +111,12 @@ export class Preview extends Widget {
         Border.apply(this.border);
     }
 
-    public update() {
+    public render() {
+        if (!this.dirty) {
+            requestAnimationFrame(this.render.bind(this));
+            return;
+        }
+
         if (this.cropView.settings.previewMode !== this.lastMode) {
             this.lastMode = this.cropView.settings.previewMode;
 
@@ -151,6 +158,12 @@ export class Preview extends Widget {
 
         this.image.style.left = p.x + "px";
         this.image.style.top = p.y + "px";
+
+        requestAnimationFrame(this.render.bind(this));
+    }
+
+    public update() {
+        this.dirty = true;
     }
 
     public set antialias(antialias: boolean) {

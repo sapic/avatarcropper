@@ -6,7 +6,9 @@ export class WhatsNewDialog extends ClosableDialog {
         {
             "October 2019":
                 [
-                    "Added borders for LGBT frends... more/custom borders coming soon"
+                    "Added borders for LGBT frends... more/custom borders coming soon",
+                    "Added support for custom colored borders, import/export feature coming soon",
+                    "Updated some styling"
                 ],
             "July 2019":
                 [

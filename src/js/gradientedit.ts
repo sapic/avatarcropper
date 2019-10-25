@@ -5,6 +5,7 @@ import { GradientInfo, Border, GradientStop } from "./borders";
 import { InputDialog } from "./inputdialog";
 import { createElement, array_last, array_remove, createOptionElement } from "./util";
 import { LabelSlider } from "./labeledslider";
+import { AvatarCropper } from "./avatarcropper";
 
 // what fucked up design pattern is this //
 export class GradientEditButton extends Widget {
@@ -65,21 +66,62 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         // presets //
         let presetRow = createElement("div", "row");
 
-        let presetLabel = createElement("span");
+        let presetLabel = createElement("span", "label");
         presetLabel.innerText = "Preset:";
         presetRow.appendChild(presetLabel);
 
         let presetSelect = createElement("select") as HTMLSelectElement;
-        for (let type in Border.types) {
-            let g = Border.types[type];
-            presetSelect.add(createOptionElement(g.name, JSON.stringify(g)));
-        }
-        presetSelect.addEventListener("change", () => {
-            this.gradientInfo = JSON.parse(presetSelect.value);
-            this.gradientSlider.stops = this.gradientInfo.gradient;
-            this.dirty = true;
+        presetSelect.add(createOptionElement("Select one...", ""));
+        AvatarCropper.settings.borderPresets.forEach((preset) => {
+            presetSelect.add(createOptionElement(preset.name, JSON.stringify(preset)));
         });
         presetRow.appendChild(presetSelect);
+
+        let load = createElement("button");
+        load.innerText = "Load this preset";
+        load.addEventListener("click", () => {
+            if (presetSelect.value) {
+                this.gradientInfo = JSON.parse(presetSelect.value);
+                this.gradientSlider.stops = this.gradientInfo.gradient;
+                this.dirty = true;
+            }
+        });
+        presetRow.appendChild(load);
+
+        let overwrite = createElement("button");
+        overwrite.innerText = "Overwrite this preset";
+        overwrite.addEventListener("click", () => {
+            if (presetSelect.value) {
+                AvatarCropper.settings.borderPresets[presetSelect.selectedIndex - 1] = this.gradientInfo;
+                presetSelect.selectedOptions[0].value = JSON.stringify(this.gradientInfo);
+                AvatarCropper.saveSettings();
+            }  else {
+                alert("Please select a valid preset or save as new preset.");
+            }
+        });
+        presetRow.appendChild(overwrite);
+
+        let saveNew = createElement("button");
+        saveNew.innerText = "Save as new preset";
+        saveNew.addEventListener("click", () => {
+            let name = prompt("Name the new preset:");
+            if (name === null) {
+                // cancelled
+            } else if (!name) {
+                alert("That name is invalid.");
+            } else {
+                if (AvatarCropper.settings.borderPresets.some(preset => preset.name.toLowerCase() === name.toLowerCase())) {
+                    alert("That name is already taken.");
+                } else {
+                    this.gradientInfo.name = name;
+                    AvatarCropper.settings.borderPresets.push(this.gradientInfo);
+                    AvatarCropper.saveSettings();
+                    presetSelect.add(createOptionElement(name, JSON.stringify(this.gradientInfo)));
+                    presetSelect.selectedIndex = AvatarCropper.settings.borderPresets.length; // no - 1 because theres an extra at the beginning of the select
+                }
+            }
+        });
+        presetRow.appendChild(saveNew);
 
         rightCol.appendChild(presetRow);
 
@@ -103,7 +145,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         rightCol.appendChild(this.colorSelect);
 
         // buttons //
-        let buttonRow = createElement("div", "buttonRow");
+        let buttonRow = createElement("div", "row");
 
         let add = createElement("button");
         add.innerText = "Add stop";
@@ -138,7 +180,7 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
         rightCol.appendChild(this.angleSlider.container);
 
         // ok and cancel //
-        let saveRow = createElement("div", "saveRow");
+        let saveRow = createElement("div", "row");
         
         let ok = createElement("button", "ok");
         ok.innerText = "OK";
@@ -153,8 +195,8 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
             this.hide();
         });
 
-        saveRow.appendChild(ok);
         saveRow.appendChild(cancel);
+        saveRow.appendChild(ok);
         rightCol.appendChild(saveRow);
 
         // finalize //

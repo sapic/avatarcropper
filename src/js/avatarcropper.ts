@@ -32,6 +32,7 @@ export interface Settings {
     guidesEnabled: boolean
     resizeLock: boolean
     borderSize: number
+    borderPresets: GradientInfo[]
 }
 
 export class AvatarCropper extends Widget {
@@ -51,7 +52,7 @@ export class AvatarCropper extends Widget {
     private menuToggle: boolean = true
     private firstOpened: boolean = false
 
-    private settings: Settings = {
+    public static readonly settings: Settings = {
         previewSizes: [30, 40, 64, 128],
         maskOpacity: 0.5,
         previewMode: 'circle',
@@ -63,27 +64,28 @@ export class AvatarCropper extends Widget {
         guidesEnabled: true,
         resizeLock: false,
         borderSize: 0.05,
+        borderPresets: Border.defaults
     }
 
     constructor(container: HTMLElement) {
         super(container)
 
         this.loadSettings()
-        Border.size = this.settings.borderSize
-        console.log(this.settings.borderSize)
+        Border.size = AvatarCropper.settings.borderSize
+        console.log(AvatarCropper.settings.borderSize)
         this.constructMenu()
-        this.cropView = new CropView(this.settings)
+        this.cropView = new CropView(AvatarCropper.settings)
         this.previews = new Previews(this.cropView)
 
         this.appendChild(this.cropView, this.previews)
 
-        this.settings.previewSizes.forEach(size => {
+        AvatarCropper.settings.previewSizes.forEach(size => {
             this.previews.addPreviewSize(new Point(size))
         })
 
         this.previews.on('sizeArrayChange', (sizeArray: number[]) => {
-            this.settings.previewSizes = sizeArray
-            this.saveSettings()
+            AvatarCropper.settings.previewSizes = sizeArray
+            AvatarCropper.saveSettings();
         })
 
         window.addEventListener('resize', this.handleResize.bind(this))
@@ -97,8 +99,8 @@ export class AvatarCropper extends Widget {
                 this.antialiasButton.classList.remove('toggled')
             }
 
-            this.settings.antialias = antialiased
-            this.saveSettings()
+            AvatarCropper.settings.antialias = antialiased
+            AvatarCropper.saveSettings();
         })
         this.handleResize()
 
@@ -121,13 +123,13 @@ export class AvatarCropper extends Widget {
 
         this.appendChild(this.textOverlay)
 
-        if (getIEVersion() !== false && !this.settings.dismissedIE) {
+        if (getIEVersion() !== false && !AvatarCropper.settings.dismissedIE) {
             window.alert(
                 "hey so your browser isn't really supported ... things should still work but they will be slower/ugly due to how internet explorer/edge function (They don't conform to web standards). i'd recommend switching to firefox or chrome!! but you don't have to if you don't want to. this is the only time you'll see this message unless u clear ur cache or something. ok bye",
             )
 
-            this.settings.dismissedIE = true
-            this.saveSettings()
+            AvatarCropper.settings.dismissedIE = true
+            AvatarCropper.saveSettings();
         }
     }
 
@@ -135,22 +137,22 @@ export class AvatarCropper extends Widget {
         this.cropView.setImageFromFile(file)
     }
 
-    private saveSettings() {
-        Storage.set('settings', this.settings)
+    public static saveSettings() {
+        Storage.set('settings', AvatarCropper.settings)
     }
 
     private loadSettings() {
         let s = Storage.get('settings', {})
 
-        for (let key in this.settings) {
+        for (let key in AvatarCropper.settings) {
             if (s.hasOwnProperty(key)) {
                 if (s[key] !== null) {
-                    this.settings[key] = s[key]
+                    AvatarCropper.settings[key] = s[key]
                 }
             }
         }
 
-        this.saveSettings()
+        AvatarCropper.saveSettings();
     }
 
     private constructMenu(): void {
@@ -191,21 +193,21 @@ export class AvatarCropper extends Widget {
         circle.addEventListener('click', () => {
             circle.classList.add('toggled')
             square.classList.remove('toggled')
-            this.settings.previewMode = 'circle'
+            AvatarCropper.settings.previewMode = 'circle'
             this.cropView && this.cropView.refresh() // will update previews as well
-            this.saveSettings()
+            AvatarCropper.saveSettings();
         })
         square.addEventListener('click', () => {
             circle.classList.remove('toggled')
             square.classList.add('toggled')
-            this.settings.previewMode = 'square'
+            AvatarCropper.settings.previewMode = 'square'
             this.cropView && this.cropView.refresh() // will update previews as well
-            this.saveSettings()
+            AvatarCropper.saveSettings();
         })
         this.menu.appendChild(circle)
         this.menu.appendChild(square)
 
-        if (this.settings.previewMode === 'circle') {
+        if (AvatarCropper.settings.previewMode === 'circle') {
             circle.click()
         } else {
             square.click()
@@ -219,8 +221,8 @@ export class AvatarCropper extends Widget {
             'item transparency',
         )
         tSlider.on('slide', this.setTransparency.bind(this))
-        tSlider.on('change', this.saveSettings.bind(this))
-        tSlider.value = 1 - this.settings.maskOpacity
+        tSlider.on('change', () => AvatarCropper.saveSettings());
+        tSlider.value = 1 - AvatarCropper.settings.maskOpacity
         this.menu.appendChild(tSlider.container)
 
         let zoomBar = createElement('div', 'item zoomBar')
@@ -278,7 +280,7 @@ export class AvatarCropper extends Widget {
         this.antialiasButton.addEventListener('click', () => {
             this.cropView.antialias = !this.cropView.antialias
         })
-        if (this.settings.antialias) {
+        if (AvatarCropper.settings.antialias) {
             this.antialiasButton.classList.add('toggled')
         }
         this.menu.appendChild(this.antialiasButton)
@@ -321,7 +323,7 @@ export class AvatarCropper extends Widget {
         lock.addEventListener('click', this.toggleResizeLock.bind(this))
         this.menu.appendChild(lock)
         GlobalEvents.on('resizelockchange', () => {
-            if (this.settings.resizeLock) {
+            if (AvatarCropper.settings.resizeLock) {
                 lock.classList.add('toggled')
             } else {
                 lock.classList.remove('toggled')
@@ -381,8 +383,8 @@ export class AvatarCropper extends Widget {
             Border.size = value
         })
         borderSlider.on('change', () => {
-            this.settings.borderSize = borderSlider.value
-            this.saveSettings()
+            AvatarCropper.settings.borderSize = borderSlider.value
+            AvatarCropper.saveSettings();
         })
         this.menu.appendChild(borderSlider.container)
 
@@ -438,8 +440,8 @@ export class AvatarCropper extends Widget {
     }
 
     private toggleResizeLock(): void {
-        this.settings.resizeLock = !this.settings.resizeLock
-        this.saveSettings()
+        AvatarCropper.settings.resizeLock = !AvatarCropper.settings.resizeLock
+        AvatarCropper.saveSettings();
         GlobalEvents.emitEvent('resizelockchange')
     }
 
@@ -485,36 +487,36 @@ export class AvatarCropper extends Widget {
 
     private toggleMaskOutline(actuallyToggle: boolean = true): void {
         if (actuallyToggle) {
-            this.settings.outlinesEnabled = !this.settings.outlinesEnabled
+            AvatarCropper.settings.outlinesEnabled = !AvatarCropper.settings.outlinesEnabled
         }
 
-        if (this.settings.outlinesEnabled) {
+        if (AvatarCropper.settings.outlinesEnabled) {
             this.maskOutlineButton.classList.add('toggled')
         } else {
             this.maskOutlineButton.classList.remove('toggled')
         }
 
         this.cropView && this.cropView.refresh()
-        this.saveSettings()
+        AvatarCropper.saveSettings();
     }
 
     private toggleGuides(actuallyToggle: boolean = true): void {
         if (actuallyToggle) {
-            this.settings.guidesEnabled = !this.settings.guidesEnabled
+            AvatarCropper.settings.guidesEnabled = !AvatarCropper.settings.guidesEnabled
         }
 
-        if (this.settings.guidesEnabled) {
+        if (AvatarCropper.settings.guidesEnabled) {
             this.guidesButton.classList.add('toggled')
         } else {
             this.guidesButton.classList.remove('toggled')
         }
 
         this.cropView && this.cropView.refresh()
-        this.saveSettings()
+        AvatarCropper.saveSettings();
     }
 
     private setTransparency(transparency: number): void {
-        this.settings.maskOpacity = 1 - transparency
+        AvatarCropper.settings.maskOpacity = 1 - transparency
         this.cropView.refresh()
     }
 
@@ -563,13 +565,13 @@ export class AvatarCropper extends Widget {
         }
 
         if (
-            !this.settings.dismissedTutorial ||
-            !this.settings.dismissedCookie
+            !AvatarCropper.settings.dismissedTutorial ||
+            !AvatarCropper.settings.dismissedCookie
         ) {
             showTutorial()
-            this.settings.dismissedTutorial = true
-            this.settings.dismissedCookie = true
-            this.saveSettings()
+            AvatarCropper.settings.dismissedTutorial = true
+            AvatarCropper.settings.dismissedCookie = true
+            AvatarCropper.saveSettings();
         }
     }
 

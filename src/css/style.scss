@@ -34,7 +34,7 @@ body,
 }
 
 .dialog-backdrop {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.85);
   z-index: 1000;
 }
 
@@ -45,7 +45,8 @@ body,
   $maxWidth: 100%;
   $maxHeight: 70vh;
   $minWidth: 500px;
-  background: #eee;
+  background-color: #445;
+  color: #eee;
   min-width: $minWidth;
   max-width: 80%;
   border-radius: 5px;
@@ -205,12 +206,12 @@ body,
   height: calc(100% - #{$footerHeight});
 }
 
-.link {
+.link, #footer .link {
   text-decoration: underline;
   cursor: pointer;
-  color: #222;
+  color: #ddd;
   &:hover {
-    color: #555;
+    color: white;
   }
 }
 
@@ -237,14 +238,6 @@ body,
     float: left;
     input {
       background: transparent;
-    }
-  }
-  .link {
-    text-decoration: underline;
-    cursor: pointer;
-    color: #ddd;
-    &:hover {
-      color: white;
     }
   }
   div {
@@ -401,8 +394,16 @@ body,
     }
   }
 
-  .dialog > * > * {
-    margin-top: 12px;
+  .leftCol {
+    margin-right: 16px;
+  }
+
+  .rightCol {
+    flex-grow: 2;
+  }
+
+  .leftCol > *, .rightCol > * {
+    margin-top: 10px;
     display: block;
     width: 100%;
     box-sizing: border-box;
@@ -410,27 +411,6 @@ body,
     &:first-child {
       margin-top: 0;
     }
-  }
-
-  .row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  select {
-    flex-grow: 2;
-    margin-left: 8px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-
-  .leftCol {
-    margin-right: 16px;
-  }
-
-  .rightCol {
-    flex-grow: 2;
   }
 
   text-align: center;
@@ -452,11 +432,29 @@ body,
     line-height: 32px;
     background-color: #111;
     color: #eee;
+    border: 1px solid #aaa;
+
+    &:hover {
+      background-color: #222;
+    }
   }
 
-  input {
+  button, select, input[type=color] {
     cursor: pointer;
+    background-color: #111;
+    color: white;
+    border: 1px solid #aaa;
+    padding: 4px;
+    box-sizing: border-box;
+
+    &:hover {
+      background-color: #333;
+    }
+  }
+
+  input[type=color] {
     height: 32px;
+    margin-top: 6px;
   }
 
   .gradientSlider {
@@ -464,29 +462,35 @@ body,
     width: auto;
   }
 
-  .buttonRow, .saveRow {
+  .row {
     display: flex;
     flex-direction: row;
+    align-items: stretch;
 
     box-sizing: border-box;
 
     .ok {
-      flex-grow: 14;
+      flex-grow: 1;
+    }
+
+    .label {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-grow: 0;
     }
     
-    $m: 4px;
-    & > button {
-      cursor: pointer;
+    & > * {
       font-size: 16px;
-      flex-grow: 2;
+      flex-grow: 1;
 
       margin: 0 4px;
 
-      &:first-of-type {
+      &:first-child {
         margin-left: 0;
       }
 
-      &:last-of-type {
+      &:last-child {
         margin-right: 0;
       }
     }

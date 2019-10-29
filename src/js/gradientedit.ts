@@ -21,8 +21,7 @@ export class GradientEditButton extends Widget {
         this.container.addEventListener("click", () => {
             let d = new GradientEditDialog(this.gradient);
             d.on("return", (gradient: GradientInfo) => {
-                this.gradient = gradient;
-                this.emitEvent("update", this.gradient);
+                this.emitEvent("update", gradient);
             });
             document.getElementById("container").appendChild(d.container);
             d.show();
@@ -122,6 +121,18 @@ class GradientEditDialog extends InputDialog<GradientInfo> {
             }
         });
         presetRow.appendChild(saveNew);
+
+        let deletePreset = createElement("button");
+        deletePreset.innerText = "Delete this preset";
+        deletePreset.addEventListener("click", () => {
+            if (presetSelect.value && confirm("Are you sure you want to delete this preset?")) {
+                let index = presetSelect.selectedIndex - 1;
+                AvatarCropper.settings.borderPresets.splice(index, 1);
+                AvatarCropper.saveSettings();
+                presetSelect.remove(index + 1);
+            }
+        });
+        presetRow.appendChild(deletePreset);
 
         rightCol.appendChild(presetRow);
 

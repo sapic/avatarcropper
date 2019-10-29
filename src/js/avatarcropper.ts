@@ -48,6 +48,7 @@ export class AvatarCropper extends Widget {
     private flipVButton: HTMLElement
     private antialiasButton: HTMLElement
     private textOverlay: HTMLLabelElement
+    private borderSelect: HTMLSelectElement;
 
     private menuToggle: boolean = true
     private firstOpened: boolean = false
@@ -329,12 +330,25 @@ export class AvatarCropper extends Widget {
         GlobalEvents.emitEvent('resizelockchange')
 
         // create border options //
-        let border = <HTMLSelectElement>createElement('select', 'item');
-        border.id = "borderSelect";
-        border.add(createOptionElement("No Border", "none"));
-        border.add(createOptionElement("Solid Border", "solid"));
-        border.add(createOptionElement("Gradient Border", "gradient"));
-        this.menu.appendChild(border);
+        this.borderSelect = <HTMLSelectElement>createElement('select', 'item');
+        this.borderSelect.id = "borderSelect";
+        this.menu.appendChild(this.borderSelect);
+
+        let populateBorder = () => {
+            let len = this.borderSelect.options.length;
+            for (let i = 0; i < len; i++) {
+                this.borderSelect.options.remove(0);
+            }
+
+            this.borderSelect.add(createOptionElement("No Border", "none"));
+            this.borderSelect.add(createOptionElement("Solid Border", "solid"));
+            AvatarCropper.settings.borderPresets.forEach((preset) => {
+                this.borderSelect.add(createOptionElement(preset.name, JSON.stringify(preset)));
+            });
+            this.borderSelect.add(createOptionElement("Custom Gradient Border", "gradient"));
+        };
+
+        populateBorder();
 
         let borderSolidEdit = createElement("input", "item borderEdit") as HTMLInputElement;
         borderSolidEdit.type = "color";
@@ -349,27 +363,37 @@ export class AvatarCropper extends Widget {
         borderGradientEdit.gradient = Border.gradient;
         borderGradientEdit.container.className = "item borderEdit";
         borderGradientEdit.on("update", (gradientInfo: GradientInfo) => {
+            borderGradientEdit.gradient = gradientInfo;
             Border.gradient = gradientInfo;
+            populateBorder();
+            this.borderSelect.selectedIndex = this.borderSelect.options.length - 1;
         });
         borderGradientEdit.hide();
         this.menu.appendChild(borderGradientEdit.container);
 
-        border.addEventListener('change', () => {
-            if (border.value === "solid") {
+        this.borderSelect.addEventListener('change', () => {
+            if (this.borderSelect.value === "solid") {
                 showElement(borderSolidEdit);
                 borderGradientEdit.hide();
-                border.classList.add("edit");
+                this.borderSelect.classList.add("edit");
                 Border.type = "solid";
-            } else if (border.value === "gradient") {
+            } else if (this.borderSelect.value === "gradient") {
                 hideElement(borderSolidEdit);
                 borderGradientEdit.show();
-                border.classList.add("edit");
+                this.borderSelect.classList.add("edit");
                 Border.type = "gradient";
+            } else if (this.borderSelect.value === "none") {
+                hideElement(borderSolidEdit);
+                borderGradientEdit.hide();
+                this.borderSelect.classList.remove("edit");
+                Border.type = "none";
             } else {
                 hideElement(borderSolidEdit);
                 borderGradientEdit.hide();
-                border.classList.remove("edit");
-                Border.type = "none";
+                this.borderSelect.classList.remove("edit");
+                Border.type = "gradient";
+                Border.gradient = JSON.parse(this.borderSelect.selectedOptions[0].value);
+                borderGradientEdit.gradient = Border.gradient;
             }
         });
 
@@ -463,9 +487,9 @@ export class AvatarCropper extends Widget {
             hideElement(document.querySelector("input.borderEdit"));
             hideElement(document.querySelector("canvas.borderEdit"));
 
-            if (Border.type === "solid") {
+            if (this.borderSelect.value === "solid") {
                 showElement(document.querySelector("input.borderEdit"));
-            } else if (Border.type === "gradient") {
+            } else if (this.borderSelect.value === "gradient") {
                 showElement(document.querySelector("canvas.borderEdit"));
             }
 

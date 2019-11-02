@@ -122,7 +122,7 @@ export class AvatarCropper extends Widget {
             }
         })
 
-        this.appendChild(this.textOverlay)
+        document.body.appendChild(this.textOverlay)
 
         if (getIEVersion() !== false && !AvatarCropper.settings.dismissedIE) {
             window.alert(

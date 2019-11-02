@@ -25,6 +25,7 @@ export function doFooterThings() {
 
     document.getElementById('closeFooter').addEventListener('click', () => {
         document.getElementById('container').style.height = '100%'
+        document.querySelector<HTMLElement>('.bigOverlay').style.height = '100%'
         hideElement(document.getElementById('footer'))
         GlobalEvents.emitEvent('resize')
     })

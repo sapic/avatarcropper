@@ -12,6 +12,7 @@ export class SupportersDialog extends ClosableDialog {
             "PanPan",
             "wtx",
             "Néć[Ř]ø /A/",
+            "HabLover22",
             "and 2 anons:)"
         ];
 

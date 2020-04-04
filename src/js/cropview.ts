@@ -235,18 +235,12 @@ export class CropView extends Drawer {
         }
 
         if (this.settings.guidesEnabled) {
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.bottom), "white", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.top), "white", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.right, this.circle.cy), "white", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.left, this.circle.cy), "white", lineWidth);
             this.overlay.context.lineDashOffset = this.overlay.context.getLineDash()[0];
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.bottom), "cyan", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.top), "cyan", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.right, this.circle.cy), "cyan", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.left, this.circle.cy), "cyan", lineWidth);
+            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.bottom), "yellow", lineWidth);
+            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.top), "yellow", lineWidth);
+            this.overlay.drawLine(this.circle.center, new Point(this.circle.right, this.circle.cy), "yellow", lineWidth);
+            this.overlay.drawLine(this.circle.center, new Point(this.circle.left, this.circle.cy), "yellow", lineWidth);
             this.overlay.context.lineDashOffset = 0;
-            this.overlay.drawLine(new Point(this.circle.cx - lineWidth * 2, this.circle.cy), new Point(this.circle.cx + lineWidth * 2, this.circle.cy), "cyan", lineWidth);
-            this.overlay.drawLine(new Point(this.circle.cx, this.circle.cy - lineWidth * 2), new Point(this.circle.cx, this.circle.cy + lineWidth * 2), "cyan", lineWidth);
         }
 
         /*let theta = (90 - this.rotation) / 180 * Math.PI;

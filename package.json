@@ -1,28 +1,40 @@
 {
-    "name": "avatarcropper",
-    "version": "1.0.0",
-    "description": "Crops avatars!",
-    "author": "http://github.com/SongSing",
-    "license": "GPL-3.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/sapic/avatarcropper.git"
-    },
-    "scripts": {
-        "build": "npx parcel build src/index.html --public-url ./",
-        "start": "npx parcel src/index.html"
-    },
-    "staticFiles": {
-        "staticPath": "public"
-    },
-    "devDependencies": {
-        "@types/node": "^12.11.1",
-        "concurrently": "^5.0.0",
-        "copyfiles": "^2.1.1",
-        "cssnano": "^4.1.10",
-        "live-server": "^1.2.1",
-        "parcel-plugin-static-files-copy": "^2.2.1",
-        "sass": "^1.23.0",
-        "typescript": "^3.6.4"
-    }
+  "name": "avatarcropper",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.0",
+    "@types/react-dom": "^16.9.0",
+    "node-sass": "^4.13.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-scripts": "3.3.1",
+    "typescript": "~3.7.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

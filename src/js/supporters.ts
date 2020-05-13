@@ -13,7 +13,7 @@ export class SupportersDialog extends ClosableDialog {
             "wtx",
             "Néć[Ř]ø /A/",
             "HabLover22",
-            "and 3 anons:)"
+            "and 4 anons:)"
         ];
 
     constructor() {

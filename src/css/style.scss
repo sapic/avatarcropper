@@ -1,5 +1,5 @@
 $background: #2f3136;
-$footerHeight: 36px;
+$footerHeight: 40px;
 html,
 body,
 #container,
@@ -232,14 +232,33 @@ body,
   * {
     display: inline-block;
     color: white;
+    position: relative;
+    top: 1px;
   }
   .donate {
+    top: -1px;
     margin-top: 4px;
-    margin-left: 4px;
+    margin-left: 0;
     float: left;
-    input {
-      background: transparent;
+    height: 32px;
+    .patreon-icon {
+      height: 16px;
+      width: 16px;
+      color: white;
+      position: relative;
+      top: -4px;
+
+      svg {
+        fill: white;
+      }
     }
+    .patreon-text {
+      position: relative;
+      top: -4px;
+    }
+    background-color: rgb(232, 91, 70);
+    border-radius: 128px;
+    padding: 0px 12px;
   }
   div {
     height: $footerHeight;
@@ -684,27 +703,37 @@ body,
   }
 }
 
-@media (max-width: 840px) {
+@media (max-width: 940px) {
   #link-whatsNew {
     display: none;
   }
 }
 
-@media (max-width: 690px) {
+@media (max-width: 770px) {
   #link-discord {
     display: none;
   }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 700px) {
   #link-help {
     display: none;
   }
 }
 
-@media (max-width: 490px) {
+@media (max-width: 570px) {
   #footerLeft {
     display: none;
+  }
+}
+
+@media(max-width: 450px) {
+  #footer {
+    display: none;
+  }
+  #container,
+  #bigOverlay {
+    height: 100%;
   }
 }
 

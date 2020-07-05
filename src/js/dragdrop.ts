@@ -30,6 +30,7 @@ export class DragDrop extends EventClass {
 
             showElement(overlay);
             overlay.innerText = "Drop file";
+            overlay.style.zIndex = "9999";
 
             console.log(this.tempText);
         });
@@ -41,6 +42,7 @@ export class DragDrop extends EventClass {
             if (e.target === overlay) {
                 hideElement(overlay);
                 overlay.innerText = this.tempText;
+                overlay.style.zIndex = "";
                 this.tempText = null;
                 this.emitEvent("dragleave");
             }
@@ -56,6 +58,7 @@ export class DragDrop extends EventClass {
 
             hideElement(overlay);
             overlay.innerText = this.tempText;
+            overlay.style.zIndex = "";
             this.tempText = null;
         });
     }

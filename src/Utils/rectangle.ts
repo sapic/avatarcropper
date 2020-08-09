@@ -19,7 +19,7 @@ export default class Rectangle
 
     public expand(multiplier : number) : Rectangle
     {
-        let r = this.copy();
+        let r = this.deepCopy();
         let newSize = r.size.times(multiplier);
         let center = r.center;
         let diff = newSize.minus(r.size);
@@ -214,7 +214,12 @@ export default class Rectangle
         }
     }
 
-    public copy() : Rectangle
+    public shallowCopy() : Rectangle
+    {
+        return new Rectangle(this.position, this.size);
+    }
+
+    public deepCopy() : Rectangle
     {
         return new Rectangle(this.position.copy(), this.size.copy());
     }

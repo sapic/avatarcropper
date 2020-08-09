@@ -153,6 +153,26 @@ export class Canvas
         }
     }
 
+    public removeEventListener(eventName : "mouseup", fn : MouseUpFn) : void;
+    public removeEventListener(eventName : "mousedown", fn : MouseDownFn) : void;
+    public removeEventListener(eventName : "mousemove", fn : MouseMoveFn) : void;
+    public removeEventListener(eventName : "mouseleave", fn : MouseLeaveFn) : void;
+    public removeEventListener(eventName : string, fn : Function) : void
+    {
+        if (["mouseup","mousedown","mousemove","mouseleave"].includes(eventName))
+        {
+            const arr = (this.mouse.events as any)[eventName.substr(5)];
+            if (arr.indexOf(fn) !== -1)
+            {
+                arr.splice(arr.indexOf(fn), 1);
+            }
+            else
+            {
+                throw new Error("Event listener fn doesn't exist");
+            }
+        }
+    }
+
     public resize(size : Point, redraw : boolean)
     {
         let c : HTMLCanvasElement | null = null;

@@ -1,0 +1,15 @@
+.cropView
+{
+    img,
+    canvas
+    {
+        position: absolute;
+        top: 0; // will be overridden by zoom
+        left: 0; // will be overridden by zoom
+    }
+
+    canvas
+    {
+        transform-origin: top left;
+    }
+}

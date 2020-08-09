@@ -1,101 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer, useRef, useContext } from 'react';
 import logo from './logo.svg';
 import './App.scss';
 import LabeledSlider from './Components/LabeledSlider/LabeledSlider';
 import Storage from './Utils/storage';
 import CropView from './Components/CropView/CropView';
-import { ImageInfo } from './Types';
-
-interface Settings
-{
-    previewSizes: number[]
-    maskOpacity: number
-    previewMode: 'circle' | 'square'
-    outlinesEnabled: boolean
-    antialias: boolean
-    dismissedTutorial: boolean
-    dismissedIE: boolean
-    dismissedCookie: boolean
-    guidesEnabled: boolean
-    resizeLock: boolean
-    borderSize: number
-}
-
-function useSetting(settings: Settings, key: string)
-{
-    const [ val, setVal ] = useState(settings[key]);
-
-    function setSetting(val: any)
-    {
-        settings[key] = val;
-        Storage.set("settings", settings);
-        setVal(val);
-    }
-
-    return [
-        val,
-        setSetting
-    ];
-}
+import CropPreviews from './Components/CropPreviews/CropPreviews';
+import { AppContext } from './AppContext';
 
 function App()
 {
-    // load settings //
-    const settings : Settings = {
-        previewSizes: [30, 40, 64, 128],
-        maskOpacity: 0.5,
-        previewMode: 'circle',
-        outlinesEnabled: true,
-        antialias: true,
-        dismissedTutorial: false,
-        dismissedIE: false,
-        dismissedCookie: false,
-        guidesEnabled: true,
-        resizeLock: false,
-        borderSize: 0.05
-    };
-
-    const s = Storage.get("settings", {})
-
-    for (const key in settings)
-    {
-        if (s.hasOwnProperty(key))
-        {
-            if (s[key] !== null)
-            {
-                settings[key] = s[key];
-            }
-        }
-    }
+    const { state, dispatch } = useContext(AppContext)!;
 
     // ok time for the actual stuff //
-    const [ image, setImage ] = useState<ImageInfo>({ src: "", width: 0, height: 0 });
-    const [ destFilename, setDestfilename ] = useState("");
-    const [ fileType, setFileType ] = useState("");
-    const [ showMenu, setShowMenu ] = useState(true);
-    const [ firstOpened, setFirstOpened ] = useState(false);
-    const [ rotation, setRotation ] = useState(0);
-    const [ cropShape, setCropShape ] = useSetting(settings, "previewMode");
-    const [ maskOpacity, setMaskOpacity ] = useSetting(settings, "maskOpacity");
-    const [ antialias, setAntialias ] = useSetting(settings, "antialias");
-    const [ maskOutline, setMaskOutline ] = useSetting(settings, "outlinesEnabled");
-    const [ guidelines, setGuidelines ] = useSetting(settings, "guidesEnabled");
-    const [ lockCenter, setLockCenter ] = useSetting(settings, "resizeLock");
-
-    let isLoading = false;
-    let openRequest : File | null = null;
 
     function toggleMenu()
     {
-        setShowMenu(!showMenu);
+        dispatch({ type: "toggleMenu" });
     }
 
     function setMaskTransparency(trans: number)
     {
-        setMaskOpacity(1 - trans);
+        dispatch({ type: "setMaskOpacity", payload: 1 - trans });
     }
 
-    function handleRotation(deg: number)
+    function rotationDegrees(deg: number)
     {
         const snap = 2;
 
@@ -119,8 +47,8 @@ function App()
         {
             deg = -180
         }
-
-        setRotation(deg)
+        
+        dispatch({ type: "setRotationDegrees", payload: deg });
     }
 
     function flipHorizontal()
@@ -155,47 +83,36 @@ function App()
 
     function openFile(file: File)
     {
-        if (!isLoading)
+        if (!state.isLoadingFile)
         {
-            isLoading = true;
-
             if (file.type.split("/")[0] !== "image")
             {
                 return;
             }
 
-            if (!firstOpened)
+            if (!state.hasOpenedSomething)
             {
-                setFirstOpened(true);
+                dispatch({ type: "setHasOpenedSomething", payload: true });
             }
             else
             {
-                window.URL.revokeObjectURL(image.src);
+                window.URL.revokeObjectURL(state.image.src);
             }
 
-            setFileType(file.type.split("/")[1] === "gif" ? "gif" : "png");
-            setDestfilename(file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped." + fileType);
+            const fileType = file.type.split("/")[1] === "gif" ? "gif" : "png";
+            dispatch({ type: "setFileType", payload: fileType });
+            dispatch({ type: "setDestFilename", payload: file.name.substring(0, file.name.lastIndexOf('.')) + "_cropped." + fileType });
             
             const url = window.URL.createObjectURL(file);
             const img = new Image();
             img.onload = () =>
             {
-                if (!openRequest)
-                {
-                    setImage(img);
-                }
-                else
-                {
-                    const toUse = openRequest;
-                    openRequest = null;
-                    openFile(toUse);
-                }
+                dispatch({ type: "setImage", payload: img });
+                dispatch({ type: "setIsLoadingFile", payload: false });
+                dispatch({ type: "zoomFit" });
             };
             img.src = url;
-        }
-        else
-        {
-            openRequest = file;
+            dispatch({ type: "setIsLoadingFile", payload: true });
         }
     }
 
@@ -211,7 +128,9 @@ function App()
     return (
         <div className="app">
             <CropView
-                image={image}
+            />
+
+            <CropPreviews
             />
 
             <div className="menu">
@@ -223,19 +142,19 @@ function App()
                         onChange={handleFileChange}
                     />
                 </label>
-                <button onClick={toggleMenu} className={"half menuItem" + (showMenu ? "" : " toggled")}>
-                    {showMenu ? "Collapse Menu" : "▼"}
+                <button onClick={toggleMenu} className={"half menuItem" + (state.showMenu ? "" : " toggled")}>
+                    {state.showMenu ? "Collapse Menu" : "▼"}
                 </button>
-                {showMenu && (<React.Fragment>
+                {state.showMenu && (<React.Fragment>
                     <button
-                        className={"half menuItem" + (cropShape === "circle" ? " toggled" : "")}
-                        onClick={() => setCropShape("circle")}
+                        className={"half menuItem" + (state.previewMode === "circle" ? " toggled" : "")}
+                        onClick={() => dispatch({ type: "setPreviewMode", payload: "circle" })}
                     >
                         Circle
                     </button>
                     <button
-                        className={"half menuItem" + (cropShape === "square" ? " toggled" : "")}
-                        onClick={() => setCropShape("square")}
+                        className={"half menuItem" + (state.previewMode === "square" ? " toggled" : "")}
+                        onClick={() => dispatch({ type: "setPreviewMode", payload: "square" })}
                     >
                         Sqare
                     </button>
@@ -245,22 +164,22 @@ function App()
                         min={0}
                         onInput={setMaskTransparency}
                         step={0.05}
-                        value={1 - maskOpacity}
+                        value={1 - state.maskOpacity}
                         className="menuItem"
                     />
                     <div className="zoomBar menuItem">
                         <div className="zoomLabel">Zoom:</div>
-                        <button>Fit</button>
-                        <button>+</button>
-                        <button>-</button>
+                        <button onClick={() => dispatch({ type: "zoomFit" })}>Fit</button>
+                        <button onClick={() => dispatch({ type: "zoomIn" })}>+</button>
+                        <button onClick={() => dispatch({ type: "zoomOut" })}>-</button>
                     </div>
                     <LabeledSlider
-                        label="Rotation"
+                        label="rotationDegrees"
                         max={180}
                         min={-180}
-                        onInput={handleRotation}
+                        onInput={rotationDegrees}
                         step={1}
-                        value={rotation}
+                        value={state.rotationDegrees}
                         className="menuItem"
                     />
                     <button className="half menuItem" onClick={flipHorizontal}>
@@ -270,14 +189,14 @@ function App()
                         Flip Vertical
                     </button>
                     <button
-                        className={"half menuItem" + (antialias ? " toggled" : "")}
-                        onClick={() => setAntialias(!antialias)}
+                        className={"half menuItem" + (state.antialias ? " toggled" : "")}
+                        onClick={() => dispatch({ type: "setAntialias", payload: !state.antialias })}
                     >
                         Antialias
                     </button>
                     <button
-                        className={"half menuItem" + (maskOutline ? " toggled" : "")}
-                        onClick={() => setMaskOutline(!maskOutline)}
+                        className={"half menuItem" + (state.outlinesEnabled ? " toggled" : "")}
+                        onClick={() => dispatch({ type: "setOutlinesEnabled", payload: !state.outlinesEnabled })}
                     >
                         Mask Outline
                     </button>
@@ -285,8 +204,8 @@ function App()
                         Add Preview
                     </button>
                     <button
-                        className={"half menuItem" + (guidelines ? " toggled" : "")}
-                        onClick={() => setGuidelines(!guidelines)}
+                        className={"half menuItem" + (state.guidesEnabled ? " toggled" : "")}
+                        onClick={() => dispatch({ type: "setGuidesEnabled", payload: !state.guidesEnabled })}
                     >
                         Guidelines
                     </button>
@@ -297,8 +216,8 @@ function App()
                         Set Size
                     </button>
                     <button
-                        className={"menuItem" + (lockCenter ? " toggled" : "")}
-                        onClick={() => setLockCenter(!lockCenter)}
+                        className={"menuItem" + (state.resizeLock ? " toggled" : "")}
+                        onClick={() => dispatch({ type: "setResizeLock", payload: !state.resizeLock })}
                     >
                         Lock Center During Resize
                     </button>

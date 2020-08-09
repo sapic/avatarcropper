@@ -1,0 +1,28 @@
+.cropPreviews
+{
+    position: absolute;
+    bottom: 16px;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+
+    .cropPreview
+    {
+        position: absolute;
+        bottom: -2px;
+        overflow: hidden;
+        
+        .mask
+        {
+            z-index: 2;
+            position: absolute;
+        }
+
+        img
+        {
+            position: absolute;
+            z-index: 0;
+            transform-origin: top left;
+        }
+    }
+}

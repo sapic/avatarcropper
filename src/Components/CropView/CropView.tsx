@@ -1,196 +1,132 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useContext } from 'react';
 import Rectangle from "../../Utils/rectangle";
 import Point from "../../Utils/point";
 import { Canvas } from '../../Utils/canvas';
 import { ImageInfo } from '../../Types';
-
-type MouseAction = "move" | "resize" | "new" | "none";
-
-class Circle extends Rectangle {
-    private _origin: Rectangle = new Rectangle(new Point(), new Point());
-
-    constructor(private getOuterRect: () => Rectangle) {
-        super(new Point(), new Point());
-        this.saveOrigin();
-    }
-
-    public get radius(): Point {
-        return this.size.dividedBy(2);
-    }
-
-    public set radius(radius: Point) {
-        this.size = radius.times(2);
-    }
-
-    public reset(): void {
-        this.position = new Point(0);
-        this.size = new Point(this.getOuterRect().size.min / 2);
-    }
-
-    public get rectangle(): Rectangle {
-        return this.copy();
-    }
-
-    public saveOrigin(): void {
-        this._origin = this.copy();
-    }
-
-    public get origin(): Rectangle {
-        return this._origin;
-    }
-
-    public validate(): number {
-        let ret = 0b00000000;
-
-        if (this.width > this.getOuterRect().size.x) {
-            this.setWidthKeepAR(this.getOuterRect().size.x);
-            ret |= 1;
-        }
-
-        if (this.height > this.getOuterRect().size.y) {
-            this.setHeightKeepAR(this.getOuterRect().size.y);
-            ret |= 2;
-        }
-
-        if (this.x < 0) {
-            this.x = 0;
-            ret |= 4;
-        }
-
-        if (this.y < 0) {
-            this.y = 0;
-            ret |= 8;
-        }
-
-        if (this.bottom > this.getOuterRect().size.y) {
-            this.bottom = this.getOuterRect().size.y;
-            ret |= 16;
-        }
-
-        if (this.right > this.getOuterRect().size.x) {
-            this.right = this.getOuterRect().size.x;
-            ret |= 32;
-        }
-
-        return ret;
-    }
-}
+import { PreviewMode, AppContext } from '../../AppContext';
+import Overlay from "./Overlay/Overlay";
+import "./CropView.scss"
+import { makePixelated } from '../../Utils/utils';
 
 interface Props
 {
-    image: ImageInfo;
 }
 
 function CropView(props: Props)
 {
-    const [ zoomFactor, setZoomFactor ] = useState(1);
-    const [ isZoomFitted, setIsZoomFitted ] = useState(true);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const imageRef = useRef<HTMLImageElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    let canvas: Canvas | null = null;
+    const { state, dispatch } = useContext(AppContext)!;
+    
+    const container = useRef<HTMLDivElement>(null);
+    const image = useRef<HTMLImageElement>(null);
 
     useEffect(() =>
     {
-        canvas = new Canvas({
-            canvasElement: canvasRef.current!
-        });
-    }, []);
+        if (image.current)
+        {
+            image.current.width = state.image.width;
+            image.current.height = state.image.height;
+        }
+    }, [ state.image ]);
 
     useEffect(() =>
     {
-        canvas?.resize(Point.fromSizeLike(props.image), false);
-    }, [ props.image ]);
+        zoom(state.zoomFactor);
+    }, [ state.zoomFactor ]);
+
+    useEffect(() =>
+    {
+        if (state.isZoomFitted)
+        {
+            zoomFit();
+        }
+    }, [ state.isZoomFitted, state.image ]);
+
+    useEffect(() =>
+    {
+        if (image.current)
+        {
+            makePixelated(image.current, !state.antialias);
+        }
+    }, [ state.antialias ]);
 
     function zoom(factor?: number)
     {
-        if (!containerRef.current || !imageRef.current || !canvas)
+        if (!container.current || !image.current)
         {
             return;
         }
 
-        const container = containerRef.current;
-        const image = imageRef.current;
+        const ogScrollTopP = container.current.scrollTop / container.current.scrollHeight;
+        const ogScrollLeftP = container.current.scrollLeft / container.current.scrollWidth;
 
-        const ogScrollTopP = container.scrollTop / container.scrollHeight;
-        const ogScrollLeftP = container.scrollLeft / container.scrollWidth;
-
-        container.scrollTop = 0;
-        container.scrollLeft = 0;
+        container.current.scrollTop = 0;
+        container.current.scrollLeft = 0;
         let rotatePart = "";
 
-        if (image.style.transform.indexOf(" rotate") !== -1) {
-            rotatePart = image.style.transform.substr(
-                image.style.transform.indexOf(" rotate")
+        if (image.current.style.transform.indexOf(" rotate") !== -1) {
+            rotatePart = image.current.style.transform.substr(
+                image.current.style.transform.indexOf(" rotate")
             );
         }
 
-        factor = factor || zoomFactor;
-        setZoomFactor(factor);
-        canvas!.zoom(factor, "", "");
-        image.style.transform = "scale(" + factor + "," + factor + ")";
-        image.style.transform += rotatePart;
+        factor = factor || state.zoomFactor;
+        image.current.style.transform = "scale(" + factor + "," + factor + ")";
+        image.current.style.transform += rotatePart;
 
-        let r = image.getBoundingClientRect();
+        let r = image.current.getBoundingClientRect();
 
         if (r.left !== 0) {
-            let current = parseFloat(image.style.left || "0px");
+            let current = parseFloat(image.current.style.left || "0px");
             current -= r.left;
 
-            image.style.left = current + "px";
+            image.current.style.left = current + "px";
         }
 
         if (r.top !== 0) {
-            let current = parseFloat(image.style.top || "0px");
+            let current = parseFloat(image.current.style.top || "0px");
             current -= r.top;
 
-            image.style.top = current + "px";
+            image.current.style.top = current + "px";
         }
 
-        container.scrollTop = ogScrollTopP * container.scrollHeight;
-        container.scrollLeft = ogScrollLeftP * container.scrollWidth;
-    }
-
-    function zoomIn()
-    {
-        setIsZoomFitted(false);
-        zoom(zoomFactor * 1.1);
-    }
-
-    function zoomOut()
-    {
-        setIsZoomFitted(false);
-        zoom(zoomFactor / 1.1);
+        container.current.scrollTop = ogScrollTopP * container.current.scrollHeight;
+        container.current.scrollLeft = ogScrollLeftP * container.current.scrollWidth;
     }
 
     function zoomFit(force: boolean = true)
     {
-        if (!imageRef.current || !containerRef.current || !canvas)
+        if (!image.current || !container.current)
         {
             return;
         }
 
-        if (!isZoomFitted && !force)
+        if (!state.isZoomFitted && !force)
         {
             return;
         }
 
-        setIsZoomFitted(true);
-
-        var cr = containerRef.current.getBoundingClientRect();
-        var ir = { width: props.image.width, height: props.image.height };
+        var cr = container.current.getBoundingClientRect();
+        var ir = { width: state.image.width, height: state.image.height };
 
         var fw = cr.width / ir.width;
         var fh = cr.height / ir.height;
         var f = Math.min(fw, fh);
 
-        zoom(f);
+        dispatch({ type: "setZoomFactor", payload: f });
     }
 
     return (
-        <div className="cropView" ref={containerRef}>
-            <img src={props.image.src} ref={imageRef}></img>
-            <canvas ref={canvasRef}></canvas>
+        <div className="cropView" ref={container}>
+            <img
+                src={state.image.src}
+                ref={image}
+                style={{
+                    left: `${state.cropImageOffset.x}px`,
+                    top: `${state.cropImageOffset.x}px`
+                }}
+            ></img>
+            <Overlay
+            />
         </div>
     );
 }

@@ -3,7 +3,8 @@ import { ClosableDialog } from "./closabledialog";
 export class SupportersDialog extends ClosableDialog {
     private patrons =
         [
-            "henby"
+            "henby",
+            "Jenny"
         ];
 
     private donors =

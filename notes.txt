@@ -1,0 +1,23 @@
+must have:
+[] rendering
+[x] proper fitting of the main image
+[x] add preview
+[x] preview overlay
+[x] remove preview
+[] rotation
+[] accessibility
+
+should have:
+[] initial open file screen
+[] dragging/dropping files
+[] center
+[] set size
+[] gifs
+[] flipping
+[] online indicator
+[] settings for previews
+    [] order
+
+could have:
+[] borders
+[] filters

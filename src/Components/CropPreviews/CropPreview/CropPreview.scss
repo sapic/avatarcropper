@@ -1,0 +1,51 @@
+.cropPreview
+{
+    .cropPreviewOverlay
+    {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+
+        .size
+        {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            right: 32px;
+            padding: 0;
+            margin: 0;
+            background-color: #eee;
+            border-right: 1px solid #aaa;
+            border-top: 1px solid #aaa;
+            height: 32px;
+            padding: 0 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-sizing: border-box;
+            line-height: 32px;
+            z-index: 2;
+        }
+
+        .remove
+        {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 0;
+            background: 0;
+            outline: 0;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            background-color: #eee;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            z-index: 3;
+            border-top: 1px solid #aaa;
+            box-sizing: border-box;
+        }
+    }
+}

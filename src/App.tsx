@@ -63,7 +63,26 @@ function App()
 
     function addPreview()
     {
+        const sizeStr = prompt(
+            "Enter a custom size\n" +
+            "Default sizes are 30, 40, 64, and 128\n" +
+            "Note: 30 will come with a discord online indicator"
+        );
 
+        if (sizeStr === null)
+        {
+            return;
+        }
+
+        const size = parseInt(sizeStr);
+
+        if (isNaN(size))
+        {
+            alert("Invalid value.");
+            return;
+        }
+
+        dispatch({ type: "addPreviewSize", size: size });
     }
 
     function center()
@@ -174,7 +193,7 @@ function App()
                         <button onClick={() => dispatch({ type: "zoomOut" })}>-</button>
                     </div>
                     <LabeledSlider
-                        label="rotationDegrees"
+                        label="Rotation"
                         max={180}
                         min={-180}
                         onInput={rotationDegrees}

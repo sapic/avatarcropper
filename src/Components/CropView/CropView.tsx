@@ -6,7 +6,7 @@ import { ImageInfo } from '../../Types';
 import { PreviewMode, AppContext } from '../../AppContext';
 import Overlay from "./Overlay/Overlay";
 import "./CropView.scss"
-import { makePixelated } from '../../Utils/utils';
+import { debounce, makePixelated } from '../../Utils/utils';
 
 interface Props
 {
@@ -15,9 +15,25 @@ interface Props
 function CropView(props: Props)
 {
     const { state, dispatch } = useContext(AppContext)!;
+    const [ refreshSizeSwitch, setRefreshSizeSwitch ] = useState(false);
     
     const container = useRef<HTMLDivElement>(null);
     const image = useRef<HTMLImageElement>(null);
+
+    useEffect(() =>
+    {
+        const fn = debounce(() =>
+        {
+            setRefreshSizeSwitch(!refreshSizeSwitch);
+        }, 100);
+
+        window.addEventListener("resize", fn);
+
+        return () =>
+        {
+            window.removeEventListener("resize", fn);
+        }
+    });
 
     useEffect(() =>
     {
@@ -39,7 +55,7 @@ function CropView(props: Props)
         {
             zoomFit();
         }
-    }, [ state.isZoomFitted, state.image ]);
+    }, [ state.isZoomFitted, state.image, state.previewSizes, state.previewPadding, refreshSizeSwitch ]);
 
     useEffect(() =>
     {
@@ -115,8 +131,19 @@ function CropView(props: Props)
         dispatch({ type: "setZoomFactor", payload: f });
     }
 
+    const widthOffset = Math.max(
+        state.previewSizes.reduce((l, r) => l + r) + state.previewPadding * (state.previewSizes.length + 1),
+        256 // menu width
+    );
+
     return (
-        <div className="cropView" ref={container}>
+        <div
+            className="cropView"
+            ref={container}
+            style={{
+                width: `calc(100% - ${widthOffset}px)`
+            }}
+        >
             <img
                 src={state.image.src}
                 ref={image}

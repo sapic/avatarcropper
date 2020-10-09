@@ -6,6 +6,20 @@ export function createElement(type: string, className: string = ""): HTMLElement
     return ret;
 }
 
+export function debounce(fn: () => any, ms: number): () => any
+{
+    let timer;
+    return () =>
+    {
+        window.clearTimeout(timer);
+        timer = setTimeout(() =>
+        {
+            timer = null;
+            fn();
+        }, ms);
+    };
+}
+
 // https://codepen.io/gapcode/pen/vEJNZN
 export function getIEVersion(): boolean | number {
     var ua = window.navigator.userAgent;

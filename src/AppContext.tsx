@@ -4,6 +4,7 @@ import { ImageInfo } from "./Types";
 import Rectangle from "./Utils/rectangle";
 import Point from "./Utils/point";
 import Storage from './Utils/storage';
+import { array_copy, array_insert, array_remove } from "./Utils/utils";
 
 export type PreviewMode = "circle" | "square";
 
@@ -20,6 +21,7 @@ interface Settings
     previewMode: PreviewMode;
     previewSizes: number[];
     resizeLock: boolean;
+    previewPadding: number;
 }
 
 interface AppState extends Settings
@@ -48,7 +50,8 @@ const initialSettings : Settings = {
     outlinesEnabled: true,
     previewMode: "circle",
     previewSizes: [30, 40, 64, 128],
-    resizeLock: false
+    resizeLock: false,
+    previewPadding: 16
 };
 
 const initialState : AppState = {
@@ -96,6 +99,7 @@ type Action =
     | { type: "setPreviewMode", payload: PreviewMode }
     | { type: "setPreviewSizes", payload: number[] }
     | { type: "setResizeLock", payload: boolean }
+    | { type: "setPreviewPadding", payload: number }
 
     | { type: "setDestFilename", payload: string }
     | { type: "setFileType", payload: string }
@@ -110,6 +114,8 @@ type Action =
     | { type: "zoomFit" }
     | { type: "setZoomFactor", payload: number }
     | { type: "setCropArea", payload: Rectangle }
+    | { type: "addPreviewSize", size: number }
+    | { type: "removePreviewSize", size: number }
 ;
 
 function reducer(state: AppState, action: Action): AppState
@@ -127,7 +133,9 @@ function reducer(state: AppState, action: Action): AppState
         case "setPreviewMode":
         case "setPreviewSizes":
         case "setResizeLock":
+        case "setPreviewPadding":
         {
+            // im fully aware that this is illegal //
             const newState = {
                 ...state,
                 [action.type[3].toLowerCase() + action.type.substr(4)]: action.payload as any
@@ -183,6 +191,27 @@ function reducer(state: AppState, action: Action): AppState
                 ...state,
                 cropArea: action.payload
             };
+        case "addPreviewSize":
+        {
+            const newArray = array_copy(state.previewSizes);
+            array_insert(newArray, action.size, (a, b) => a < b);
+            return {
+                ...state,
+                previewSizes: newArray
+            };
+        }
+        case "removePreviewSize":
+        {
+            const newArray = array_copy(state.previewSizes);
+            if (!array_remove(newArray, action.size).existed)
+            {
+                alert("Tried to remove a non-existent preview size.\nPlease file a bug report.");
+            }
+            return {
+                ...state,
+                previewSizes: newArray
+            };
+        }
         default:
             throw new Error("bad action type: " + (action as any).type);
     }

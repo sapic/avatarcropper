@@ -18,9 +18,12 @@ export default function CropPreview(props: Props)
 
     const [ imagePosition, setImagePosition ] = useState<Point>(new Point(0));
     const [ imageScale, setImageScale ] = useState<Point>(new Point(1));
+    const [ showingOverlay, setShowingOverlay ] = useState<boolean>(false);
     const canvasEl = useRef<HTMLCanvasElement | null>(null);
     const canvas = useRef<Canvas | null>(null);
+    const container = useRef<HTMLDivElement | null>(null);
 
+    // setup //
     useEffect(() =>
     {
         canvas.current = new Canvas({
@@ -28,6 +31,23 @@ export default function CropPreview(props: Props)
         });
     }, []);
 
+    // mouse interations //
+    useEffect(() =>
+    {
+        const showFn = () => setShowingOverlay(true);
+        const hideFn = () => setShowingOverlay(false);
+
+        container.current?.addEventListener("mouseenter", showFn);
+        container.current?.addEventListener("mouseleave", hideFn);
+
+        return () =>
+        {
+            container.current?.removeEventListener("mouseenter", showFn);
+            container.current?.removeEventListener("mouseleave", hideFn);
+        };
+    });
+
+    // refresh size/mode //
     useEffect(() =>
     {
         if (canvas.current)
@@ -61,6 +81,7 @@ export default function CropPreview(props: Props)
         }
     }, [ state.previewMode, props.previewSize ]);
 
+    // move preview image //
     useEffect(() =>
     {
         if (state.cropArea.size.x > 0 && state.cropArea.size.y > 0)
@@ -80,21 +101,28 @@ export default function CropPreview(props: Props)
         }
     }, [ state.image, props.previewSize, state.cropArea, state.rotationDegrees, state.zoomFactor ]);
 
+    function remove()
+    {
+        dispatch({ type: "removePreviewSize", size: props.previewSize });
+    }
+
     return (
         <div
             className="cropPreview"
             style={{
                 right: `${props.right}px`,
                 width: `${props.previewSize}px`,
-                height: `${props.previewSize + 2}px`,
-                zIndex: -props.previewSize
+                height: `${props.previewSize + 2}px`
             }}
+            title={props.previewSize + "x" + props.previewSize}
+            ref={container}
         >
             <canvas
                 ref={canvasEl}
                 className="mask"
             />
             <img
+                className={state.antialias ? "" : "pixelated"}
                 src={state.image.src}
                 style={{
                     transform: `scale(${imageScale.x}, ${imageScale.y}) rotate(${state.rotationDegrees}deg)`,
@@ -102,6 +130,15 @@ export default function CropPreview(props: Props)
                     top: `${imagePosition.y}px`
                 }}
             />
+            <div
+                className="cropPreviewOverlay"
+                style={{
+                    display: showingOverlay ? "" : "none"
+                }}
+            >
+                <div className="size">{props.previewSize + "x" + props.previewSize}</div>
+                <button className="remove" onClick={remove}>✖</button>
+            </div>
         </div>
     );
 }

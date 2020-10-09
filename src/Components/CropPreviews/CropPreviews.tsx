@@ -10,13 +10,11 @@ interface Props
 {
 }
 
-const padding = 16;
-
 export default function CropPreviews(props: Props)
 {
     const { state, dispatch } = useContext(AppContext)!;
     
-    let runningX = padding;
+    let runningX = state.previewPadding;
 
     return (
         <div className="cropPreviews">
@@ -27,7 +25,7 @@ export default function CropPreviews(props: Props)
                     previewSize={previewSize}
                 />;
 
-                runningX += previewSize + padding;
+                runningX += previewSize + state.previewPadding;
                 return ret;
             })}
         </div>

@@ -144,6 +144,11 @@ function App()
         }
     }
 
+    function renderImage()
+    {
+        
+    }
+
     return (
         <div className="app">
             <CropView
@@ -239,6 +244,9 @@ function App()
                         onClick={() => dispatch({ type: "setResizeLock", payload: !state.resizeLock })}
                     >
                         Lock Center During Resize
+                    </button>
+                    <button className="menuItem render" onClick={renderImage}>
+                        Render/Save
                     </button>
                 </React.Fragment>)}
             </div>

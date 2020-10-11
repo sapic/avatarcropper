@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useReducer, useContext } from "react";
+import React, { useEffect, useRef, useReducer, useContext, useLayoutEffect } from "react";
 import { Canvas } from "../../../Utils/canvas";
 import Rectangle, { RectAnchor } from "../../../Utils/rectangle";
 import Point from "../../../Utils/point";
@@ -86,6 +86,7 @@ class Circle extends Rectangle {
 
 interface Props
 {
+    size: Point | null;
 }
 
 export default function Overlay(props: Props)
@@ -117,6 +118,14 @@ export default function Overlay(props: Props)
             canvas.current.pixelated = !state.antialias;
         }
     }, [ state.antialias ]);
+
+    useLayoutEffect(() =>
+    {
+        if (!props.size) return;
+
+        canvas.current?.resize(props.size, false);
+        circle.current.validate(getOuterRect());
+    }, [ props.size ]);
 
     useEffect(() =>
     {

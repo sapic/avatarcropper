@@ -16,6 +16,7 @@ function CropView(props: Props)
 {
     const { state, dispatch } = useContext(AppContext)!;
     const [ refreshSizeSwitch, setRefreshSizeSwitch ] = useState(false);
+    const [ overlaySize, setOverlaySize ] = useState<Point | null>(null);
     
     const container = useRef<HTMLDivElement>(null);
     const image = useRef<HTMLImageElement>(null);
@@ -41,6 +42,7 @@ function CropView(props: Props)
         {
             image.current.width = state.image.width;
             image.current.height = state.image.height;
+            setOverlaySize(Point.fromSizeLike(state.image));
         }
     }, [ state.image ]);
 
@@ -64,6 +66,43 @@ function CropView(props: Props)
             makePixelated(image.current, !state.antialias);
         }
     }, [ state.antialias ]);
+
+    useLayoutEffect(() =>
+    {
+        if (!image.current || !container.current) return;
+        
+        // remove rotation part if it exists //
+        const ind = image.current.style.transform.indexOf(" rotate");
+        if (ind !== -1)
+        {
+            image.current.style.transform =
+                image.current.style.transform.substr(0, ind);
+        }
+
+        const b4 = image.current.style.transform;
+        image.current.style.left = image.current.style.top = "0px";
+
+        const size = Point.fromSizeLike(image.current);
+        const or = Point.fromSizeLike(image.current.getBoundingClientRect());
+
+        image.current.style.transform = b4 + " rotate(" + state.rotationDegrees + "deg)";
+
+        const r = Rectangle.fromClientRect(image.current.getBoundingClientRect());
+        const delta = r.topLeft.inverted.minus(
+            new Point(container.current.scrollLeft, container.current.scrollTop)
+        );
+
+        image.current.style.left = delta.x + "px";
+        image.current.style.top = delta.y + "px";
+
+        size.multiply(r.size.dividedBy(or));
+        setOverlaySize(size);
+    }, [ state.rotationDegrees ]);
+
+    useLayoutEffect(() =>
+    {
+        zoomFit(false);
+    }, [ overlaySize ]);
 
     function zoom(factor?: number)
     {
@@ -111,7 +150,7 @@ function CropView(props: Props)
 
     function zoomFit(force: boolean = true)
     {
-        if (!image.current || !container.current)
+        if (!image.current || !container.current || !overlaySize)
         {
             return;
         }
@@ -122,7 +161,7 @@ function CropView(props: Props)
         }
 
         var cr = container.current.getBoundingClientRect();
-        var ir = { width: state.image.width, height: state.image.height };
+        var ir = { width: overlaySize.x, height: overlaySize.y };
 
         var fw = cr.width / ir.width;
         var fh = cr.height / ir.height;
@@ -153,6 +192,7 @@ function CropView(props: Props)
                 }}
             ></img>
             <Overlay
+                size={overlaySize}
             />
         </div>
     );

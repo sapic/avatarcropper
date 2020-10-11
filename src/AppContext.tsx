@@ -114,6 +114,7 @@ type Action =
     | { type: "zoomFit" }
     | { type: "setZoomFactor", payload: number }
     | { type: "setCropArea", payload: Rectangle }
+    | { type: "setCropImageOffset", payload: Point }
     | { type: "addPreviewSize", size: number }
     | { type: "removePreviewSize", size: number }
 ;
@@ -143,6 +144,8 @@ function reducer(state: AppState, action: Action): AppState
             saveSettings(newState);
             return newState;
         }
+        case "setCropArea":
+        case "setCropImageOffset":
         case "setDestFilename":
         case "setFileType":
         case "setHasOpenedSomething":
@@ -150,6 +153,7 @@ function reducer(state: AppState, action: Action): AppState
         case "setIsLoadingFile":
         case "setRotationDegrees":
         case "setShowMenu":
+        case "setZoomFactor":
         {
             const newState = {
                 ...state,
@@ -180,16 +184,6 @@ function reducer(state: AppState, action: Action): AppState
             return {
                 ...state,
                 isZoomFitted: true
-            };
-        case "setZoomFactor":
-            return {
-                ...state,
-                zoomFactor: action.payload
-            };
-        case "setCropArea":
-            return {
-                ...state,
-                cropArea: action.payload
             };
         case "addPreviewSize":
         {

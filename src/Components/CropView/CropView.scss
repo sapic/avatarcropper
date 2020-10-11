@@ -1,15 +1,20 @@
 .cropView
 {
+    overflow: hidden;
+    user-select: none;
+    background: transparent;
+
     img,
     canvas
     {
         position: absolute;
         top: 0; // will be overridden by zoom
         left: 0; // will be overridden by zoom
+        transform-origin: top left;
     }
 
     canvas
     {
-        transform-origin: top left;
+        z-index: 1;
     }
 }

@@ -125,6 +125,7 @@ export default function Overlay(props: Props)
 
         canvas.current?.resize(props.size, false);
         circle.current.validate(getOuterRect());
+        update();
     }, [ props.size ]);
 
     useEffect(() =>
@@ -132,7 +133,7 @@ export default function Overlay(props: Props)
         const mouseMove = (pos : Point, isDown : boolean, lastPos : Point, originalPos : Point, e : MouseEvent | TouchEvent) =>
         {
             e.stopPropagation();
-            if (!canvas.current || !canvasEl.current) return;
+            if (!canvas.current || !canvasEl.current || !props.size) return;
     
             // determine what cursor to show //
             let action = currentAction.current;
@@ -254,21 +255,23 @@ export default function Overlay(props: Props)
     {
         return new Rectangle(
             new Point(0),
-            Point.fromSizeLike(state.image)
+            canvas.current!.size
         );
     }
 
+    // call when u want to redraw //
     function update()
     {
         isDirty.current = true;
         if (!frameIsWaiting.current)
         {
             frameIsWaiting.current = true;
-            requestAnimationFrame(draw);
+            requestAnimationFrame(_draw);
         }
     }
 
-    function draw()
+    // should rly only be called by requestAnimationFrame //
+    function _draw()
     {
         if (isDirty.current && canvas.current)
         {
@@ -325,7 +328,7 @@ export default function Overlay(props: Props)
 
             isDirty.current = false;
             frameIsWaiting.current = true;
-            requestAnimationFrame(draw);
+            requestAnimationFrame(_draw);
         }
         else
         {

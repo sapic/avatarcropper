@@ -314,26 +314,10 @@ body, .bigOverlay
 
 .cropView
 {
-    user-select: none;
     position: absolute;
     top: 0;
-    overflow: auto;
     width: 700px;
     height: 100%;
-    background: transparent;
-    .image,
-    canvas
-    {
-        position: absolute;
-        left: 0;
-        top: 0;
-        margin: 0;
-        padding: 0;
-    }
-    canvas
-    {
-        z-index: 1;
-    }
 }
 
 .labeledSlider

@@ -97,6 +97,7 @@ function CropView(props: Props)
 
         size.multiply(r.size.dividedBy(or));
         setOverlaySize(size);
+        dispatch({ type: "setCropImageOffset", payload: delta });
     }, [ state.rotationDegrees ]);
 
     useLayoutEffect(() =>

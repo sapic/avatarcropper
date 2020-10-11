@@ -99,7 +99,7 @@ export default function CropPreview(props: Props)
             //     state.cropArea.position: ${state.cropArea.position.toString()}\n
             // `);
         }
-    }, [ state.image, props.previewSize, state.cropArea, state.rotationDegrees, state.zoomFactor ]);
+    }, [ state.image, props.previewSize, state.cropArea, state.cropImageOffset, state.zoomFactor ]);
 
     function remove()
     {

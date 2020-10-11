@@ -1,0 +1,25 @@
+.dialog
+{
+    background-color: rgba(0,0,0,.85);
+    z-index: 1000;
+
+    .body
+    {
+        max-width: calc(100% + 32px);
+        max-height: calc(70vh + 24px);
+        min-width: 556px;
+        overflow: hidden;
+        padding: 0;
+        background-color: #445;
+        color: #eee;
+
+        .close
+        {
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            cursor: pointer;
+            font-size: 2em;
+        }
+    }
+}

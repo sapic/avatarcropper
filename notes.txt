@@ -1,5 +1,7 @@
 must have:
-[] rendering
+[x] rendering
+    [x] static
+    [] gif
 [x] proper fitting of the main image
 [x] add preview
 [x] preview overlay

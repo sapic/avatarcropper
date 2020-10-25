@@ -86,7 +86,6 @@ class Circle extends Rectangle {
 
 interface Props
 {
-    size: Point | null;
 }
 
 export default function Overlay(props: Props)
@@ -121,19 +120,19 @@ export default function Overlay(props: Props)
 
     useLayoutEffect(() =>
     {
-        if (!props.size) return;
+        if (!state.overlaySize) return;
 
-        canvas.current?.resize(props.size, false);
+        canvas.current?.resize(state.overlaySize, false);
         circle.current.validate(getOuterRect());
         update();
-    }, [ props.size ]);
+    }, [ state.overlaySize ]);
 
     useEffect(() =>
     {
         const mouseMove = (pos : Point, isDown : boolean, lastPos : Point, originalPos : Point, e : MouseEvent | TouchEvent) =>
         {
             e.stopPropagation();
-            if (!canvas.current || !canvasEl.current || !props.size) return;
+            if (!canvas.current || !canvasEl.current || !state.overlaySize) return;
     
             // determine what cursor to show //
             let action = currentAction.current;

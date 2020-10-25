@@ -5,6 +5,7 @@ import Rectangle from "./Utils/rectangle";
 import Point from "./Utils/point";
 import Storage from './Utils/storage';
 import { array_copy, array_insert, array_remove } from "./Utils/utils";
+import { Z_ASCII } from "zlib";
 
 export type PreviewMode = "circle" | "square";
 
@@ -24,7 +25,7 @@ interface Settings
     previewPadding: number;
 }
 
-interface AppState extends Settings
+export interface AppState extends Settings
 {
     destFilename: string;
     fileType: string;
@@ -37,6 +38,9 @@ interface AppState extends Settings
     isZoomFitted: boolean;
     cropArea: Rectangle;
     cropImageOffset: Point;
+    isShowingRenderDialog: boolean;
+    renderSignal: boolean;
+    overlaySize: Point | null;
 }
 
 const initialSettings : Settings = {
@@ -73,7 +77,10 @@ const initialState : AppState = {
     zoomFactor: 1,
     isZoomFitted: true,
     cropArea: new Rectangle(new Point(), new Point()),
-    cropImageOffset: new Point(0)
+    cropImageOffset: new Point(0),
+    isShowingRenderDialog: false,
+    renderSignal: false,
+    overlaySize: null
 };
 
 function saveSettings(state: AppState)
@@ -117,12 +124,16 @@ type Action =
     | { type: "setCropImageOffset", payload: Point }
     | { type: "addPreviewSize", size: number }
     | { type: "removePreviewSize", size: number }
+    | { type: "setIsShowingRenderDialog", payload: boolean }
+    | { type: "signalRender" }
+    | { type: "setOverlaySize", payload: Point | null }
 ;
 
 function reducer(state: AppState, action: Action): AppState
 {
     switch (action.type)
     {
+        // settings //
         case "setAntialias":
         case "setBorderSize":
         case "setDismissedCookie":
@@ -144,6 +155,7 @@ function reducer(state: AppState, action: Action): AppState
             saveSettings(newState);
             return newState;
         }
+        // other state //
         case "setCropArea":
         case "setCropImageOffset":
         case "setDestFilename":
@@ -154,6 +166,8 @@ function reducer(state: AppState, action: Action): AppState
         case "setRotationDegrees":
         case "setShowMenu":
         case "setZoomFactor":
+        case "setIsShowingRenderDialog":
+        case "setOverlaySize":
         {
             const newState = {
                 ...state,
@@ -206,6 +220,11 @@ function reducer(state: AppState, action: Action): AppState
                 previewSizes: newArray
             };
         }
+        case "signalRender":
+            return {
+                ...state,
+                renderSignal: !state.renderSignal
+            };
         default:
             throw new Error("bad action type: " + (action as any).type);
     }

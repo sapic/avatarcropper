@@ -1,0 +1,21 @@
+.progressBar
+{
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .progress
+    {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    .progressAmount
+    {
+        z-index: 1;
+        font-weight: bold;
+    }
+}

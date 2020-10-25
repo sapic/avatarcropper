@@ -1,13 +1,13 @@
 $background: #2f3136;
 $footerHeight: 36px;
 
-html, body, #container, .dialog-backdrop, .bigOverlay
+html, body, #container, .dialog, .bigOverlay
 {
-    width: 100%;
-    height: 100%;
     position: absolute;
     left: 0;
     top: 0;
+    width: 100%;
+    height: 100%;
     padding: 0;
     margin: 0;
     font-family: Helvetica, sans-serif;
@@ -33,40 +33,34 @@ body, .bigOverlay
     height: calc(100% - #{$footerHeight});
 }
 
-.dialog-backdrop
+.dialog
 {
     background-color: rgba(0, 0, 0, 0.85);
     z-index: 1000;
-}
 
-.dialog
-{
-    $paddingY: 12px;
-    $paddingX: 28px;
-    $innerPaddingX: 12px;
-    $maxWidth: 100%;
-    $maxHeight: 70vh;
-    $minWidth: 500px;
-    background-color: #445;
-    color: #eee;
-    min-width: $minWidth;
-    max-width: 80%;
-    border-radius: 5px;
-    padding: $paddingY $paddingX;
-    position: absolute;
-    left: 50%;
-    top: 10%;
-    transform: translate(-50%, 0%);
-    max-height: $maxHeight;
-    height: auto;
-    overflow: auto;
-    text-align: center;
-
-    &.closable
+    .body
     {
+        $paddingY: 12px;
+        $paddingX: 28px;
+        $innerPaddingX: 12px;
+        $maxWidth: 100%;
+        $maxHeight: 70vh;
+        $minWidth: 500px;
+        background-color: #445;
+        color: #eee;
+        border-radius: 5px;
+        padding: $paddingY $paddingX;
+        position: absolute;
+        left: 50%;
+        top: 10%;
+        transform: translate(-50%, 0%);
+        height: auto;
+        overflow: auto;
+        text-align: center;
         max-width: calc(#{$maxWidth} + #{$paddingX - $innerPaddingX} * 2);
         max-height: calc(#{$maxHeight} + #{$paddingY} * 2);
         min-width: calc(#{$minWidth} + #{$paddingX} * 2);
+        min-height: 72px;
         overflow: hidden;
         padding: 0;
 
@@ -77,6 +71,8 @@ body, .bigOverlay
             top: 12px;
             cursor: pointer;
             font-size: 2em;
+            background-color: transparent;
+            border: 0;
         }
         
         .innerContent

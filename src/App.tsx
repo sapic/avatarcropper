@@ -6,6 +6,7 @@ import Storage from './Utils/storage';
 import CropView from './Components/CropView/CropView';
 import CropPreviews from './Components/CropPreviews/CropPreviews';
 import { AppContext } from './AppContext';
+import RenderDialog from './Components/RenderDialog/RenderDialog';
 
 function App()
 {
@@ -146,11 +147,13 @@ function App()
 
     function renderImage()
     {
-        
+        dispatch({ type: "signalRender" });
     }
 
     return (
         <div className="app">
+            <RenderDialog />
+
             <CropView
             />
 

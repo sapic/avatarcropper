@@ -2,27 +2,29 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 
 interface Props
 {
+    isShowing: boolean;
+    setIsShowing: (isShowing: boolean) => any;
+    className?: string;
 }
 
-const Dialog: React.FunctionComponent = (props) =>
+const Dialog: React.FunctionComponent<Props> = (props) =>
 {
-    const [ hidden, setHidden ] = useState(true);
-
     function hideDialog()
     {
-        setHidden(true);
+        props.setIsShowing(false);
     }
 
     return (
         <div
-            className="dialog"
+            className={"dialog " + props.className || ""}
             onClick={hideDialog}
             style={{
-                display: hidden ? "none" : ""
+                display: props.isShowing ? "" : "none"
             }}
         >
             <div
                 className="body"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
                 <button
                     className="close"
@@ -30,7 +32,9 @@ const Dialog: React.FunctionComponent = (props) =>
                 >
                     ❌
                 </button>
-                {props.children}
+                <div className="innerContent">
+                    {props.children}
+                </div>
             </div>
         </div>
     );

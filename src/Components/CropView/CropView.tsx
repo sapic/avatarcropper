@@ -16,7 +16,6 @@ function CropView(props: Props)
 {
     const { state, dispatch } = useContext(AppContext)!;
     const [ refreshSizeSwitch, setRefreshSizeSwitch ] = useState(false);
-    const [ overlaySize, setOverlaySize ] = useState<Point | null>(null);
     
     const container = useRef<HTMLDivElement>(null);
     const image = useRef<HTMLImageElement>(null);
@@ -42,7 +41,7 @@ function CropView(props: Props)
         {
             image.current.width = state.image.width;
             image.current.height = state.image.height;
-            setOverlaySize(Point.fromSizeLike(state.image));
+            dispatch({ type: "setOverlaySize", payload: Point.fromSizeLike(state.image) });
         }
     }, [ state.image ]);
 
@@ -96,14 +95,14 @@ function CropView(props: Props)
         image.current.style.top = delta.y + "px";
 
         size.multiply(r.size.dividedBy(or));
-        setOverlaySize(size);
+        dispatch({ type: "setOverlaySize", payload: size });
         dispatch({ type: "setCropImageOffset", payload: delta });
     }, [ state.rotationDegrees ]);
 
     useLayoutEffect(() =>
     {
         zoomFit(false);
-    }, [ overlaySize ]);
+    }, [ state.overlaySize ]);
 
     function zoom(factor?: number)
     {
@@ -151,7 +150,7 @@ function CropView(props: Props)
 
     function zoomFit(force: boolean = true)
     {
-        if (!image.current || !container.current || !overlaySize)
+        if (!image.current || !container.current || !state.overlaySize)
         {
             return;
         }
@@ -162,7 +161,7 @@ function CropView(props: Props)
         }
 
         var cr = container.current.getBoundingClientRect();
-        var ir = { width: overlaySize.x, height: overlaySize.y };
+        var ir = { width: state.overlaySize.x, height: state.overlaySize.y };
 
         var fw = cr.width / ir.width;
         var fh = cr.height / ir.height;
@@ -193,7 +192,6 @@ function CropView(props: Props)
                 }}
             ></img>
             <Overlay
-                size={overlaySize}
             />
         </div>
     );

@@ -4,7 +4,8 @@ export class SupportersDialog extends ClosableDialog {
     private patrons =
         [
             "henby",
-            "Jenny"
+            "Jenny",
+            "xPraisexAphroditex"
         ];
 
     private donors =

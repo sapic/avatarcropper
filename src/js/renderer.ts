@@ -16,7 +16,7 @@ interface CropOption {
 }
 
 export class Renderer extends ClosableDialog {
-    private readonly renderedString = "Rendered! yayy";
+    private readonly renderedString = "Rendered!";
     private readonly renderingString = "Rendering...";
     private readonly cropView: CropView;
     private shouldStopRendering: boolean = false;
@@ -48,10 +48,10 @@ export class Renderer extends ClosableDialog {
         this.imageElement = <HTMLImageElement>createElement("img", "image");
 
         this.noteElement = createElement("div", "note");
-        this.noteElement.innerText = "Save as a square for Discord!!";
+        this.noteElement.innerText = "Save as a square for Discord!";
 
         this.pleaseWaitElement = createElement("div", "pleaseWait");
-        this.pleaseWaitElement.innerText = "Aborting render... please wait...";
+        this.pleaseWaitElement.innerText = "Aborting render...";
 
         this.optionBar = createElement("div", "optionBar");
 

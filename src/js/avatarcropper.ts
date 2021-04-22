@@ -126,7 +126,7 @@ export class AvatarCropper extends Widget {
 
         if (getIEVersion() !== false && !AvatarCropper.settings.dismissedIE) {
             window.alert(
-                "hey so your browser isn't really supported ... things should still work but they will be slower/ugly due to how internet explorer/edge function (They don't conform to web standards). i'd recommend switching to firefox or chrome!! but you don't have to if you don't want to. this is the only time you'll see this message unless u clear ur cache or something. ok bye",
+                "Your browse (IE, presumably) is not supported. Some things may show up incorrectly. Switch to Chrome, Firefox, or modern Edge for a better experience. You'll only see this message once.",
             )
 
             AvatarCropper.settings.dismissedIE = true
@@ -171,7 +171,7 @@ export class AvatarCropper extends Widget {
         })
 
         this.openFileLabel = createElement('label', 'open half item show')
-        this.openFileLabel.innerText = 'Open File...'
+        this.openFileLabel.innerText = 'Open File'
         this.openFileLabel.appendChild(openFile)
         this.menu.appendChild(this.openFileLabel)
 
@@ -190,21 +190,21 @@ export class AvatarCropper extends Widget {
         let circle = createElement('button', 'open item half')
         let square = createElement('button', 'open item half')
         circle.innerText = 'Circle'
-        square.innerText = 'Squaré'
+        square.innerText = 'Square'
         circle.classList.toggle("toggled", AvatarCropper.settings.previewMode === "circle");
         square.classList.toggle("toggled", AvatarCropper.settings.previewMode === "square");
         circle.addEventListener('click', () => {
             circle.classList.add('toggled')
             square.classList.remove('toggled')
             AvatarCropper.settings.previewMode = 'circle'
-            this.cropView && this.cropView.update("circle toggle") // will update previews as well
+            this.cropView && this.cropView.update("circle toggle") // Updates previews as well
             AvatarCropper.saveSettings();
         })
         square.addEventListener('click', () => {
             circle.classList.remove('toggled')
             square.classList.add('toggled')
             AvatarCropper.settings.previewMode = 'square'
-            this.cropView && this.cropView.update("square toggle") // will update previews as well
+            this.cropView && this.cropView.update("square toggle") // Updates previews as well
             AvatarCropper.saveSettings();
         })
         this.menu.appendChild(circle)
@@ -397,7 +397,7 @@ export class AvatarCropper extends Widget {
             }
         });
 
-        // create border slider //
+        // Create border slider //
         let borderSlider = new LabelSlider(0, 0.5, 0.01, 'Border Size', 'item')
         borderSlider.value = Border.size
         borderSlider.on('slide', (value: number) => {
@@ -409,7 +409,7 @@ export class AvatarCropper extends Widget {
         })
         this.menu.appendChild(borderSlider.container)
 
-        // create render button //
+        // Create render button //
         let render = createElement('button', 'item render show')
         render.innerText = 'Render/Save'
         render.addEventListener('click', this.renderCroppedImage.bind(this))
@@ -558,9 +558,9 @@ export class AvatarCropper extends Widget {
         let size = parseInt(sizeStr)
 
         if (isNaN(size) || size <= 0) {
-            alert("Bad size make sure it's a number over 0")
+            alert("Invalid size, make sure it's a number over 0.")
         } else {
-            this.previews.addPreviewSize(new Point(size)) // emits sizeArrayChange event which changes settings so dw
+            this.previews.addPreviewSize(new Point(size)) // emits sizeArrayChange event, which changes settings
         }
     }
 

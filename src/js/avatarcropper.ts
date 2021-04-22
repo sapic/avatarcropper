@@ -261,7 +261,7 @@ export class AvatarCropper extends Widget {
         this.menu.appendChild(rSlider.container)
 
         this.flipHButton = createElement('button', 'half item')
-        this.flipHButton.innerText = 'Flip Horiz.'
+        this.flipHButton.innerText = 'Flip Horizontal'
         this.flipHButton.addEventListener(
             'click',
             this.flipHorizontal.bind(this),

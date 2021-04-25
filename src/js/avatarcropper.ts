@@ -126,7 +126,7 @@ export class AvatarCropper extends Widget {
 
         if (getIEVersion() !== false && !AvatarCropper.settings.dismissedIE) {
             window.alert(
-                "Your browse (IE, presumably) is not supported. Some things may show up incorrectly. Switch to Chrome, Firefox, or modern Edge for a better experience. You'll only see this message once.",
+                "Your browser (IE, presumably) is not supported. Some things may show up incorrectly. Switch to Chrome, Firefox, or modern Edge for a better experience. You'll only see this message once.",
             )
 
             AvatarCropper.settings.dismissedIE = true

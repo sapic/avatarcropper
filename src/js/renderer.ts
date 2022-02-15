@@ -57,7 +57,7 @@ export class Renderer extends ClosableDialog {
 
         this.saveButton = createElement("a", "save");
         this.saveButton.innerText = "Save";
-        this.saveButton.addEventListener("click", () => {
+        this.saveButton.addEventListener("mouseover", () => {
             (<HTMLAnchorElement>this.saveButton).href = this.imageElement.src;
         });
 

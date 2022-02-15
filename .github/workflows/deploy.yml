@@ -42,6 +42,7 @@ jobs:
 
           cd dist
           git init
+          echo "avatarcropper.com" > CNAME
           git add .
           git commit -m "Deploying ${GITHUB_SHA}"
           git remote add origin git@github.com:${GITHUB_REPOSITORY}.git

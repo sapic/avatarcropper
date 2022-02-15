@@ -86,7 +86,7 @@ export class WhatsNewDialog extends ClosableDialog {
         let es: HTMLElement[] = [];
 
         let h1 = createElement("h1");
-        h1.innerText = "What's New,,,";
+        h1.innerText = "What's New...";
         es.push(h1);
 
         for (let month in this.list) {

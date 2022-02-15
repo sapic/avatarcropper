@@ -25,7 +25,6 @@
         "concurrently": "^7.0.0",
         "copyfiles": "^2.3.0",
         "cssnano": "^5.0.17",
-        "live-server": "^1.1.0",
         "parcel": "^2.3.1",
         "parcel-plugin-static-files-copy": "^2.6.0",
         "sass": "^1.49.7",

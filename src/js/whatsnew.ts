@@ -4,6 +4,11 @@ import { ClosableDialog } from "./closabledialog";
 export class WhatsNewDialog extends ClosableDialog {
     private list =
         {
+            "Feburary 2022":
+                [
+                    "Bug fixes and preformance improvements",
+                    "wow, such update"
+                ],
             "October 2019":
                 [
                     "Added borders for LGBT frends... more/custom borders coming soon",

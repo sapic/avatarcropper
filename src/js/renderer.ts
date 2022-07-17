@@ -103,13 +103,14 @@ export class Renderer extends ClosableDialog {
                 this.currentlyRendering = false;
                 this.tryClose();
             }
-
+            const circle = this.cropView.Circle
+            const bannerRect = new Rectangle(new Point(circle.left - (circle.width / 5 + circle.width / 13.33), circle.cy - (circle.width * 1.5)), new Point(circle.width * 3.75, circle.width * 1.5))
             let saveGif = new GIF({
                 workers: 3,
                 quality: 1,
                 dither: false,
-                width: this.cropView.cropArea.width,
-                height: this.cropView.cropArea.height,
+                width: !banner ? this.cropView.cropArea.width : bannerRect.width ,
+                height: !banner ? this.cropView.cropArea.height : bannerRect.height,
                 debug: false,
                 copy: true
             });

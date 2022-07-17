@@ -26,17 +26,17 @@ jobs:
       - name: Push
         run: |
           mkdir -p "$HOME/.ssh"
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_rsa"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_ed25519"
           touch "$HOME/.ssh/known_hosts"
 
           chmod 700 "$HOME/.ssh"
-          chmod 600 "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_ed25519"
           chmod 600 "$HOME/.ssh/known_hosts"
 
           ssh-keyscan -t rsa github.com >> "$HOME/.ssh/known_hosts"
 
           eval $(ssh-agent -s)
-          ssh-add "$HOME/.ssh/id_rsa"
+          ssh-add "$HOME/.ssh/id_ed25519"
           git config --global user.email "actions@users.noreply.github.com"
           git config --global user.name "ActionsBot"
 

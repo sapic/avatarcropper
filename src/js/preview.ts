@@ -114,7 +114,7 @@ export class Preview extends Drawer {
     public get size(): Point {
         return this._size;
     }
-    
+
     public applyGradient(): void {
         Border.apply(this.border);
     }

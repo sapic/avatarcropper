@@ -329,7 +329,7 @@ body,
     color: #eee;
     text-decoration: none;
     border: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-family: Helvetica;
     height: 32px;
     line-height: 32px;
@@ -556,9 +556,6 @@ body,
     background: transparent;
     margin: 0px;
     opacity: 0.5;
-    &:focus {
-      //outline: none;
-    }
     &::-webkit-slider-runnable-track {
       width: 100%;
       height: 32px;

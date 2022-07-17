@@ -9,6 +9,7 @@ import { Border } from "./borders";
 
 import SuperGif from './supergif.js'
 import GIF from './gif.js'
+import { Rectangle } from "./rectangle";
 
 interface CropOption {
     label: string;
@@ -74,21 +75,21 @@ export class Renderer extends ClosableDialog {
         this.initialized = true;
     }
 
-    public render() {
+    public render(banner) {
         this.currentlyRendering = true;
         this.shouldStopRendering = false;
         this.show();
 
         if (this.cropView.currentFileType === "gif") {
-            this.renderGif();
+            this.renderGif(banner);
         }
         else {
-            this.getFrameURLs(this.cropView.image, false, true, this.display.bind(this));
+            this.getFrameURLs(this.cropView.image, false, true, banner, this.display.bind(this));
             this.currentlyRendering = false;
         }
     }
 
-    private renderGif(): void {
+    private renderGif(banner): void {
         let gif = new SuperGif({
             gif: this.cropView.image.cloneNode()
         });
@@ -119,7 +120,7 @@ export class Renderer extends ClosableDialog {
             let renderFrame = (i: number) => {
                 gif.move_to(i);
 
-                this.getFrameURLs(gif.get_canvas(), true, false, (options) => {
+                this.getFrameURLs(gif.get_canvas(), true, false, banner, (options) => {
                     let img = new Image();
                     img.addEventListener("load", () => {
                         if (this.shouldStopRendering) {
@@ -181,7 +182,7 @@ export class Renderer extends ClosableDialog {
         });
     }
 
-    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean, callback: (options: CropOption[]) => void): void {
+    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean, banner: boolean, callback: (options: CropOption[]) => void): void {
         let ret: CropOption[] = [];
         let expectedLength = getCircle ? 2 : 1;
         let counter = 0;
@@ -212,17 +213,27 @@ export class Renderer extends ClosableDialog {
             this.cropView.outerSize.dividedBy(2).minus(this.cropView.innerSize.dividedBy(2))
         );
 
+        var circle = this.cropView.Circle
+
         let squareCrop = new Canvas({
-            size: this.cropView.cropArea.size,
+            size: banner? new Point(circle.width * 3.75, circle.width * 1.5) : this.cropView.cropArea.size,
             pixelated: pixelated
         });
 
-        squareCrop.drawCroppedImage(
-            rc,
-            new Point(0),
-            this.cropView.cropArea
-        );
-
+        if (banner == true) {
+            squareCrop.drawCroppedImage(
+                rc,
+                new Point(0),
+                new Rectangle(new Point(circle.left - (circle.width / 5 + circle.width / 13.33), circle.cy - (circle.width * 1.5)), new Point(circle.width * 3.75, circle.width * 1.5))
+                //new Rectangle(new Point(this.circle.left - (this.circle.width / 5 + this.circle.width / 13.33), this.circle.cy - (this.circle.width * 1.5)), new Point(this.circle.width * 3.75, this.circle.width * 1.5))
+            );
+        } else {
+            squareCrop.drawCroppedImage(
+                rc,
+                new Point(0),
+                this.cropView.cropArea
+            );
+        }
         squareCrop.drawImage(borderCanvas, new Point(0));
 
         squareCrop.createBlob((blob: Blob) => {

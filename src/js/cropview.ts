@@ -178,7 +178,10 @@ export class CropView extends Drawer {
     public get cropArea(): Rectangle {
         return this.circle.rectangle;
     }
-
+    public get Circle(): Circle {
+    return this.circle
+    }
+    
     public get zoomFactor(): number {
         return this._zoomFactor;
     }
@@ -206,9 +209,10 @@ export class CropView extends Drawer {
             if (this.settings.previewMode === "circle") {
                 this.overlay.fillCircleInRect(this.circle, "white");
             }
-            else {
+            else if (this.settings.previewMode === "square") {
                 this.overlay.fillRect(this.circle, "white");
             }
+
         }
 
         this.overlay.blendMode = "source-over";
@@ -235,11 +239,8 @@ export class CropView extends Drawer {
         }
 
         if (this.settings.guidesEnabled) {
-            this.overlay.context.lineDashOffset = this.overlay.context.getLineDash()[0];
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.bottom), "yellow", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.cx, this.circle.top), "yellow", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.right, this.circle.cy), "yellow", lineWidth);
-            this.overlay.drawLine(this.circle.center, new Point(this.circle.left, this.circle.cy), "yellow", lineWidth);
+            this.overlay.drawBanner(this.circle, lineWidth)
+     
             this.overlay.context.lineDashOffset = 0;
         }
 
@@ -283,7 +284,7 @@ export class CropView extends Drawer {
         return new Rectangle(new Point(0), this.innerSize);
     }
 
-    public get innerSize() : Point {
+    public get innerSize(): Point {
         return new Point(this.image.width, this.image.height);
     }
 
@@ -292,11 +293,11 @@ export class CropView extends Drawer {
         return new Rectangle(new Point(0), this.outerSize);
     }
 
-    public get outerSize() : Point {
+    public get outerSize(): Point {
         return new Point(this.overlay.width, this.overlay.height);
     }
 
-    public get apparentSize() : Point {
+    public get apparentSize(): Point {
         return Point.fromSizeLike(this.container.getBoundingClientRect());
     }
 
@@ -569,7 +570,22 @@ export class CropView extends Drawer {
     }
 
     public renderCroppedImage(): void {
-        this.renderer.render();
+        this.renderer.render(false);
+    }
+
+    public renderBanner(): void {
+    /*     var previous_size = this.getCropSize();
+        var previous_position = this.circle.center
+        var previous_circle = this.circle
+        this.setCropSizewithoutcheck(new Point(
+            ((previous_circle.right + (previous_circle.width * 2.4) + (previous_circle.width / 13.33)) - (previous_circle.left - (previous_circle.width / 5 + previous_circle.width / 13.33))),
+            ((previous_circle.cy) - (previous_circle.cy - (previous_circle.width * 1.5)))
+        ))
+       this.setCropArea(new Point(
+            ((previous_circle.right + (previous_circle.width * 2.4) + (previous_circle.width / 13.33)) + (previous_circle.left - (previous_circle.width / 5 + previous_circle.width / 13.33))) / 2,
+            ((previous_circle.cy) + (previous_circle.cy - (previous_circle.width * 1.5))) / 2
+        ))   */
+        this.renderer.render(true);
     }
 
     public get filename(): string {
@@ -591,7 +607,20 @@ export class CropView extends Drawer {
         this.circle.validate();
         this.update("set crop size");
     }
+    public getCropSize(): Point {
+        return this.circle.size;
+    }
 
+    public setCropArea(position: Point): void {
+        this.circle.center = position;
+        //this.circle.validate();
+        this.update("set crop area");
+    }
+    public setCropSizewithoutcheck(size: Point): void {
+        this.circle.size = size;
+        //this.circle.validate();
+        this.update("set crop size");
+    }
     private getMouseAction(x: number, y: number): MouseAction {
         let mousePoint = new Point(x, y);
         if (this.circle.containsPoint(new Point(x, y))) {

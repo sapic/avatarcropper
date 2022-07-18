@@ -33,6 +33,7 @@ export interface Settings {
     resizeLock: boolean
     borderSize: number
     borderPresets: GradientInfo[]
+    bannerEnabled: boolean
 }
 
 export class AvatarCropper extends Widget {
@@ -65,7 +66,9 @@ export class AvatarCropper extends Widget {
         guidesEnabled: true,
         resizeLock: false,
         borderSize: 0.05,
-        borderPresets: Border.defaults
+        borderPresets: Border.defaults,
+        bannerEnabled: false
+
     }
 
     constructor(container: HTMLElement) {
@@ -409,9 +412,18 @@ export class AvatarCropper extends Widget {
         })
         this.menu.appendChild(borderSlider.container)
 
+
+        let renderBanner = createElement('button', 'item render show half item')
+        renderBanner.innerText = 'Render Banner'
+        renderBanner.addEventListener('click', this.renderBanner.bind(this))
+        this.menu.appendChild(renderBanner)
+        this.appendChild(this.menu)
+
+
         // create render button //
-        let render = createElement('button', 'item render show')
-        render.innerText = 'Render/Save'
+        let render = createElement('button', 'item render show half item')
+        render.innerText = 'Render Avatar'
+        render
         render.addEventListener('click', this.renderCroppedImage.bind(this))
         this.menu.appendChild(render)
 
@@ -505,6 +517,10 @@ export class AvatarCropper extends Widget {
     private renderCroppedImage(): void {
         this.cropView.renderCroppedImage()
     }
+    private renderBanner(): void{
+        this.cropView.renderBanner()
+    }
+        
 
     private toggleMaskOutline(actuallyToggle: boolean = true): void {
         if (actuallyToggle) {

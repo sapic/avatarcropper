@@ -111,8 +111,9 @@ export class AvatarCropper extends Widget {
         this.textOverlay = <HTMLLabelElement>(
             createElement('label', 'bigOverlay')
         )
-        this.textOverlay.innerText = 'Open file'
+        this.textOverlay.innerText = `Drag a File Here\nOr Click to Select`
         this.textOverlay.style.cursor = 'pointer'
+        this.textOverlay.style.textAlign = 'center'
         this.textOverlay.setAttribute('for', 'openInput')
 
         let dragDrop = new DragDrop(this.textOverlay)
@@ -444,12 +445,12 @@ export class AvatarCropper extends Widget {
 
     private setCropSize(): void {
         let promptStr =
-            'The current picture is ' +
+            'The Current Size is ' +
             this.cropView.innerSize.x.toString() +
             'x' +
             this.cropView.innerSize.y.toString() +
             '\n' +
-            'The current croparea is ' +
+            'The Current Crop Area is ' +
             this.cropView.cropArea.width +
             'x' +
             this.cropView.cropArea.height +
@@ -563,7 +564,7 @@ export class AvatarCropper extends Widget {
 
     private promptAddPreview(): void {
         let sizeStr = window.prompt(
-            'Enter a custom size\nDefault sizes are 30, 40, 64, and 128\nNote: 30 will come with a discord online indicator',
+            'Enter a Custom Size\nDefault sizes are: 30, 40, 64, and 128.\nNote: 30 will come with a Discord online indicator.',
         )
 
         if (sizeStr === null) {
@@ -574,7 +575,7 @@ export class AvatarCropper extends Widget {
         let size = parseInt(sizeStr)
 
         if (isNaN(size) || size <= 0) {
-            alert("Bad size make sure it's a number over 0")
+            alert("Please, dear god, enter a size below 0...")
         } else {
             this.previews.addPreviewSize(new Point(size)) // emits sizeArrayChange event which changes settings so dw
         }

@@ -559,7 +559,7 @@ export class AvatarCropper extends Widget {
         let size = parseInt(sizeStr)
 
         if (isNaN(size) || size <= 0) {
-            alert("Please, dear god, enter a size below 0...")
+            alert("Please, dear god, enter a size above 0...")
         } else {
             this.previews.addPreviewSize(new Point(size)) // emits sizeArrayChange event which changes settings so dw
         }

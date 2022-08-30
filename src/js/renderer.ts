@@ -16,7 +16,7 @@ interface CropOption {
 }
 
 export class Renderer extends ClosableDialog {
-    private readonly renderedString = "Rendered!";
+    private readonly renderedString = "Rendered! Yayy! ❤️";
     private readonly renderingString = "Rendering...";
     private readonly cropView: CropView;
     private shouldStopRendering: boolean = false;

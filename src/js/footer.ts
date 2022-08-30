@@ -2,7 +2,6 @@ import { WhatsNewDialog } from './whatsnew'
 import { hideElement } from './util'
 import { GlobalEvents } from './eventclass'
 import { TutorialDialog } from './tutorial'
-import { SupportersDialog } from './supporters'
 
 let tutorial: TutorialDialog
 
@@ -29,10 +28,4 @@ export function doFooterThings() {
         hideElement(document.getElementById('footer'))
         GlobalEvents.emitEvent('resize')
     })
-
-    let supporters = new SupportersDialog()
-    document.getElementById('link-supporters').addEventListener('click', () => {
-        supporters.show()
-    })
-    document.body.appendChild(supporters.container)
 }

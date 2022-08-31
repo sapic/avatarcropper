@@ -1,5 +1,6 @@
-$background: #2f3136;
+$background: #12151a;
 $footerHeight: 40px;
+
 html,
 body,
 #container,
@@ -12,7 +13,7 @@ body,
   top: 0;
   padding: 0;
   margin: 0;
-  font-family: Helvetica, sans-serif;
+  font-family: Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
   user-select: none;
   overflow: hidden;
 }
@@ -46,8 +47,8 @@ body,
   $maxWidth: 100%;
   $maxHeight: 70vh;
   $minWidth: 500px;
-  background-color: #445;
-  color: #eee;
+  background-color: #12151a;
+  color: #fff;
   min-width: $minWidth;
   max-width: 80%;
   border-radius: 5px;
@@ -60,12 +61,14 @@ body,
   height: auto;
   overflow: auto;
   text-align: center;
+
   &.closable {
     max-width: calc(#{$maxWidth} + #{$paddingX - $innerPaddingX} * 2);
     max-height: calc(#{$maxHeight} + #{$paddingY} * 2);
     min-width: calc(#{$minWidth} + #{$paddingX} * 2);
     overflow: hidden;
     padding: 0;
+
     .close {
       position: absolute;
       right: 16px;
@@ -73,6 +76,7 @@ body,
       cursor: pointer;
       font-size: 2em;
     }
+
     .innerContent {
       padding: $paddingY $paddingX + $innerPaddingX;
       overflow: auto;
@@ -87,6 +91,7 @@ body,
     margin-bottom: 0;
     text-align: center;
   }
+
   h2 {
     text-decoration: underline;
     margin: 0;
@@ -95,10 +100,12 @@ body,
     margin-top: 16px;
     text-align: left;
   }
+
   ul {
     text-align: left;
     margin: 8px 0;
     padding-left: 24px;
+
     li {
       margin: 4px 0;
     }
@@ -109,6 +116,7 @@ body,
   .innerContent {
     padding: 24px 24px !important;
   }
+
   h1 {
     margin-top: 0;
   }
@@ -120,10 +128,11 @@ body,
     font-style: italic;
     margin-top: 4px;
   }
+
   .option,
   .save {
-    background: #333;
-    color: #eee;
+    background: #08090b;
+    color: #fff;
     border: 0;
     padding: 10px;
     font-size: 18px;
@@ -132,44 +141,56 @@ body,
     display: block;
     text-decoration: none;
     text-align: center;
-    font-weight: bold;
     box-sizing: border-box;
+
+    &:hover{
+      background-color: #1c2129;
+    }
   }
+
   .optionBar {
     width: 100%;
     overflow: hidden;
+
     .option {
-      border: 1px solid #aaa;
-      border-radius: 0;
-      border-left-width: 0;
-      border-right-width: 0;
-      margin-left: 0;
-      margin-right: 0;
+      width: 228px;
       padding: 6px;
       display: inline-block;
       margin-bottom: 4px;
       margin-top: 8px;
+      border-radius: 5px;
+      background: #08090b;
+
+
       &:first-of-type {
-        border-left-width: 1px;
-        border-top-left-radius: 5px;
-        border-bottom-left-radius: 5px;
+        margin: 0 10px 0 0;
       }
+
       &:last-of-type {
-        border-right-width: 1px;
-        border-top-right-radius: 5px;
-        border-bottom-right-radius: 5px;
+        margin: 5px 0 5px 10px;
       }
+
+      &:hover{
+        background: #1c2129;
+      }
+
       &.toggled {
-        background: #eee;
-        color: #333;
+        background: #1c2129;
+        color: #fff;
+        &:hover{
+          background: #1c2129;
+          cursor: auto;
+        }
       }
     }
   }
+
   .image {
     max-width: 300px;
     min-width: 300px;
     margin: 8px 0;
   }
+
   .header {
     margin: 0;
     font-weight: normal;
@@ -182,6 +203,7 @@ body,
   border: 1px solid #aaa;
   margin: 8px 0;
   border-radius: 3px;
+
   .progress {
     height: 100%;
     width: 0;
@@ -195,6 +217,7 @@ body,
     margin: 8px 0;
     font-size: 32px;
   }
+
   .image {
     max-width: 300px;
     min-width: 300px;
@@ -207,10 +230,12 @@ body,
   height: calc(100% - #{$footerHeight});
 }
 
-.link, #footer .link {
+.link,
+#footer .link {
   text-decoration: underline;
   cursor: pointer;
   color: #ddd;
+
   &:hover {
     color: white;
   }
@@ -225,60 +250,63 @@ body,
   line-height: $footerHeight;
   color: white;
   padding: 0 8px;
-  background: #555;
+  background: #08090b;
   font-size: 16px;
-  font-family: Helvetica;
+  font-family: Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
   z-index: 1;
+  text-decoration: none;
+
   * {
     display: inline-block;
     color: white;
     position: relative;
     top: 1px;
   }
-  .donate {
-    top: -1px;
-    margin-top: 4px;
-    margin-left: 0;
-    float: left;
-    height: 32px;
-    .patreon-icon {
-      height: 16px;
-      width: 16px;
-      color: white;
-      position: relative;
-      top: -4px;
 
-      svg {
-        fill: white;
-      }
-    }
-    .patreon-text {
-      position: relative;
-      top: -4px;
-    }
-    background-color: rgb(232, 91, 70);
-    border-radius: 128px;
-    padding: 0px 12px;
-  }
   div {
     height: $footerHeight;
     line-height: $footerHeight;
   }
+
   #footerLeft {
     position: absolute;
     top: 0;
     margin-left: 12px;
   }
+
   #footerRight {
     position: absolute;
     right: 0;
     top: 0;
-    & > * {
+
+    &>* {
       margin-right: 12px;
     }
   }
+
   #closeFooter {
     cursor: pointer;
+  }
+
+  .linkbox {
+    background-color: #12151a;
+    padding: 0 10px;
+    max-height: 30px;
+    border-radius: 5px;
+    top: 5px;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: #1c2129;
+    }
+  }
+
+  .link {
+    text-decoration: none;
+    text-align: center;
+    bottom: 5px;
+    max-height: 30px;
+    top: -5px;
   }
 }
 
@@ -296,6 +324,7 @@ body,
   width: 700px;
   height: 100%;
   background: transparent;
+
   .image,
   canvas {
     position: absolute;
@@ -304,6 +333,7 @@ body,
     margin: 0;
     padding: 0;
   }
+
   canvas {
     z-index: 1;
   }
@@ -313,16 +343,19 @@ body,
   position: absolute;
   right: 0;
   top: 0;
+  margin: 10px;
   color: #eee;
   width: 256px;
+  border-radius: 10px;
   max-height: 100%;
   z-index: 3;
   overflow-y: auto;
   overflow-x: hidden;
+
   .item,
-  .item > button {
+  .item>button {
     pointer-events: all;
-    background-color: #111;
+    background-color: #08090b;
     text-align: center;
     text-align-last: center;
     cursor: pointer;
@@ -330,7 +363,7 @@ body,
     text-decoration: none;
     border: 0;
     font-size: 18px;
-    font-family: Helvetica;
+    font-family: Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
     height: 32px;
     line-height: 32px;
     width: 100%;
@@ -339,50 +372,80 @@ body,
     box-sizing: content-box;
     float: left;
     position: relative;
+    transition: all 0.25s ease-in-out;
+
+    &.shapeToggle{
+      cursor: pointer;
+      &.toggled{
+        &:hover{
+          cursor: auto;
+        }
+      }
+    }
+
     &.half {
       width: 50%;
     }
+
     &.toggled {
-      background: #eee;
-      color: #333;
-    }
-    &:hover {
-      border: 1px solid #aaa;
-      line-height: 30px;
-      box-sizing: border-box;
-      & > button {
-        height: 30px;
-        line-height: 30px;
+      background: #272d38;
+      color: #fff;
+
+      &:hover {
+        background: #272d38;
       }
     }
+
+    &:hover {
+      background-color: #1c2129;
+      box-sizing: border-box;
+    }
+
     .openInput {
       display: none;
     }
+
     &.zoomBar {
-      & > button {
-        width: 48px;
-        float: right;
-        background-color: #444;
-        &:hover {
-          background: #eee;
-          color: #333;
+      &.zoomLabel {
+        cursor: auto;
+        &:hover{
+          background-color: #08090b;
         }
       }
+      &>button {
+        width: 48px;
+        float: right;
+        background-color: #08090b;
+
+        &:hover {
+          background: #1c2129;
+          color: #white;
+        }
+      }
+
       .zoomLabel {
         display: inline;
       }
     }
+
     &#borderSelect.edit {
       width: calc(100% - 32px);
     }
+
     &.borderEdit {
       width: 32px;
       padding: 0;
     }
+
     &.render {
-      font-weight: bold;
-      background: #ffc345;
-      color: #111;
+      background: linear-gradient(45deg, #36bbf7 0%, #702df9 100%);
+      color: #fff;
+      opacity: .8;
+
+      &:hover{
+        opacity: 1;
+        transition: opacity .25s ease;
+      }
     }
   }
 }
@@ -392,7 +455,7 @@ body,
     display: flex;
     flex-direction: row;
 
-    @media (max-width: 1024px)  {
+    @media (max-width: 1024px) {
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
@@ -416,13 +479,17 @@ body,
 
   .leftCol {
     margin-right: 16px;
+    &>canvas{
+      border-radius: 10px;
+    }
   }
 
   .rightCol {
     flex-grow: 2;
   }
 
-  .leftCol > *, .rightCol > * {
+  .leftCol>*,
+  .rightCol>* {
     margin-top: 10px;
     display: block;
     width: 100%;
@@ -436,7 +503,7 @@ body,
   text-align: center;
 
   canvas {
-    border: 2px solid #111;
+    border: none;
     box-sizing: border-box;
 
     &.preview {
@@ -450,25 +517,29 @@ body,
     position: relative;
     height: 32px;
     line-height: 32px;
-    background-color: #111;
-    color: #eee;
-    border: 1px solid #aaa;
+    border-radius: 5px;
+    background-color: #08090b;
+    color: #fff;
+    border: none;
 
     &:hover {
-      background-color: #222;
+      background-color: #1c2129;
     }
   }
 
-  button, select, input[type=color] {
+  button,
+  select,
+  input[type=color] {
     cursor: pointer;
-    background-color: #111;
+    background-color: #08090b;
     color: white;
-    border: 1px solid #aaa;
+    border: none;
     padding: 4px;
     box-sizing: border-box;
+    border-radius: 5px;
 
     &:hover {
-      background-color: #333;
+      background-color: #1c2129;
     }
   }
 
@@ -499,8 +570,8 @@ body,
       align-items: center;
       flex-grow: 0;
     }
-    
-    & > * {
+
+    &>* {
       font-size: 16px;
       flex-grow: 1;
 
@@ -522,18 +593,20 @@ body,
 
   .stop {
     position: absolute;
-    top: 0;
+    top: -2px;
+    bottom: 1px;
     width: 32px;
     height: 32px;
-    border: 3px solid #111;
+    border: 3px solid #08090b;
+    border-radius: 20px;
     box-sizing: border-box;
     cursor: pointer;
 
     &.current {
-      outline: 1px solid gold;
+      border: 3px solid #393a3b;
     }
   }
-  
+
   text-align: left;
 }
 
@@ -542,6 +615,7 @@ body,
     width: 100%;
     height: 100%;
   }
+
   .labelSlider-slider {
     position: absolute;
     left: 0;
@@ -556,9 +630,11 @@ body,
     background: transparent;
     margin: 0px;
     opacity: 0.5;
+
     &:focus {
       //outline: none;
     }
+
     &::-webkit-slider-runnable-track {
       width: 100%;
       height: 32px;
@@ -567,15 +643,17 @@ body,
       border-radius: 0px;
       border: 0;
     }
+
     &::-webkit-slider-thumb {
       height: 32px;
       width: 32px;
-      border-radius: 0px;
+      border-radius: 12px;
       background: #eeeeee;
       cursor: pointer;
       -webkit-appearance: none;
       margin-top: 0px;
     }
+
     &::-moz-range-track {
       width: 100%;
       height: 32px;
@@ -584,14 +662,16 @@ body,
       border-radius: 0px;
       border: 0;
     }
+
     &::-moz-range-thumb {
       border: 0;
       height: 32px;
       width: 32px;
-      border-radius: 0px;
+      border-radius: 12px;
       background: #eeeeee;
       cursor: pointer;
     }
+
     &::-ms-track {
       width: 100%;
       height: 32px;
@@ -600,10 +680,11 @@ body,
       border-color: transparent;
       color: transparent;
     }
+
     &::-ms-thumb {
       border: 0;
       width: 32px;
-      border-radius: 0px;
+      border-radius: 12px;
       background: #eeeeee;
       cursor: pointer;
       height: 32px;
@@ -616,20 +697,24 @@ body,
   right: 0;
   bottom: 16px;
   background: transparent;
+
   .preview {
     bottom: -2px; // for online indicator
     overflow: hidden;
+
     .onlineIndicator {
       z-index: 2;
       position: absolute;
       left: 18px;
       top: 20px;
     }
+
     .bottomBar {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
+
       .size {
         position: absolute;
         left: 0;
@@ -649,6 +734,7 @@ body,
         line-height: 32px;
         z-index: 2;
       }
+
       .remove {
         position: absolute;
         bottom: 0;
@@ -678,6 +764,7 @@ body,
 }
 
 @media (max-width: 800px) {
+
   /*.dialog-render img, .dialog-tutorial img
     {
         max-width: 87%;
@@ -698,6 +785,7 @@ body,
     border-radius: 0;
     text-align: center;
   }
+
   .dialog-render .save {
     margin-bottom: 8px;
   }
@@ -731,6 +819,7 @@ body,
   #footer {
     display: none;
   }
+
   #container,
   #bigOverlay {
     height: 100%;
@@ -738,6 +827,7 @@ body,
 }
 
 @media (max-width: 400px) {
+
   .dialog-render .image,
   .dialog-tutorial .image {
     max-width: 100%;
@@ -749,6 +839,7 @@ body,
   #footer {
     display: none;
   }
+
   #container,
   #bigOverlay {
     height: 100%;

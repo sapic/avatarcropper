@@ -262,7 +262,6 @@ export class Renderer extends ClosableDialog {
 
         cropOptions.forEach((option, i) => {
             let b = createElement("button", "option");
-            b.style.width = (1 / cropOptions.length * 100) + "%";
             b.innerText = option.label;
             (<any>b).url = option.url;
             b.addEventListener("click", () => {

@@ -188,8 +188,8 @@ export class AvatarCropper extends Widget {
         )
         this.menu.appendChild(this.toggleMenuButton)
 
-        let circle = createElement('button', 'open item half')
-        let square = createElement('button', 'open item half')
+        let circle = createElement('button', 'open item half shapeToggle')
+        let square = createElement('button', 'open item half shapeToggle')
         circle.innerText = 'Circle'
         square.innerText = 'Squaré'
         circle.classList.toggle("toggled", AvatarCropper.settings.previewMode === "circle");
@@ -224,7 +224,7 @@ export class AvatarCropper extends Widget {
         tSlider.value = 1 - AvatarCropper.settings.maskOpacity
         this.menu.appendChild(tSlider.container)
 
-        let zoomBar = createElement('div', 'item zoomBar')
+        let zoomBar = createElement('div', 'item zoomBar zoomLabel')
         let zoomLabel = createElement('div', 'zoomLabel')
         zoomLabel.innerText = 'Zoom:'
         zoomBar.appendChild(zoomLabel)
@@ -412,7 +412,7 @@ export class AvatarCropper extends Widget {
 
         // create render button //
         let render = createElement('button', 'item render show')
-        render.innerText = 'Render/Save'
+        render.innerText = 'Download'
         render.addEventListener('click', this.renderCroppedImage.bind(this))
         this.menu.appendChild(render)
 

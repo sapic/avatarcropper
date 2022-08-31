@@ -647,7 +647,7 @@ body,
     &::-webkit-slider-thumb {
       height: 32px;
       width: 32px;
-      border-radius: 0px;
+      border-radius: 12px;
       background: #eeeeee;
       cursor: pointer;
       -webkit-appearance: none;
@@ -667,7 +667,7 @@ body,
       border: 0;
       height: 32px;
       width: 32px;
-      border-radius: 0px;
+      border-radius: 12px;
       background: #eeeeee;
       cursor: pointer;
     }
@@ -684,7 +684,7 @@ body,
     &::-ms-thumb {
       border: 0;
       width: 32px;
-      border-radius: 0px;
+      border-radius: 12px;
       background: #eeeeee;
       cursor: pointer;
       height: 32px;

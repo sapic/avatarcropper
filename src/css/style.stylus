@@ -10,6 +10,13 @@ html, body, #container, .dialog-backdrop, .bigOverlay
     user-select none
     overflow hidden
 
+@keyframes gradient
+  0%
+    background-position 0%
+
+  100%
+    background-position 100%
+
 body, .bigOverlay
     background-color #12151a
 
@@ -209,7 +216,7 @@ body, .bigOverlay
         font-weight normal
         font-size 32px
 
-.dialog-render .option, .dialog-render .save
+.dialog-render .option
     background #08090b
     color #fff
     border 0
@@ -221,6 +228,26 @@ body, .bigOverlay
     text-decoration none
     text-align center
     box-sizing border-box
+
+.save
+    background linear-gradient(45deg, #F2FF00 0%, #9A8D13 100%)
+    animation gradient 3s ease infinite
+    background-size 200% 100%
+    animation-direction alternate
+    opacity .8
+    color #fff
+    border 0
+    padding 10px
+    font-size 18px
+    border-radius 5px
+    cursor pointer
+    display block
+    text-decoration none
+    text-align center
+    box-sizing border-box
+
+    &:hover
+        opacity 1
 
 .dialog-render .option:hover, .dialog-render .save:hover
     background-color #1c2129
@@ -425,7 +452,10 @@ body, .bigOverlay
     padding 0
 
 .menu .item.render, .menu .item > button.render
-    background linear-gradient(45deg, #36bbf7 0%, #702df9 100%)
+    background linear-gradient(45deg, #F2FF00 0%, #9A8D13 100%)
+    animation gradient 3s ease infinite
+    background-size 200% 100%
+    animation-direction alternate
     color #fff
     opacity 0.8
 

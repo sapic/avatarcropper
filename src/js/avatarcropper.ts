@@ -160,6 +160,15 @@ export class AvatarCropper extends Widget {
     private constructMenu(): void {
         this.menu = createElement('div', 'menu')
 
+        // create render button //
+        let render = createElement('button', 'item render show')
+        render.innerText = 'Download'
+        render.addEventListener('click', this.renderCroppedImage.bind(this))
+        this.menu.appendChild(render)
+
+        let rendershadow = createElement('div', 'renderShadow')
+        this.menu.appendChild(rendershadow)
+
         let openFile = <HTMLInputElement>(
             createElement('input', 'openInput show')
         )
@@ -171,12 +180,12 @@ export class AvatarCropper extends Widget {
             }
         })
 
-        this.openFileLabel = createElement('label', 'open half item show')
+        this.openFileLabel = createElement('label', 'open half item show lefthalf')
         this.openFileLabel.innerText = 'Open File...'
         this.openFileLabel.appendChild(openFile)
         this.menu.appendChild(this.openFileLabel)
 
-        this.toggleMenuButton = createElement('button', 'half item show')
+        this.toggleMenuButton = createElement('button', 'half item show righthalf')
         this.toggleMenuButton.setAttribute('uptext', 'Collapse Menu')
         this.toggleMenuButton.setAttribute('downtext', '▼')
         this.toggleMenuButton.innerText = this.toggleMenuButton.getAttribute(
@@ -188,8 +197,8 @@ export class AvatarCropper extends Widget {
         )
         this.menu.appendChild(this.toggleMenuButton)
 
-        let circle = createElement('button', 'open item half shapeToggle')
-        let square = createElement('button', 'open item half shapeToggle')
+        let circle = createElement('button', 'open item half shapeToggle lefthalf')
+        let square = createElement('button', 'open item half shapeToggle righthalf')
         circle.innerText = 'Circle'
         square.innerText = 'Squaré'
         circle.classList.toggle("toggled", AvatarCropper.settings.previewMode === "circle");
@@ -225,7 +234,7 @@ export class AvatarCropper extends Widget {
         this.menu.appendChild(tSlider.container)
 
         let zoomBar = createElement('div', 'item zoomBar zoomLabel')
-        let zoomLabel = createElement('div', 'zoomLabel')
+        let zoomLabel = createElement('div', 'zoomLabel zoomText')
         zoomLabel.innerText = 'Zoom:'
         zoomBar.appendChild(zoomLabel)
         let zoomOut = createElement('button', 'zoomOut')
@@ -261,7 +270,7 @@ export class AvatarCropper extends Widget {
         rSlider.value = 0
         this.menu.appendChild(rSlider.container)
 
-        this.flipHButton = createElement('button', 'half item')
+        this.flipHButton = createElement('button', 'half item lefthalf')
         this.flipHButton.innerText = 'Flip Horiz.'
         this.flipHButton.addEventListener(
             'click',
@@ -269,12 +278,12 @@ export class AvatarCropper extends Widget {
         )
         this.menu.appendChild(this.flipHButton)
 
-        this.flipVButton = createElement('button', 'half item')
+        this.flipVButton = createElement('button', 'half item righthalf')
         this.flipVButton.innerText = 'Flip Vertical'
         this.flipVButton.addEventListener('click', this.flipVertical.bind(this))
         this.menu.appendChild(this.flipVButton)
 
-        this.antialiasButton = createElement('button', 'half item')
+        this.antialiasButton = createElement('button', 'half item lefthalf')
         this.antialiasButton.innerText = 'Antialias'
         this.antialiasButton.addEventListener('click', () => {
             this.cropView.antialias = !this.cropView.antialias
@@ -284,7 +293,7 @@ export class AvatarCropper extends Widget {
         }
         this.menu.appendChild(this.antialiasButton)
 
-        this.maskOutlineButton = createElement('button', 'half item')
+        this.maskOutlineButton = createElement('button', 'half item righthalf')
         this.maskOutlineButton.innerText = 'Mask Outline'
         this.maskOutlineButton.addEventListener(
             'click',
@@ -293,12 +302,12 @@ export class AvatarCropper extends Widget {
         this.toggleMaskOutline(false)
         this.menu.appendChild(this.maskOutlineButton)
 
-        let addPreview = createElement('button', 'half item')
-        addPreview.innerText = 'Add Preview Size'
+        let addPreview = createElement('button', 'half item lefthalf')
+        addPreview.innerText = 'Add Preview'
         addPreview.addEventListener('click', this.promptAddPreview.bind(this))
         this.menu.appendChild(addPreview)
 
-        this.guidesButton = createElement('button', 'half item')
+        this.guidesButton = createElement('button', 'half item righthalf')
         this.guidesButton.innerText = 'Guidelines'
         this.guidesButton.addEventListener(
             'click',
@@ -307,12 +316,12 @@ export class AvatarCropper extends Widget {
         this.toggleGuides(false)
         this.menu.appendChild(this.guidesButton)
 
-        let centerCropArea = createElement('button', 'half item')
+        let centerCropArea = createElement('button', 'half item lefthalf')
         centerCropArea.innerText = 'Center'
         centerCropArea.addEventListener('click', this.centerCropArea.bind(this))
         this.menu.appendChild(centerCropArea)
 
-        let setCropSize = createElement('button', 'half item')
+        let setCropSize = createElement('button', 'half item righthalf')
         setCropSize.innerText = 'Set Size'
         setCropSize.addEventListener('click', this.setCropSize.bind(this))
         this.menu.appendChild(setCropSize)
@@ -409,12 +418,6 @@ export class AvatarCropper extends Widget {
             AvatarCropper.saveSettings();
         })
         this.menu.appendChild(borderSlider.container)
-
-        // create render button //
-        let render = createElement('button', 'item render show')
-        render.innerText = 'Download'
-        render.addEventListener('click', this.renderCroppedImage.bind(this))
-        this.menu.appendChild(render)
 
         this.appendChild(this.menu)
     }

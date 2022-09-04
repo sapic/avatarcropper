@@ -295,7 +295,7 @@ body, .bigOverlay
     line-height 40px
     color white
     padding 0 8px
-    background #08090b
+    background #12151a
     font-size 16px
     font-family Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif
     z-index 1
@@ -328,7 +328,7 @@ body, .bigOverlay
         cursor pointer
 
     .linkbox
-        background-color #12151a
+        background-color #08090b
         padding 0 10px
         max-height 30px
         border-radius 5px
@@ -350,6 +350,24 @@ body, .bigOverlay
     left 800px
     z-index 1
 
+.borderWindow
+    height 100%
+    width calc(100% - 256px)
+    background: #1d2129
+    border-radius: 0 20px 20px 0
+
+.renderShadow
+    height: 45px
+    width: 246px
+    margin 0 auto 10px 0
+    position relative
+    background linear-gradient(45deg, #f2ff00 0%, #9a8d13 100%)
+    filter blur(12px)
+    animation gradient 3s ease infinite
+    background-size 200% 100%
+    animation-direction alternate
+    z-index -1
+
 .cropView
     user-select none
     position absolute
@@ -369,18 +387,28 @@ body, .bigOverlay
     margin 0
     padding 0
 
+
+.zoomFit, .zoomIn, .zoomOut
+    margin 0 !important
+
+.open
+    text-align: center
+
+.render
+    margin-top 0px !important
+
 .menu
     position absolute
     right 0
     top 0
-    margin 10px
     color #eee
     width 256px
-    border-radius 10px
-    max-height 100%
     z-index 3
     overflow-y auto
     overflow-x hidden
+    height: 100%
+    background: #12151a
+    padding 10px 0 0 0
 
 .menu .item, .menu .item > button
     pointer-events all
@@ -393,11 +421,12 @@ body, .bigOverlay
     border 0
     font-size 18px
     font-family Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif
-    height 32px
-    line-height 32px
-    width 100%
+    height 45px
+    line-height 45px
+    width 246px
     padding 0
-    margin 0
+    margin 5px 5px 0 5px
+    border-radius: 7px
     box-sizing content-box
     float left
     position relative
@@ -410,7 +439,13 @@ body, .bigOverlay
     cursor auto
 
 .menu .item.half, .menu .item > button.half
-    width 50%
+    width 120px
+
+    &.lefthalf
+        margin 5px 6px 0 5px
+    
+    &.righthalf
+        margin 5px 5px 0 0
 
 .menu .item.toggled, .menu .item > button.toggled
     background #272d38
@@ -597,13 +632,15 @@ body, .bigOverlay
 
 .previews
     position absolute
-    right 0
+    right 256px
     bottom 16px
     background transparent
+    z-index: 1
 
     .preview
         bottom -2px
         overflow hidden
+        border-radius: 5px
 
         .onlineIndicator
             z-index 2

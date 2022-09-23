@@ -89,7 +89,7 @@ export class CropView extends Drawer {
     private _zoomFactor: number = 1;
     private currentRotation = 0;
     public currentFileType: string;
-    private circle: Circle;
+    public circle: Circle;
     private _filename: string;
     private currentAction: MouseAction = "none";
     private mouseOrigin: Point;
@@ -209,6 +209,12 @@ export class CropView extends Drawer {
             else {
                 this.overlay.fillRect(this.circle, "white");
             }
+            if (this.settings.banneroutlinesEnabled) {
+                this.overlay.fillRect(
+                    new Rectangle(new Point(this.circle.left - (this.circle.width / 5 + this.circle.width / 13.33), this.circle.cy - (this.circle.width * 1.5)), new Point(this.circle.width * 3.75, this.circle.width * 1.5)),
+                    "white"
+                )
+            }
         }
 
         this.overlay.blendMode = "source-over";
@@ -232,6 +238,44 @@ export class CropView extends Drawer {
                 lineWidth,
                 sharp
             );
+        }
+
+        if (this.settings.banneroutlinesEnabled) {
+            let sharp = lineWidth % 2 === 1;
+
+            this.overlay.lineDash = [Math.min(this.overlay.width, this.overlay.height) / 100];
+
+/*             if (this.settings.previewMode === "circle") {
+                this.overlay.drawCircleInRect(this.circle, "red", lineWidth);
+            } */
+
+/*             this.overlay.drawRect(
+                new Rectangle(new Point(this.circle.left - (this.circle.width / 5 + this.circle.width / 13.33), this.circle.cy - (this.circle.width * 1.5)), new Point(this.circle.width * 3.75, this.circle.width * 1.5)),
+                "#ff00ff",
+                lineWidth,
+                sharp
+            ); */
+            
+            
+        this.overlay.context.beginPath()
+        this.overlay.context.moveTo(this.circle.left - (this.circle.width / 5 + this.circle.width / 13.33), this.circle.cy)
+        this.overlay.context.lineTo(this.circle.left, this.circle.cy)
+        this.overlay.context.arc(this.circle.center.x, this.circle.center.y, this.circle.width / 2, Math.PI, 1.5 * Math.PI, false)
+        this.overlay.context.arc(this.circle.center.x, this.circle.center.y, this.circle.width / 2, 1.5 * Math.PI, 2 * Math.PI, false)
+        this.overlay.context.lineTo(this.circle.right + (this.circle.width * 2.4) + (this.circle.width / 13.33), this.circle.cy)
+        this.overlay.context.lineTo(this.circle.right + (this.circle.width * 2.4) + (this.circle.width / 13.33), this.circle.cy - (this.circle.width * 1.5))
+        this.overlay.context.lineTo(this.circle.left - (this.circle.width / 5 + this.circle.width / 13.33), this.circle.cy - (this.circle.width * 1.5))
+        this.overlay.context.lineTo(this.circle.left - (this.circle.width / 5 + this.circle.width / 13.33), this.circle.cy)
+        this.overlay.context.lineWidth = lineWidth
+        this.overlay.context.strokeStyle = "yellow"
+        this.overlay.context.stroke()
+
+        this.overlay.context.beginPath()
+        this.overlay.context.moveTo(this.circle.left - (this.circle.width / 13.33), this.circle.cy)
+        this.overlay.context.arc(this.circle.center.x, this.circle.center.y, this.circle.width / 2 + (this.circle.width / 13.33), Math.PI, 1.5 * Math.PI, false)
+        this.overlay.context.arc(this.circle.center.x, this.circle.center.y, this.circle.width / 2 + (this.circle.width / 13.33), 1.5 * Math.PI, 2 * Math.PI, false)
+        this.overlay.context.strokeStyle = "red"
+        this.overlay.context.stroke()
         }
 
         if (this.settings.guidesEnabled) {

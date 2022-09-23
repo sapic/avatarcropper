@@ -23,8 +23,9 @@ import { GradientEditButton } from './gradientedit'
 export interface Settings {
     previewSizes: number[]
     maskOpacity: number
-    previewMode: 'circle' | 'square'
+    previewMode: 'circle' | 'square'| 'banner'
     outlinesEnabled: boolean
+    banneroutlinesEnabled: boolean
     antialias: boolean
     dismissedTutorial: boolean
     dismissedIE: boolean
@@ -42,6 +43,7 @@ export class AvatarCropper extends Widget {
     private menu: HTMLElement
     private openFileLabel: HTMLElement
     private maskOutlineButton: HTMLElement
+    private bannerOutlineButton: HTMLElement
     private guidesButton: HTMLElement
     private toggleMenuButton: HTMLElement
     private flipHButton: HTMLElement
@@ -58,6 +60,7 @@ export class AvatarCropper extends Widget {
         maskOpacity: 0.5,
         previewMode: 'circle',
         outlinesEnabled: true,
+        banneroutlinesEnabled: false,
         antialias: true,
         dismissedTutorial: false,
         dismissedIE: false,
@@ -283,15 +286,13 @@ export class AvatarCropper extends Widget {
         this.flipVButton.addEventListener('click', this.flipVertical.bind(this))
         this.menu.appendChild(this.flipVButton)
 
-        this.antialiasButton = createElement('button', 'half item lefthalf')
-        this.antialiasButton.innerText = 'Antialias'
-        this.antialiasButton.addEventListener('click', () => {
-            this.cropView.antialias = !this.cropView.antialias
-        })
-        if (AvatarCropper.settings.antialias) {
-            this.antialiasButton.classList.add('toggled')
-        }
-        this.menu.appendChild(this.antialiasButton)
+        this.bannerOutlineButton = createElement('button', 'half item lefthalf')
+        this.bannerOutlineButton.innerText = 'Banner Outline'
+        this.bannerOutlineButton.addEventListener('click',
+            this.toggleBannerOutline.bind(this)
+        )
+        this.toggleBannerOutline(false)
+        this.menu.appendChild(this.bannerOutlineButton)
 
         this.maskOutlineButton = createElement('button', 'half item righthalf')
         this.maskOutlineButton.innerText = 'Mask Outline'
@@ -320,13 +321,23 @@ export class AvatarCropper extends Widget {
         centerCropArea.innerText = 'Center'
         centerCropArea.addEventListener('click', this.centerCropArea.bind(this))
         this.menu.appendChild(centerCropArea)
+        
+        this.antialiasButton = createElement('button', 'half item righthalf')
+        this.antialiasButton.innerText = 'Antialias'
+        this.antialiasButton.addEventListener('click', () => {
+            this.cropView.antialias = !this.cropView.antialias
+        })
+        if (AvatarCropper.settings.antialias) {
+            this.antialiasButton.classList.add('toggled')
+        }
+        this.menu.appendChild(this.antialiasButton)
 
-        let setCropSize = createElement('button', 'half item righthalf')
+        let setCropSize = createElement('button', 'half item lefthalf')
         setCropSize.innerText = 'Set Size'
         setCropSize.addEventListener('click', this.setCropSize.bind(this))
         this.menu.appendChild(setCropSize)
 
-        let lock = createElement('button', 'item')
+        let lock = createElement('button', 'half item righthalf')
         lock.innerText = 'Lock Center During Resize'
         lock.addEventListener('click', this.toggleResizeLock.bind(this))
         this.menu.appendChild(lock)
@@ -512,7 +523,11 @@ export class AvatarCropper extends Widget {
 
     private toggleMaskOutline(actuallyToggle: boolean = true): void {
         if (actuallyToggle) {
+            if (AvatarCropper.settings.banneroutlinesEnabled) {
+                AvatarCropper.settings.banneroutlinesEnabled = false
+            }
             AvatarCropper.settings.outlinesEnabled = !AvatarCropper.settings.outlinesEnabled
+            this.toggleBannerOutline(false)
         }
 
         if (AvatarCropper.settings.outlinesEnabled) {
@@ -521,9 +536,29 @@ export class AvatarCropper extends Widget {
             this.maskOutlineButton.classList.remove('toggled')
         }
 
+        //this.cropView && this.cropView.update("mask outline")
+        AvatarCropper.saveSettings();
+    }
+
+    private toggleBannerOutline(actuallyToggle: boolean = true): void {
+        if (actuallyToggle) {
+            if (AvatarCropper.settings.outlinesEnabled) {
+                AvatarCropper.settings.outlinesEnabled = false
+            }
+            AvatarCropper.settings.banneroutlinesEnabled = !AvatarCropper.settings.banneroutlinesEnabled
+            this.toggleMaskOutline(false)
+        }
+
+        if (AvatarCropper.settings.banneroutlinesEnabled) {
+            this.bannerOutlineButton.classList.add('toggled')
+        } else {
+            this.bannerOutlineButton.classList.remove('toggled')
+        }
+
         this.cropView && this.cropView.update("mask outline")
         AvatarCropper.saveSettings();
     }
+
 
     private toggleGuides(actuallyToggle: boolean = true): void {
         if (actuallyToggle) {

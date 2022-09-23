@@ -86,7 +86,7 @@ export class Renderer extends ClosableDialog {
             this.renderGif();
         }
         else {
-            this.getFrameURLs(this.cropView.image, false, true, this.display.bind(this));
+            this.getFrameURLs(this.cropView.image, false, true,false, this.display.bind(this));
             this.currentlyRendering = false;
         }
     }
@@ -125,7 +125,7 @@ export class Renderer extends ClosableDialog {
             let renderFrame = (i: number) => {
                 gif.move_to(i);
 
-                this.getFrameURLs(gif.get_canvas(), true, false, (options) => {
+                this.getFrameURLs(gif.get_canvas(), true, false,true, (options) => {
                     let img = new Image();
                     img.addEventListener("load", () => {
                         if (this.shouldStopRendering) {
@@ -187,7 +187,7 @@ export class Renderer extends ClosableDialog {
         });
     }
 
-    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean, callback: (options: CropOption[]) => void): void {
+    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean,isGif:Boolean, callback: (options: CropOption[]) => void): void {
         let ret: CropOption[] = [];
         let expectedLength = getCircle ? 2 : 1;
         let counter = 0;
@@ -221,10 +221,10 @@ export class Renderer extends ClosableDialog {
         );
 
         let squareCrop = new Canvas({
-            size: this.settings.banneroutlinesEnabled ? new Point(this.cropView.circle.width * 3.75, this.cropView.circle.width * 1.5) : this.cropView.cropArea.size,
+            size: (this.settings.banneroutlinesEnabled && isGif) ? new Point(this.cropView.circle.width * 3.75, this.cropView.circle.width * 1.5) : this.cropView.cropArea.size,
             pixelated: pixelated
         });
-        if (this.settings.banneroutlinesEnabled) {
+        if (this.settings.banneroutlinesEnabled && isGif) {
             squareCrop.drawCroppedImage(
                 rc,
                 new Point(0),

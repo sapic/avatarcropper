@@ -1,0 +1,85 @@
+doctype html
+head
+  meta(charset="UTF-8")
+  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  meta(http-equiv="X-UA-Compatible" content="ie=edge")
+  title Avatar Cropper
+
+  // Favicon Stuff
+  link(rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png")
+  link(rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png")
+  link(rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png")
+  link(rel="manifest" href="favicon/site.webmanifest")
+  link(rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#ffc345")
+  link(rel="shortcut icon" href="favicon/favicon.ico")
+  meta(name="msapplication-TileColor" content="#ffffff")
+  meta(name="msapplication-config" content="favicon/browserconfig.xml")
+  meta(name="theme-color" content="#ffc345")
+
+  // OpenGraph Stuff
+  meta(property="og:image:width" content="279")
+  meta(property="og:image:height" content="279")
+  meta(property="og:description" content="A small webpage that allows you to quickly crop avatars for many sites.")
+  meta(property="og:title" content="Quick Avatar Cropper")
+  meta(property="og:url" content="https://avatarcropper.com")
+  meta(property="og:image" content="https://i.oddball.tf/ttFW31i.jpg")
+  meta(property="twitter:description" content="A small webpage that allows you to quickly crop avatars for many sites.")
+  meta(property="twitter:title" content="Quick Avatar Cropper")
+  meta(property="twitter:url" content="https://avatarcropper.com")
+  meta(property="twitter:image" content="https://i.oddball.tf/ttFW31i.jpg")
+  meta(name="description" content="A small webpage that allows you to quickly crop avatars for many sites.")
+
+  // Scripts / CSS
+  link(rel="stylesheet" href="css/style.stylus")
+  script(src="js/avatarcropper.ts" type="module")
+  script(type="module").
+    if (
+      window.location.hostname === "sapic.github.io" ||
+      window.location.hostname === "songsing.github.io"
+    ) {
+      window.location = "https://avatarcropper.com"
+    } else if (window.location.hostname === "avatarcropper.com") {
+      ;
+      (function(i, s, o, g, r, a, m) {
+        i["GoogleAnalyticsObject"] = r;
+        (i[r] =
+          i[r] ||
+          function() {
+            ;
+            (i[r].q = i[r].q || []).push(arguments)
+          }),
+        (i[r].l = 1 * new Date());
+        (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0])
+        a.async = 1
+        a.src = g
+        m.parentNode.insertBefore(a, m)
+      })(
+        window,
+        document,
+        "script",
+        "https://www.google-analytics.com/analytics.js",
+        "ga",
+      )
+      ga("create", "UA-104924541-1", "auto")
+      ga("send", "pageview")
+    }
+
+body
+  #container
+    .borderWindow
+
+  #footer
+    #footerLeft
+      span  Made with &#x2764;&#xFE0F; by whisperdoll and the Steam.Design Team
+
+    #footerRight
+      .linkbox
+        a#link-discord.link(href="https://discord.steam.design" target="_blank") Discord
+      .linkbox
+        #link-help.link How to Use This Site
+      .linkbox
+        #link-whatsNew.link What's New
+      .linkbox
+        a#link-feedback.link(href="https://github.com/sapic/avatarcropper" target="_blank") We're Open Source!
+      #closeFooter.linkbox
+        span.link &#x2716;

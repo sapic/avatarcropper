@@ -281,7 +281,7 @@ export class Renderer extends ClosableDialog {
 
         BannerCrop.drawImage(borderCanvas, new Point(0));
         BannerCrop.createBlob((blob: Blob) => {
-            check(URL.createObjectURL(blob), "Banner", 2);
+            check(URL.createObjectURL(blob), "Discord Banner", 2);
         });
 
     }

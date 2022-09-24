@@ -222,6 +222,23 @@ export class AvatarCropper extends Widget {
         })
         this.menu.appendChild(circle)
         this.menu.appendChild(square)
+
+        this.bannerOutlineButton = createElement('button', 'item')
+        this.bannerOutlineButton.innerText = 'Discord Banner Guidelines'
+        this.bannerOutlineButton.addEventListener('click',
+            this.toggleBannerOutline.bind(this)
+        )
+        this.toggleBannerOutline(false)
+        this.menu.appendChild(this.bannerOutlineButton)
+
+        this.maskOutlineButton = createElement('button', 'item')
+        this.maskOutlineButton.innerText = 'Avatar Guidelines'
+        this.maskOutlineButton.addEventListener(
+            'click',
+            this.toggleMaskOutline.bind(this, true),
+        )
+        this.toggleMaskOutline(false)
+        this.menu.appendChild(this.maskOutlineButton)
         
 
         let tSlider = new LabelSlider(
@@ -286,22 +303,6 @@ export class AvatarCropper extends Widget {
         this.flipVButton.addEventListener('click', this.flipVertical.bind(this))
         this.menu.appendChild(this.flipVButton)
 
-        this.bannerOutlineButton = createElement('button', 'half item lefthalf')
-        this.bannerOutlineButton.innerText = 'Banner Outline'
-        this.bannerOutlineButton.addEventListener('click',
-            this.toggleBannerOutline.bind(this)
-        )
-        this.toggleBannerOutline(false)
-        this.menu.appendChild(this.bannerOutlineButton)
-
-        this.maskOutlineButton = createElement('button', 'half item righthalf')
-        this.maskOutlineButton.innerText = 'Mask Outline'
-        this.maskOutlineButton.addEventListener(
-            'click',
-            this.toggleMaskOutline.bind(this, true),
-        )
-        this.toggleMaskOutline(false)
-        this.menu.appendChild(this.maskOutlineButton)
 
         let addPreview = createElement('button', 'half item lefthalf')
         addPreview.innerText = 'Add Preview'

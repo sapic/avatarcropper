@@ -4,6 +4,11 @@ import { ClosableDialog } from "./closabledialog";
 export class WhatsNewDialog extends ClosableDialog {
     private list =
         {
+            "October 2022":
+                [
+                    "Holy heck, a brand new feature! You can now crop Discord profile banners right here! Isn't that just sooo cool!?",
+                    "Thank you to @Barocena!!!"
+                ],
             "Sepetmber 2022":
                 [
                     "Massive site redesign! Thank you @The Oddball!~"

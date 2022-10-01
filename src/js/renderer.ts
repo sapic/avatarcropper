@@ -6,9 +6,11 @@ import { Canvas } from "./canvas";
 import { ClosableDialog } from "./closabledialog";
 import { Point } from "./point";
 import { Border } from "./borders";
+import { Settings } from "./avatarcropper";
 
 import SuperGif from './supergif.js'
 import GIF from './gif.js'
+import { Rectangle } from "./rectangle";
 
 interface CropOption {
     label: string;
@@ -30,6 +32,7 @@ export class Renderer extends ClosableDialog {
     private saveButton: HTMLElement;
     private loadGif: any;
     private readonly initialized: boolean = false;
+    public readonly settings: Settings;
 
     constructor(cropView: CropView) {
         super();
@@ -37,7 +40,7 @@ export class Renderer extends ClosableDialog {
         this.dialog.classList.add("dialog-render");
 
         this.createEvent("close");
-
+        this.settings = cropView.settings
         this.cropView = cropView;
 
         this.headerElement = createElement("h1", "header");
@@ -83,12 +86,15 @@ export class Renderer extends ClosableDialog {
             this.renderGif();
         }
         else {
-            this.getFrameURLs(this.cropView.image, false, true, this.display.bind(this));
+            this.getFrameURLs(this.cropView.image, false, true,false, this.display.bind(this));
             this.currentlyRendering = false;
         }
     }
 
     private renderGif(): void {
+        if (this.settings.banneroutlinesEnabled) {
+            var bannerArea = new Rectangle(new Point(this.cropView.circle.left - (this.cropView.circle.width / 5 + this.cropView.circle.width / 13.33), this.cropView.circle.cy - (this.cropView.circle.width * 1.5)), new Point(this.cropView.circle.width * 3.75, this.cropView.circle.width * 1.5))
+        }
         let gif = new SuperGif({
             gif: this.cropView.image.cloneNode()
         });
@@ -107,8 +113,8 @@ export class Renderer extends ClosableDialog {
                 workers: 3,
                 quality: 1,
                 dither: false,
-                width: this.cropView.cropArea.width,
-                height: this.cropView.cropArea.height,
+                width: this.settings.banneroutlinesEnabled ? bannerArea.width : this.cropView.cropArea.width,
+                height: this.settings.banneroutlinesEnabled ? bannerArea.height : this.cropView.cropArea.height,
                 debug: false,
                 copy: true
             });
@@ -119,7 +125,7 @@ export class Renderer extends ClosableDialog {
             let renderFrame = (i: number) => {
                 gif.move_to(i);
 
-                this.getFrameURLs(gif.get_canvas(), true, false, (options) => {
+                this.getFrameURLs(gif.get_canvas(), true, false,true, (options) => {
                     let img = new Image();
                     img.addEventListener("load", () => {
                         if (this.shouldStopRendering) {
@@ -181,11 +187,13 @@ export class Renderer extends ClosableDialog {
         });
     }
 
-    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean, callback: (options: CropOption[]) => void): void {
+    private getFrameURLs(frame: Canvas | HTMLImageElement | HTMLCanvasElement, pixelated: boolean, getCircle: boolean,isGif:Boolean, callback: (options: CropOption[]) => void): void {
         let ret: CropOption[] = [];
         let expectedLength = getCircle ? 2 : 1;
         let counter = 0;
-
+        if (this.settings.banneroutlinesEnabled) {
+            expectedLength++;
+        }
         let check = (url: string, label: string, index: number) => {
             counter++;
             ret[index] = { url, label };
@@ -213,15 +221,23 @@ export class Renderer extends ClosableDialog {
         );
 
         let squareCrop = new Canvas({
-            size: this.cropView.cropArea.size,
+            size: (this.settings.banneroutlinesEnabled && isGif) ? new Point(this.cropView.circle.width * 3.75, this.cropView.circle.width * 1.5) : this.cropView.cropArea.size,
             pixelated: pixelated
         });
-
-        squareCrop.drawCroppedImage(
-            rc,
-            new Point(0),
-            this.cropView.cropArea
-        );
+        if (this.settings.banneroutlinesEnabled && isGif) {
+            squareCrop.drawCroppedImage(
+                rc,
+                new Point(0),
+                new Rectangle(new Point(this.cropView.circle.left - (this.cropView.circle.width / 5 + this.cropView.circle.width / 13.33), this.cropView.circle.cy - (this.cropView.circle.width * 1.5)), new Point(this.cropView.circle.width * 3.75, this.cropView.circle.width * 1.5))
+            );
+        }
+            else {
+                squareCrop.drawCroppedImage(
+                    rc,
+                    new Point(0),
+                    this.cropView.cropArea
+                );
+            }
 
         squareCrop.drawImage(borderCanvas, new Point(0));
 
@@ -250,6 +266,24 @@ export class Renderer extends ClosableDialog {
                 check(URL.createObjectURL(blob), "Circle", 1);
             });
         }
+
+        let bannerarea = new Rectangle(new Point(this.cropView.circle.left - (this.cropView.circle.width / 5 + this.cropView.circle.width / 13.33), this.cropView.circle.cy - (this.cropView.circle.width * 1.5)), new Point(this.cropView.circle.width * 3.75, this.cropView.circle.width * 1.5))
+        let BannerCrop = new Canvas({
+            size: bannerarea.size,
+            pixelated: pixelated
+        });        
+
+        BannerCrop.drawCroppedImage(
+            rc,
+            new Point(0),
+            bannerarea
+        );
+
+        BannerCrop.drawImage(borderCanvas, new Point(0));
+        BannerCrop.createBlob((blob: Blob) => {
+            check(URL.createObjectURL(blob), "Discord Banner", 2);
+        });
+
     }
 
     private display(cropOptions: CropOption[]): void {

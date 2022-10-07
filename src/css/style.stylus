@@ -480,7 +480,7 @@ body, .bigOverlay
     opacity 1
 
 .menu .item.render:hover, .menu .item > button.render:hover
-    opacity 0.8
+    opacity 0.5
     transition opacity 0.25s ease
 
 @media (max-width 1024px)

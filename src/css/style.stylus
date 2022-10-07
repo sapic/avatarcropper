@@ -356,18 +356,6 @@ body, .bigOverlay
     background: #1d2129
     border-radius: 0 20px 20px 0
 
-.renderShadow
-    height: 45px
-    width: 246px
-    margin 0 auto 10px 0
-    position relative
-    background linear-gradient(45deg, #f2ff00 0%, #9a8d13 100%)
-    filter blur(12px)
-    animation gradient 3s ease infinite
-    background-size 200% 100%
-    animation-direction alternate
-    z-index -1
-
 .cropView
     user-select none
     position absolute
@@ -487,15 +475,12 @@ body, .bigOverlay
     padding 0
 
 .menu .item.render, .menu .item > button.render
-    background linear-gradient(45deg, #F2FF00 0%, #9A8D13 100%)
-    animation gradient 3s ease infinite
-    background-size 200% 100%
-    animation-direction alternate
+    background linear-gradient(45deg, #BAAC31 0%, #8B870C 100%)
     color #fff
-    opacity 0.8
+    opacity 1
 
 .menu .item.render:hover, .menu .item > button.render:hover
-    opacity 1
+    opacity 0.8
     transition opacity 0.25s ease
 
 @media (max-width 1024px)

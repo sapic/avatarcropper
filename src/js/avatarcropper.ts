@@ -169,9 +169,6 @@ export class AvatarCropper extends Widget {
         render.addEventListener('click', this.renderCroppedImage.bind(this))
         this.menu.appendChild(render)
 
-        let rendershadow = createElement('div', 'renderShadow show')
-        this.menu.appendChild(rendershadow)
-
         let openFile = <HTMLInputElement>(
             createElement('input', 'openInput show')
         )

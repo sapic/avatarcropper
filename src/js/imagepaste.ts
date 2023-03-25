@@ -13,9 +13,11 @@ export class ImagePasted extends EventClass {
 
         document.onpaste = function (e) {
 
-            var files = (e.clipboardData).files; // Check to see if there are files in the clipboard data
+            var files: FileList = (e.clipboardData).files; // Check to see if there are files in the clipboard data
 
-            if (files) { // If there are files, emit the first file
+            if (files) { // If there are files, paste the first file.
+                let file: File = files[0];
+                if (!file?.type.includes("image")) return; // If it's not an image, return.
                 imgpasted.emitEvent("imagepasted", files[0])
             }
 

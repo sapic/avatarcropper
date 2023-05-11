@@ -13,12 +13,11 @@ export class ImagePasted extends EventClass {
         try {
 
             let fetched_link = await fetch(link, {
-                mode: 'no-cors',
                 headers: {
                     'Access-Control-Allow-Origin':'*'
                 }
             }
-            ).catch(e => {}) // Fetch the link, if it hits an error, leave it be. Don't think I need to send an alert, right?
+            ).catch(e => {}) // Fetch the link, if it hits an error, leave it be. Probably a CORS error. Should probably send an alert too.
 
             if (!fetched_link) return; // If we don't get a result, return.
 

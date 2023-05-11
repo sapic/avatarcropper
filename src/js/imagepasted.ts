@@ -11,10 +11,20 @@ export class ImagePasted extends EventClass {
         if (!link.match(link_to_a_file_regex)) return // If it's not a link to a file, return.
 
         try {
-            let fetched_link = await fetch(link).catch(e => {}) // Fetch the link, if it hits an error it's probably a CORS error.
+
+            let fetched_link = await fetch(link, {
+                mode: 'no-cors',
+                headers: {
+                    'Access-Control-Allow-Origin':'*'
+                }
+            }
+            ).catch(e => {}) // Fetch the link, if it hits an error, leave it be. Don't think I need to send an alert, right?
+
             if (!fetched_link) return; // If we don't get a result, return.
+
             let blobbed_link = await fetched_link.blob(); // Try converting it to a blob.
             if (!blobbed_link.type.includes("image")) return; // If it's not an image, return.
+            
             callback( new File([blobbed_link], 'avatarcropper.png', {type: "image/png"}) ) // Convert that blob to a png file and use the callback function.
         }
         catch (e) { console.log(e) }

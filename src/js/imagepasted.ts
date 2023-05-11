@@ -12,12 +12,7 @@ export class ImagePasted extends EventClass {
 
         try {
 
-            let fetched_link = await fetch(link, {
-                headers: {
-                    'Access-Control-Allow-Origin':'*'
-                }
-            }
-            ).catch(e => {}) // Fetch the link, if it hits an error, leave it be. Probably a CORS error. Should probably send an alert too.
+            let fetched_link = await fetch(link).catch(e => {}) // Fetch the link, if it hits an error, leave it be. Probably a CORS error. Should probably send an alert too.
 
             if (!fetched_link) return; // If we don't get a result, return.
 
@@ -58,6 +53,7 @@ export class ImagePasted extends EventClass {
             }
             
             if (link) { // If there's text in the clipboard
+
                 ( async () =>
                     await imgpasted.fetch_image_from_link( link, file => { // Assuming the text is a link, try to fetch the link
                         if (file) { // If we get back a valid image file, paste the file.

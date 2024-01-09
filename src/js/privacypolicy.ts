@@ -3,7 +3,7 @@ export let PRIVACYPOLICY =
 \n\
 my awesome Privacy Policy\n\
 \n\
-This Privacy Policy describes how your personal information is collected, used, and shared when you visit https://songsing.github.io/avatarcropper/ (the “Site”).\n\
+This Privacy Policy describes how your personal information is collected, used, and shared when you visit https://avatarcropper.com/ (the “Site”).\n\
 \n\
 PERSONAL INFORMATION WE COLLECT\n\
 \n\

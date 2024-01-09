@@ -14,6 +14,7 @@ import { doFooterThings, showTutorial } from './footer'
 import { GlobalEvents } from './eventclass'
 import { TextDialog } from './textdialog'
 import { DragDrop } from './dragdrop'
+import { ImagePasted } from './imagepasted'
 import { Point } from './point'
 import { KeyManager } from './keymanager'
 import { Border, GradientInfo } from './borders'
@@ -117,6 +118,7 @@ export class AvatarCropper extends Widget {
         this.textOverlay.setAttribute('for', 'openInput')
 
         let dragDrop = new DragDrop(this.textOverlay)
+
         dragDrop.on('drop', file => {
             this.openFile(file)
         })
@@ -125,6 +127,12 @@ export class AvatarCropper extends Widget {
                 showElement(this.textOverlay)
             }
         })
+
+        let imagePaste = new ImagePasted(this.textOverlay)
+        
+        imagePaste.on('imagepasted', file => {
+            this.openFile(file)
+        })        
 
         document.body.appendChild(this.textOverlay)
 

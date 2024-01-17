@@ -12,7 +12,7 @@ export class ImagePasted extends EventClass {
 
         try {
 
-            let fetched_link = await fetch(link).catch(e => {  console.log(`Could not fetch image from ${link} due to an error!\n` + e)  }) // Fetch the link, if it hits an error, just log it in console. An alert dialog would be ideal.
+            let fetched_link = await fetch(link).catch(e => {  console.log(`Failed to fetch from ${link}!`)  }) // Fetch the link, if it hits an error, just log it in console. An alert dialog would be ideal.
 
             if (!fetched_link) return; // If we don't get a result, return.
 

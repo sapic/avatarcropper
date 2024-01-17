@@ -7,12 +7,12 @@ export class ImagePasted extends EventClass {
 
     private async fetch_image_from_link(link: string, callback: Function) {
 
-        let link_to_a_file_regex = /\b(https?:\/\/\S+\/\S+\.[^\/]+)\b/i; // Matches a URL that points to a file. For example, http://test.com/a/b.png but not http://test.com/ or https://zero.two/darling/
-        if (!link.match(link_to_a_file_regex)) return // If it's not a link to a file, return.
+        let link_to_a_file_regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/; // Matches any URL.
+        if (!link.match(link_to_a_file_regex)) return // If it's not a link, return.
 
         try {
 
-            let fetched_link = await fetch(link).catch(e => {  console.log(`Could not fetch image from ${fetched_link} due to an error!\n` + e)  }) // Fetch the link, if it hits an error, leave it be. Probably a CORS error.
+            let fetched_link = await fetch(link).catch(e => {  console.log(`Could not fetch image from ${link} due to an error!\n` + e)  }) // Fetch the link, if it hits an error, just log it in console. An alert dialog would be ideal.
 
             if (!fetched_link) return; // If we don't get a result, return.
 

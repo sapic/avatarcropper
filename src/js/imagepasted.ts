@@ -7,8 +7,8 @@ export class ImagePasted extends EventClass {
 
     private async fetch_image_from_link(link: string, callback: Function) {
 
-        let link_to_a_file_regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/; // Matches any URL.
-        if (!link.match(link_to_a_file_regex)) return // If it's not a link, return.
+        let link_regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/; // Matches any URL.
+        if (!link.match(link_regex)) return // If it's not a link, return.
 
         try {
 

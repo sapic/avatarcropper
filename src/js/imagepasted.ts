@@ -12,14 +12,14 @@ export class ImagePasted extends EventClass {
 
         try {
 
-            let fetched_link = await fetch(link).catch(e => {}) // Fetch the link, if it hits an error, leave it be. Probably a CORS error. Should probably send an alert too.
+            let fetched_link = await fetch(link).catch(e => {  console.log(`Could not fetch image from ${fetched_link} due to an error!\n` + e)  }) // Fetch the link, if it hits an error, leave it be. Probably a CORS error.
 
             if (!fetched_link) return; // If we don't get a result, return.
 
             let blobbed_link = await fetched_link.blob(); // Try converting it to a blob.
             if (!blobbed_link.type.includes("image")) return; // If it's not an image, return.
             
-            callback( new File([blobbed_link], 'avatarcropper.png', {type: "image/png"}) ) // Convert that blob to a png file and use the callback function.
+            callback( new File([blobbed_link], `avatarcropper.${blobbed_link.type.substring(6)}`, {type: blobbed_link.type}) ) // Convert that blob to a file of it's type and use the callback function.
         }
         catch (e) { console.log(e) }
     }
